@@ -4,9 +4,10 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  studentId: { type: String, unique: true, sparse: true },
+  srn: { type: String, unique: true, sparse: true },
   department: { type: String },
-  role: { type: String, enum: ['student', 'staff', 'admin'], default: 'student' }
+  role: { type: String, enum: ['student', 'staff', 'admin'], default: 'student' },
+  mustChangePassword: { type: Boolean, default: true }
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
