@@ -27,4 +27,15 @@ const protect = async (req, res, next) => {
   }
 };
 
-module.exports = { protect };
+// backend/middleware/authMiddleware.js mein hi add karo, protect ke neeche
+
+const authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ success: false, message: 'You do not have permission to perform this action' });
+    }
+    next();
+  };
+};
+
+module.exports = { protect, authorize };

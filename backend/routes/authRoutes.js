@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 const { User } = require('../models');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, authorize} = require('../middleware/authMiddleware');
 
 router.post('/login', async (req, res) => {
   try {
@@ -42,6 +42,10 @@ router.get('/me', protect, (req, res) => {
     success: true,
     user: { id: req.user._id, name: req.user.name, email: req.user.email, role: req.user.role }
   });
+});
+
+router.get('/admin-only', protect, authorize('admin'), (req, res) => {
+  res.json({ success: true, message: 'Welcome admin!' });
 });
 
 module.exports = router;
