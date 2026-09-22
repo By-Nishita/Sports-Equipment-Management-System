@@ -30,7 +30,11 @@ const equipmentSchema = new mongoose.Schema(
             type: String,
             enum: ["Good", "Needs Repair", "Damaged"],
             default: "Good"
-        }
+        },
+        qrCode: {
+    type: String,
+    required: true
+}
     },
     {
         timestamps: true
