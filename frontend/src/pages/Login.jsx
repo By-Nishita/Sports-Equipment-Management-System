@@ -23,11 +23,7 @@ function Login() {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
 
-      if (response.data.user.mustChangePassword) {
-             navigate('/change-password');
-      } else {
-       navigate('/dashboard'); // login successful, dashboard pe le jao
-           } 
+     navigate('/dashboard');
 
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please try again.');

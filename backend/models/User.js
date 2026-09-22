@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
   srn: { type: String, unique: true, sparse: true },
   department: { type: String },
   role: { type: String, enum: ['student', 'staff', 'admin'], default: 'student' },
-  mustChangePassword: { type: Boolean, default: true }
+  mustChangePassword: { type: Boolean, default: false }
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
