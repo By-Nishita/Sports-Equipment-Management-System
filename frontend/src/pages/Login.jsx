@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
+import './Login.css';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -22,7 +23,11 @@ function Login() {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
 
-      navigate('/dashboard'); // login successful, dashboard pe le jao
+      if (response.data.user.mustChangePassword) {
+             navigate('/change-password');
+      } else {
+       navigate('/dashboard'); // login successful, dashboard pe le jao
+           } 
 
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please try again.');
@@ -31,33 +36,35 @@ function Login() {
     }
   };
 
-  return (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        <button type="submit" disabled={loading}>
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
-      </form>
+    return (
+    <div className="login-container">
+      <div className="login-card">
+        <h2>Login</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          {error && <p className="error-text">{error}</p>}
+          <button type="submit" className="login-button" disabled={loading}>
+            {loading ? 'Logging in...' : 'Login'}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

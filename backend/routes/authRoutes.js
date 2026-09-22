@@ -40,9 +40,30 @@ router.post('/login', async (req, res) => {
 router.get('/me', protect, (req, res) => {
   res.json({
     success: true,
-    user: { id: req.user._id, name: req.user.name, email: req.user.email, role: req.user.role }
+    user: { id: req.user._id, name: req.user.name, email: req.user.email, role: req.user.role, mustChangePassword: req.user.mustChangePassword }
   });
 });
 
+router.post('/change-password', protect, async (req, res) => {
+  try {
+    const { newPassword } = req.body;
+
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    req.user.password = hashedPassword;
+    req.user.mustChangePassword = false;
+    await req.user.save();
+
+    res.json({ success: true, message: 'Password updated successfully' });
+
+  } catch (err) {
+    console.error('CHANGE PASSWORD ERROR:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
 
 module.exports = router;
