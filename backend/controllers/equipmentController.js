@@ -3,24 +3,37 @@ const QRCode = require("qrcode");
 
 const createEquipment = async (req, res) => {
     try {
-        const { name, category, quantity, availableQuantity, condition } = req.body;
-
-        const equipment = new Equipment({
+        const {
+            equipmentId,
             name,
             category,
-            quantity,
-            availableQuantity,
+            brand,
+            purchaseDate,
+            price,
+            location,
+            status,
             condition
-        });
+        } = req.body;
 
         const qrData = JSON.stringify({
-            equipmentId: equipment._id,
-            name: equipment.name
+            equipmentId,
+            name
         });
 
         const qrCode = await QRCode.toDataURL(qrData);
 
-        equipment.qrCode = qrCode;
+        const equipment = new Equipment({
+            equipmentId,
+            name,
+            category,
+            brand,
+            purchaseDate,
+            price,
+            location,
+            status,
+            condition,
+            qrIdentifier: qrCode
+        });
 
         await equipment.save();
 
@@ -29,6 +42,7 @@ const createEquipment = async (req, res) => {
             message: "Equipment created successfully",
             equipment
         });
+
     } catch (error) {
         res.status(500).json({
             success: false,
@@ -45,6 +59,7 @@ const getEquipment = async (req, res) => {
             success: true,
             equipment
         });
+
     } catch (error) {
         res.status(500).json({
             success: false,

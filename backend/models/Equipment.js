@@ -2,6 +2,12 @@ const mongoose = require("mongoose");
 
 const equipmentSchema = new mongoose.Schema(
     {
+        equipmentId: {
+            type: String,
+            required: true,
+            unique: true
+        },
+
         name: {
             type: String,
             required: true,
@@ -14,27 +20,50 @@ const equipmentSchema = new mongoose.Schema(
             trim: true
         },
 
-        quantity: {
-            type: Number,
-            required: true,
-            min: 0
+        brand: {
+            type: String
         },
 
-        availableQuantity: {
-            type: Number,
-            required: true,
-            min: 0
+        purchaseDate: {
+            type: Date
+        },
+
+        price: {
+            type: Number
+        },
+
+        location: {
+            type: String
+        },
+
+        status: {
+            type: String,
+            enum: [
+                "AVAILABLE",
+                "IN_USE",
+                "DAMAGED",
+                "MAINTENANCE",
+                "LOST",
+                "RETIRED"
+            ],
+            default: "AVAILABLE"
         },
 
         condition: {
             type: String,
-            enum: ["Good", "Needs Repair", "Damaged"],
-            default: "Good"
+            enum: [
+                "EXCELLENT",
+                "GOOD",
+                "FAIR",
+                "DAMAGED"
+            ],
+            default: "GOOD"
         },
-        qrCode: {
-    type: String,
-    required: true
-}
+
+        qrIdentifier: {
+            type: String,
+            unique: true
+        }
     },
     {
         timestamps: true
