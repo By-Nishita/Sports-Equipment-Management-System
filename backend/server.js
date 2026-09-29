@@ -4,7 +4,7 @@ const cors = require("cors");
 const authRoutes = require('./routes/authRoutes');
 const connectDB = require("./config/db");
 const equipmentRoutes = require("./routes/equipmentRoutes");
-
+const sessionRoutes = require("./routes/sessionRoutes");
 
 dotenv.config();
 
@@ -14,6 +14,7 @@ app.use(cors());
 app.use(express.json());
 app.use("/api/equipment", equipmentRoutes);
 app.use('/api/auth', authRoutes);
+app.use("/api/sessions", sessionRoutes);
 
 connectDB();
 
@@ -29,3 +30,8 @@ const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+
+
+
+

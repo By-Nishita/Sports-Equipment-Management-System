@@ -47,6 +47,9 @@ function Dashboard() {
       <h2>Welcome, {user?.name}!</h2>
       <p>Role: {user?.role}</p>
       <button onClick={handleLogout}>Logout</button>
+      <button onClick={() => navigate('/scan')} style={{ marginLeft: '10px' }}>
+  Scan QR (Issue / Return)
+</button>
 
       {/* Sirf admin/staff ko ye button dikhega */}
       {isAdmin && (

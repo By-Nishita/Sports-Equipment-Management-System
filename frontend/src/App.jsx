@@ -3,6 +3,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import ChangePassword from './pages/ChangePassword';
 import ProtectedRoute from './components/ProtectedRoute';
+import Scan from './pages/Scan';
 
 function App() {
   return (
@@ -26,6 +27,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+  path="/scan"
+  element={
+    <ProtectedRoute>
+      <Scan />
+    </ProtectedRoute>
+  }
+/>
       </Routes>
     </BrowserRouter>
   );
