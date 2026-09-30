@@ -1,29 +1,45 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const fs = require('fs');
+const path = require('path');
 const { User } = require('../models');
 
-const students = [
-  { name: 'Test Student One', srn: '31241190', department: 'CS' },
-  { name: 'Test Student Two', srn: '31241191', department: 'CS' }
-];
+// students.json ko backend/scripts/ folder mein rakho
+const students = JSON.parse(
+  fs.readFileSync(path.join(__dirname, 'students.json'), 'utf-8')
+);
 
 async function seed() {
   await mongoose.connect(process.env.MONGO_URI);
   console.log('Connected to MongoDB for seeding...');
 
+  let count = 0;
   for (const s of students) {
-    const email = `${s.srn}@vupune.ac.in`;
     const hashedPassword = await bcrypt.hash(String(s.srn), 10);
 
     await User.updateOne(
       { srn: s.srn },
-      { $setOnInsert: { name: s.name, email, password: hashedPassword, srn: s.srn, department: s.department, role: 'student' } },
+      {
+        $setOnInsert: {
+          name: s.name,
+          email: s.email,
+          password: hashedPassword,
+          srn: s.srn,
+          department: s.department,
+          program: s.program,
+          division: s.division,
+          year: s.year,
+          role: 'student',
+          mustChangePassword: true
+        }
+      },
       { upsert: true }
     );
+    count++;
   }
 
-  console.log(`${students.length} students seeded successfully`);
+  console.log(`${count} students seeded successfully`);
   await mongoose.disconnect();
 }
 

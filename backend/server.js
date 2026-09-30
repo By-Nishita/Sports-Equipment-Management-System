@@ -1,4 +1,3 @@
-
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
@@ -6,6 +5,7 @@ const authRoutes = require("./routes/authRoutes");
 const connectDB = require("./config/db");
 const equipmentRoutes = require("./routes/equipmentRoutes");
 const reservationRoutes = require("./routes/reservationRoutes");
+const sessionRoutes = require("./routes/sessionRoutes");
 
 dotenv.config();
 
@@ -17,6 +17,7 @@ app.use(express.json());
 app.use("/api/equipment", equipmentRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/reservations", reservationRoutes);
+app.use("/api/sessions", sessionRoutes);
 
 connectDB();
 
