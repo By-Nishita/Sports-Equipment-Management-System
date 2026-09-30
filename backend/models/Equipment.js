@@ -20,6 +20,18 @@ const equipmentSchema = new mongoose.Schema(
             trim: true
         },
 
+                quantity: {
+            type: Number,
+            required: true,
+            min: 0
+        },
+
+        availableQuantity: {
+            type: Number,
+            required: true,
+            min: 0
+        },
+
         brand: {
             type: String
         },
