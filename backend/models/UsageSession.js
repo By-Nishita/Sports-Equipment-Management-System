@@ -2,19 +2,67 @@ const mongoose = require("mongoose");
 
 const usageSessionSchema = new mongoose.Schema(
   {
-    equipment: { type: mongoose.Schema.Types.ObjectId, ref: "Equipment", required: true },
-    user:      { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    equipment: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Equipment",
+      required: true
+    },
 
-    issuedAt:   { type: Date, default: Date.now },
-    dueAt:      { type: Date, required: true },
-    returnedAt: { type: Date, default: null },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true
+    },
 
-    durationMinutes: { type: Number, default: null },
-    returnCondition: { type: String, enum: ["EXCELLENT", "GOOD", "FAIR", "DAMAGED"] },
+    issuedAt: {
+      type: Date,
+      default: Date.now
+    },
 
-    status: { type: String, enum: ["ACTIVE", "RETURNED"], default: "ACTIVE" }
+    dueAt: {
+      type: Date,
+      required: true
+    },
+
+    returnedAt: {
+      type: Date,
+      default: null
+    },
+
+    durationMinutes: {
+      type: Number,
+      default: null
+    },
+
+    returnCondition: {
+      type: String,
+      enum: ["EXCELLENT", "GOOD", "FAIR", "DAMAGED"]
+    },
+
+    status: {
+      type: String,
+      enum: ["ACTIVE", "RETURNED"],
+      default: "ACTIVE"
+    },
+
+    // Reservation used to issue this equipment
+    reservation: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Reservation",
+      default: null
+    },
+
+    // How the equipment was issued
+    issuedVia: {
+      type: String,
+      enum: ["RESERVATION", "DIRECT"],
+      default: "DIRECT"
+    }
   },
-  { timestamps: true, toJSON: { virtuals: true } }
+  {
+    timestamps: true,
+    toJSON: { virtuals: true }
+  }
 );
 
 usageSessionSchema.virtual("isOverdue").get(function () {
@@ -23,7 +71,10 @@ usageSessionSchema.virtual("isOverdue").get(function () {
 
 usageSessionSchema.index(
   { equipment: 1 },
-  { unique: true, partialFilterExpression: { status: "ACTIVE" } }
+  {
+    unique: true,
+    partialFilterExpression: { status: "ACTIVE" }
+  }
 );
 
 module.exports = mongoose.model("UsageSession", usageSessionSchema);
