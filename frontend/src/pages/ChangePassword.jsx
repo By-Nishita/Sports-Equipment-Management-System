@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import './Login.css';
+import AuthLayout from '../components/AuthLayout';
 
 function ChangePassword() {
   const [newPassword, setNewPassword] = useState('');
@@ -34,7 +34,6 @@ function ChangePassword() {
       localStorage.setItem('user', JSON.stringify(user));
 
       navigate('/dashboard');
-
     } catch (err) {
       setError(err.response?.data?.message || 'Something went wrong');
     } finally {
@@ -43,40 +42,40 @@ function ChangePassword() {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <h2>Change Your Password</h2>
-        <p style={{ textAlign: 'center', color: '#666', marginBottom: '1rem', fontSize: '0.9rem' }}>
-          Please set a new password to continue
-        </p>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>New Password</label>
-            <input
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              required
-              minLength={6}
-            />
-          </div>
-          <div className="form-group">
-            <label>Confirm Password</label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              minLength={6}
-            />
-          </div>
-          {error && <p className="error-text">{error}</p>}
-          <button type="submit" className="login-button" disabled={loading}>
-            {loading ? 'Updating...' : 'Update Password'}
-          </button>
-        </form>
-      </div>
-    </div>
+    <AuthLayout title="Set a new password" subtitle="Choose a password of at least 6 characters to continue.">
+      <form onSubmit={handleSubmit}>
+        <label className="field">
+          <span>New password</span>
+          <input
+            type="password"
+            autoComplete="new-password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            required
+            minLength={6}
+          />
+        </label>
+        <label className="field">
+          <span>Confirm password</span>
+          <input
+            type="password"
+            autoComplete="new-password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            minLength={6}
+          />
+        </label>
+        {error && (
+          <p className="notice notice-error" role="alert">
+            {error}
+          </p>
+        )}
+        <button type="submit" className="btn-block" disabled={loading}>
+          {loading ? 'Saving...' : 'Save password'}
+        </button>
+      </form>
+    </AuthLayout>
   );
 }
 

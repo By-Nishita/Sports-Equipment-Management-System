@@ -1,111 +1,231 @@
+/* =========================================================
+   Global theme: sports room register
+   Ek hi jagah rang, font, buttons, inputs. Saare pages yahi use karte hain.
+   Bare tags (button, input, select, h2) bhi styled hain, isliye jis page
+   mein abhi inline styles hain (jaise Dashboard) wo bhi apne aap sudhrega.
+   ========================================================= */
+
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  --ink: #12201b;          /* text */
+  --ink-soft: #55645d;     /* secondary text */
+  --turf: #0f6b4f;         /* primary action */
+  --turf-dark: #0a5039;
+  --turf-tint: #e3f1ea;
+  --whistle: #f2b705;      /* sparing highlight */
+  --chalk: #f3f5f2;        /* page background */
+  --paper: #ffffff;        /* cards */
+  --line: #d9dfda;
+  --danger: #b3261e;
+  --danger-tint: #fbe9e7;
+  --ok-tint: #e3f1ea;
+  --warn-tint: #fff4d1;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 1px 2px rgba(18, 32, 27, 0.06), 0 4px 14px rgba(18, 32, 27, 0.05);
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+  --sans: 'Barlow', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --display: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+
+  font: 16px/1.5 var(--sans);
+  color: var(--ink);
+  background: var(--chalk);
+  color-scheme: light;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
+  text-rendering: optimizeLegibility;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
+  min-height: 100vh;
+  background: var(--chalk);
+  color: var(--ink);
 }
 
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
+  min-height: 100vh;
 }
 
+/* ---------- Headings ---------- */
 h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+h2,
+h3 {
+  font-family: var(--display);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  margin: 0 0 0.5rem;
 }
+h1 { font-size: 2.4rem; }
+h2 { font-size: 1.9rem; }
+h3 { font-size: 1.35rem; }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
-  margin: 0;
-}
+p { margin: 0 0 0.5rem; }
 
-code,
-.counter {
-  font-family: var(--mono);
+a { color: var(--turf); }
+
+/* ---------- Buttons ----------
+   :where() = specificity zero, to koi bhi .btn-* class isse upar jeet jaati hai */
+:where(button) {
+  font: inherit;
+  font-weight: 600;
   display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 40px;
+  padding: 0.45rem 1rem;
+  border: 1px solid var(--turf);
+  border-radius: var(--radius-sm);
+  background: var(--turf);
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+:where(button:hover:not(:disabled)) {
+  background: var(--turf-dark);
+  border-color: var(--turf-dark);
+}
+:where(button:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+.btn-secondary {
+  background: var(--paper);
+  color: var(--ink);
+  border-color: var(--line);
+}
+.btn-secondary:hover:not(:disabled) {
+  background: var(--turf-tint);
+  border-color: var(--turf);
+  color: var(--ink);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-soft);
+  border-color: transparent;
+}
+.btn-ghost:hover:not(:disabled) {
+  background: var(--turf-tint);
+  color: var(--ink);
+  border-color: transparent;
+}
+.btn-block { width: 100%; }
+
+/* ---------- Inputs ---------- */
+:where(input:not([type='checkbox']):not([type='radio']), select, textarea) {
+  font: inherit;
+  min-height: 42px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #b9c4bd;
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink);
+}
+:where(input, select, textarea)::placeholder {
+  color: #8a978f;
+}
+
+/* Keyboard focus hamesha dikhe */
+:where(button, a, input, select, textarea):focus-visible {
+  outline: 3px solid var(--whistle);
+  outline-offset: 2px;
+}
+
+/* ---------- Reusable pieces ---------- */
+.field {
+  display: block;
+  margin-bottom: 1rem;
+}
+.field > span {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.field > :where(input, select, textarea) {
+  width: 100%;
+}
+
+.card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: var(--shadow);
+}
+
+/* Success / error / warning message */
+.notice {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  border-left: 4px solid currentColor;
+  font-weight: 500;
+}
+.notice-ok { background: var(--ok-tint); color: #0a5039; }
+.notice-error { background: var(--danger-tint); color: var(--danger); }
+.notice-warn { background: var(--warn-tint); color: #7a5a00; }
+
+/* Status badge: item ki halat ek nazar mein */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: #eceff0;
+  color: var(--ink-soft);
+}
+.badge::before {
+  content: '';
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+.badge-available { background: var(--ok-tint); color: #0a5039; }
+.badge-in_use { background: #e4ecfb; color: #1f4aa8; }
+.badge-damaged,
+.badge-lost { background: var(--danger-tint); color: var(--danger); }
+.badge-maintenance { background: var(--warn-tint); color: #7a5a00; }
+.badge-retired { background: #eceff0; color: var(--ink-soft); }
+
+/* Top bar jo logged-in pages pe use hoga */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--turf);
+  color: #fff;
+}
+.topbar h1 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #fff;
+}
+.topbar .btn-ghost {
+  color: #fff;
+}
+.topbar .btn-ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
 }

@@ -1,0 +1,57 @@
+.scan-page {
+  min-height: 100vh;
+}
+.scan-body {
+  max-width: 440px;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 3rem;
+  display: grid;
+  gap: 1rem;
+}
+
+/* Issue / Return ka switch */
+.seg {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 4px;
+  background: #e4e9e5;
+  border-radius: var(--radius);
+}
+.seg button {
+  background: transparent;
+  color: var(--ink-soft);
+  border-color: transparent;
+  min-height: 44px;
+  font-size: 1.05rem;
+}
+.seg button:hover:not(:disabled) {
+  background: transparent;
+  border-color: transparent;
+  color: var(--ink);
+}
+.seg button.seg-on,
+.seg button.seg-on:hover:not(:disabled) {
+  background: var(--paper);
+  color: var(--turf-dark);
+  box-shadow: var(--shadow);
+}
+
+.scan-camera {
+  display: grid;
+  gap: 0.75rem;
+}
+.reader:empty {
+  display: none;
+}
+.reader {
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+}
+.scan-hint {
+  margin: 0;
+  color: var(--ink-soft);
+}
+.scan-manual .field {
+  margin-bottom: 0.75rem;
+}
