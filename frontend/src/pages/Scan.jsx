@@ -165,6 +165,16 @@ function Scan() {
           </button>
         </form>
 
+        <button
+          type="button"
+          className="btn-ghost btn-block"
+          onClick={() =>
+            navigate(manualId.trim() ? `/report-damage?id=${encodeURIComponent(manualId.trim())}` : '/report-damage')
+          }
+        >
+          Item broken or missing? Report it
+        </button>
+
         {result && (
           <p className={`notice ${result.ok ? 'notice-ok' : 'notice-error'}`} role="status">
             {result.text}

@@ -201,6 +201,34 @@ a { color: var(--turf); }
 .badge-maintenance { background: var(--warn-tint); color: #7a5a00; }
 .badge-retired { background: #eceff0; color: var(--ink-soft); }
 
+/* Do-vikalp ka switch (Issue/Return, Damaged/Lost) */
+.seg {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 4px;
+  background: #e4e9e5;
+  border-radius: var(--radius);
+}
+.seg button {
+  background: transparent;
+  color: var(--ink-soft);
+  border-color: transparent;
+  min-height: 44px;
+  font-size: 1.05rem;
+}
+.seg button:hover:not(:disabled) {
+  background: transparent;
+  border-color: transparent;
+  color: var(--ink);
+}
+.seg button.seg-on,
+.seg button.seg-on:hover:not(:disabled) {
+  background: var(--paper);
+  color: var(--turf-dark);
+  box-shadow: var(--shadow);
+}
+
+
 /* Top bar jo logged-in pages pe use hoga */
 .topbar {
   display: flex;
