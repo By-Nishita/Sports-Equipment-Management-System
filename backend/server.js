@@ -6,6 +6,7 @@ const connectDB = require("./config/db");
 const equipmentRoutes = require("./routes/equipmentRoutes");
 const sessionRoutes = require("./routes/sessionRoutes");
 const reservationRoutes = require("./routes/reservationRoutes");
+const damageReportRoutes = require("./routes/damageReportRoutes");
 
 dotenv.config();
 
@@ -16,8 +17,8 @@ app.use(express.json());
 app.use("/api/equipment", equipmentRoutes);
 app.use('/api/auth', authRoutes);
 app.use("/api/sessions", sessionRoutes);
-
 app.use("/api/reservations", reservationRoutes);
+app.use("/api/damage-reports", damageReportRoutes);
 
 connectDB();
 
