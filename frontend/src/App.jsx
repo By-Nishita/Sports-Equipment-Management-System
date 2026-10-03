@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import ChangePassword from './pages/ChangePassword';
 import ProtectedRoute from './components/ProtectedRoute';
 import Scan from './pages/Scan';
+import ReportDamage from './pages/ReportDamage';
 
 function App() {
   return (
@@ -35,6 +36,14 @@ function App() {
     </ProtectedRoute>
   }
 />
+        <Route
+          path="/report-damage"
+          element={
+            <ProtectedRoute>
+              <ReportDamage />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
