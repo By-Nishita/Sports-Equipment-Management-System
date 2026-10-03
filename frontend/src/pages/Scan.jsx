@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Html5Qrcode } from 'html5-qrcode';
 import { issueEquipment, returnEquipment } from '../api/sessions';
+import './Scan.css';
 
 // QR mein JSON hai {equipmentId, name}. Agar plain text hai to wahi ID maan lo.
 const extractId = (text) => {
@@ -83,7 +84,7 @@ function Scan() {
       setScanning(true);
     } catch {
       scannerRef.current = null;
-      setResult({ ok: false, text: 'Camera start nahi hua. Permission allow karo ya neeche ID type karo.' });
+      setResult({ ok: false, text: 'Could not start the camera. Allow camera permission, or type the ID below.' });
     }
   };
 
@@ -100,70 +101,76 @@ function Scan() {
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '420px', margin: '0 auto' }}>
-      <button onClick={() => navigate('/dashboard')}>&larr; Back</button>
-      <h2>Scan Equipment</h2>
-
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
-        <button
-          onClick={() => setMode('issue')}
-          style={{ fontWeight: mode === 'issue' ? 'bold' : 'normal' }}
-        >
-          Issue
+    <div className="scan-page">
+      <header className="topbar">
+        <button className="btn-ghost" onClick={() => navigate('/dashboard')} aria-label="Back to dashboard">
+          &larr; Back
         </button>
-        <button
-          onClick={() => setMode('return')}
-          style={{ fontWeight: mode === 'return' ? 'bold' : 'normal' }}
-        >
-          Return
-        </button>
-      </div>
+        <h1>Scan equipment</h1>
+      </header>
 
-      {mode === 'return' && (
-        <div style={{ marginBottom: '15px' }}>
-          <label>Condition: </label>
-          <select value={condition} onChange={(e) => setCondition(e.target.value)}>
-            <option value="EXCELLENT">Excellent</option>
-            <option value="GOOD">Good</option>
-            <option value="FAIR">Fair</option>
-            <option value="DAMAGED">Damaged</option>
-          </select>
+      <main className="scan-body">
+        <div className="seg" role="group" aria-label="Action">
+          <button
+            type="button"
+            className={mode === 'issue' ? 'seg-on' : ''}
+            aria-pressed={mode === 'issue'}
+            onClick={() => setMode('issue')}
+          >
+            Issue
+          </button>
+          <button
+            type="button"
+            className={mode === 'return' ? 'seg-on' : ''}
+            aria-pressed={mode === 'return'}
+            onClick={() => setMode('return')}
+          >
+            Return
+          </button>
         </div>
-      )}
 
-      <div id="reader" style={{ width: '100%' }}></div>
-
-      <div style={{ margin: '10px 0' }}>
-        {!scanning ? (
-          <button onClick={startScan}>Start Camera</button>
-        ) : (
-          <button onClick={stopScan}>Stop Camera</button>
+        {mode === 'return' && (
+          <label className="field">
+            <span>Condition of the item</span>
+            <select value={condition} onChange={(e) => setCondition(e.target.value)}>
+              <option value="EXCELLENT">Excellent</option>
+              <option value="GOOD">Good</option>
+              <option value="FAIR">Fair</option>
+              <option value="DAMAGED">Damaged</option>
+            </select>
+          </label>
         )}
-      </div>
 
-      <form onSubmit={handleManual} style={{ marginTop: '20px' }}>
-        <p>Ya ID haath se daalo:</p>
-        <input
-          placeholder="e.g. FB-001"
-          value={manualId}
-          onChange={(e) => setManualId(e.target.value)}
-        />
-        <button type="submit">{mode === 'issue' ? 'Issue' : 'Return'}</button>
-      </form>
+        <div className="card scan-camera">
+          <div id="reader" className={scanning ? 'reader reader-live' : 'reader'}></div>
+          {!scanning && <p className="scan-hint">Point the camera at the QR sticker on the item.</p>}
+          {!scanning ? (
+            <button className="btn-block" onClick={startScan}>Start camera</button>
+          ) : (
+            <button className="btn-secondary btn-block" onClick={stopScan}>Stop camera</button>
+          )}
+        </div>
 
-      {result && (
-        <p
-          style={{
-            marginTop: '20px',
-            padding: '10px',
-            borderRadius: '6px',
-            background: result.ok ? '#d4edda' : '#f8d7da',
-            color: result.ok ? '#155724' : '#721c24'
-          }}
-        >
-          {result.text}
-        </p>
-      )}
+        <form onSubmit={handleManual} className="card scan-manual">
+          <label className="field">
+            <span>No camera? Type the equipment ID</span>
+            <input
+              placeholder="e.g. FB-001"
+              value={manualId}
+              onChange={(e) => setManualId(e.target.value)}
+            />
+          </label>
+          <button type="submit" className="btn-block" disabled={!manualId.trim()}>
+            {mode === 'issue' ? 'Issue item' : 'Return item'}
+          </button>
+        </form>
+
+        {result && (
+          <p className={`notice ${result.ok ? 'notice-ok' : 'notice-error'}`} role="status">
+            {result.text}
+          </p>
+        )}
+      </main>
     </div>
   );
 }
