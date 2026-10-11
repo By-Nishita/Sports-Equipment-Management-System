@@ -38,7 +38,18 @@ const usageSessionSchema = new mongoose.Schema(
       type: String,
       enum: ["EXCELLENT", "GOOD", "FAIR", "DAMAGED"]
     },
-
+     conditionBefore: {
+      type: String,
+      enum: ["EXCELLENT", "GOOD", "FAIR", "DAMAGED"]
+    },
+    wasLate: {
+      type: Boolean,
+      default: false
+    },
+    lateMinutes: {
+      type: Number,
+      default: 0
+    },
     status: {
       type: String,
       enum: ["ACTIVE", "RETURNED"],

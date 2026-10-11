@@ -242,6 +242,12 @@ const returnEquipment = async (req, res) => {
       (returnedAt - session.issuedAt) / 60000
     );
 
+    const lateMs = returnedAt - session.dueAt;
+    const lateMinutes = lateMs > 0 ? Math.ceil(lateMs / 60000) : 0;
+    const wasLate = lateMinutes > 0;
+
+    const conditionBefore = equipment.condition;
+    
     // Check ACTIVE again so double return does not happen
     const updatedSession = await UsageSession.findOneAndUpdate(
       {
@@ -252,7 +258,10 @@ const returnEquipment = async (req, res) => {
         status: "RETURNED",
         returnedAt,
         durationMinutes,
-        returnCondition: condition
+        returnCondition: condition,
+        conditionBefore,
+        wasLate,
+        lateMinutes
       },
       {
         new: true
