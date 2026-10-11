@@ -1,0 +1,288 @@
+/* AppShell: sidebar + top bar. Rang index.css ke tokens se aate hain (--turf, --paper, --line...).
+   Naya rang yahan nahi banaya, isliye theme wahi hai. */
+
+.shell {
+  display: grid;
+  grid-template-columns: 252px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+/* ---------- Sidebar ---------- */
+.shell-side {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.1rem 0.9rem;
+  background: var(--paper);
+  border-right: 1px solid var(--line);
+  overflow-y: auto;
+}
+
+.shell-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0 0.35rem;
+}
+.shell-logo {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  background: var(--turf);
+  color: #fff;
+}
+.shell-logo svg {
+  width: 24px;
+  height: 24px;
+}
+.shell-brand-name {
+  font-family: var(--display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+.shell-nav {
+  display: grid;
+  gap: 1.25rem;
+  flex: 1;
+  align-content: start;
+}
+.shell-group {
+  display: grid;
+  gap: 0.2rem;
+}
+.shell-heading {
+  margin: 0 0 0.25rem;
+  padding: 0 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* Ek menu line. <a>, <button> aur <span> teeno ek jaise dikhte hain */
+.shell-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.7rem;
+  width: 100%;
+  min-height: 42px;
+  padding: 0.5rem 0.7rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 500;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.shell-item:hover {
+  background: var(--turf-tint);
+  color: var(--ink);
+}
+.shell-item-on,
+.shell-item-on:hover {
+  background: var(--turf);
+  color: #fff;
+}
+.shell-item-soon,
+.shell-item-soon:hover {
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: default;
+}
+.shell-item small {
+  margin-left: auto;
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  background: #eceff0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Neeche ka profile hissa */
+.shell-me {
+  display: grid;
+  gap: 0.2rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
+}
+.shell-me-head {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.25rem 0.5rem 0.6rem;
+}
+.shell-me-text,
+.shell-user-text {
+  display: grid;
+  min-width: 0;
+  line-height: 1.25;
+}
+.shell-me-text strong,
+.shell-user-text strong {
+  font-size: 0.92rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.shell-me-text small,
+.shell-user-text small {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.shell-logout:hover {
+  background: var(--danger-tint);
+  color: var(--danger);
+}
+
+.shell-avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--turf-tint);
+  color: var(--turf-dark);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+/* ---------- Top bar ---------- */
+.shell-main {
+  min-width: 0;
+}
+.shell-top {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 60px;
+  padding: 0.5rem 1.5rem;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+.shell-crumb {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+.shell-crumb strong {
+  color: var(--ink);
+}
+.shell-user {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-left: auto;
+  min-width: 0;
+}
+.shell-user-text {
+  max-width: 180px;
+}
+
+.shell-burger {
+  display: none;
+  min-height: 40px;
+  padding: 0.4rem 0.6rem;
+  background: transparent;
+  border-color: var(--line);
+  color: var(--ink);
+}
+.shell-burger:hover:not(:disabled) {
+  background: var(--turf-tint);
+  border-color: var(--turf);
+}
+
+.shell-content {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 1.75rem 1.5rem 3rem;
+}
+
+.shell-scrim {
+  display: none;
+}
+
+/* ---------- Phone / chhoti screen: sidebar side se khulta hai ---------- */
+@media (max-width: 900px) {
+  .shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .shell-side {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 20;
+    width: min(280px, 85vw);
+    transform: translateX(-100%);
+    transition: transform 0.2s;
+    box-shadow: var(--shadow);
+  }
+  .shell-side-open {
+    transform: none;
+  }
+  .shell-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 15;
+    background: rgba(18, 32, 27, 0.4);
+  }
+  .shell-burger {
+    display: inline-flex;
+  }
+  .shell-user-text {
+    display: none;
+  }
+  .shell-top {
+    padding-inline: 1rem;
+  }
+  .shell-content {
+    padding-inline: 1rem;
+  }
+}
+
+/* ---------- Har page ka upar ka heading hissa (Scan ko chhodkar sab use karte hain) ---------- */
+.page-head {
+  margin-bottom: 1.25rem;
+}
+.page-eyebrow {
+  margin: 0 0 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.page-head h1 {
+  margin: 0 0 0.25rem;
+}
+.page-sub {
+  margin: 0;
+  color: var(--ink-soft);
+}
+/* Chhote form wale pages (Change password) */
+.page-narrow {
+  max-width: 440px;
+}

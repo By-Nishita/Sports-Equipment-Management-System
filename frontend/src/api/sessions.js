@@ -5,3 +5,6 @@ export const issueEquipment = (equipmentId) =>
 
 export const returnEquipment = (equipmentId, condition) =>
   api.post('/sessions/return', { equipmentId, condition });
+
+// Logged-in user ke apne sessions (naye pehle)
+export const getMySessions = () => api.get('/sessions/my');

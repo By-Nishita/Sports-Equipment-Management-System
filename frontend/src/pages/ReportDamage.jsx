@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { createDamageReport, getMyDamageReports } from '../api/damageReports';
 import DamageReportRow from '../components/DamageReportRow';
 import './ReportDamage.css';
@@ -7,7 +7,6 @@ import './ReportDamage.css';
 const MIN_DESCRIPTION = 5; // backend bhi yahi maangta hai
 
 function ReportDamage() {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   // Scan page se aaye to item ID pehle se bhari hui aati hai (?id=FB-001)
@@ -66,14 +65,13 @@ function ReportDamage() {
 
   return (
     <div className="rd-page">
-      <header className="topbar">
-        <button className="btn-ghost" onClick={() => navigate('/dashboard')} aria-label="Back to dashboard">
-          &larr; Back
-        </button>
+      <div className="page-head">
+        <p className="page-eyebrow">Problems</p>
         <h1>Report damage</h1>
-      </header>
+        <p className="page-sub">Tell staff if an item is broken or lost. It stays out of use until they check it.</p>
+      </div>
 
-      <main className="rd-body">
+      <div className="rd-body">
         <form onSubmit={handleSubmit} className="card">
           <div className="seg" role="group" aria-label="What happened">
             <button
@@ -146,7 +144,7 @@ function ReportDamage() {
             </ul>
           )}
         </section>
-      </main>
+      </div>
     </div>
   );
 }

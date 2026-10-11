@@ -1,10 +1,5 @@
-.rd-page {
-  min-height: 100vh;
-}
 .rd-body {
-  max-width: 520px;
-  margin: 0 auto;
-  padding: 1.25rem 1rem 3rem;
+  max-width: 560px;
   display: grid;
   gap: 1.5rem;
 }
