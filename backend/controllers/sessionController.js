@@ -1,6 +1,10 @@
 const Equipment = require("../models/Equipment");
 const UsageSession = require("../models/UsageSession");
 const Reservation = require("../models/Reservation");
+const {
+  expireStaleReservations,
+  findStartedActiveReservation
+} = require("../services/reservationService");
 
 const DEFAULT_ISSUE_HOURS = 2;
 
@@ -17,18 +21,8 @@ const issueEquipment = async (req, res) => {
 
     const now = new Date();
 
-    // Expire old reservations
-    await Reservation.updateMany(
-      {
-        status: "ACTIVE",
-        expiresAt: { $lte: now }
-      },
-      {
-        $set: {
-          status: "EXPIRED"
-        }
-      }
-    );
+    // Mark unclaimed reservations as NO_SHOW / EXPIRED
+    await expireStaleReservations({}, now);
 
     // Check whether equipment exists
     const existingEquipment = await Equipment.findOne({ equipmentId });
@@ -48,12 +42,12 @@ const issueEquipment = async (req, res) => {
       });
     }
 
-    // Check active reservation for this equipment
-    const activeReservation = await Reservation.findOne({
-      equipment: existingEquipment._id,
-      status: "ACTIVE",
-      expiresAt: { $gt: now }
-    });
+    // Reservation that applies right now (slot started, deadline not passed).
+    // A reservation for a later slot does not block issuing today.
+    const activeReservation = await findStartedActiveReservation(
+      existingEquipment._id,
+      now
+    );
 
     // If reserved by another student, reject
     if (
@@ -88,11 +82,10 @@ const issueEquipment = async (req, res) => {
     }
 
     // Check reservation again after claiming the equipment
-    const reservationAfterClaim = await Reservation.findOne({
-      equipment: equipment._id,
-      status: "ACTIVE",
-      expiresAt: { $gt: new Date() }
-    });
+    const reservationAfterClaim = await findStartedActiveReservation(
+      equipment._id,
+      new Date()
+    );
 
     // If another student reserved it during the process,
     // rollback the equipment status
