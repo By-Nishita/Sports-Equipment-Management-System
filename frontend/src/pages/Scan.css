@@ -1,30 +1,115 @@
-.scan-page {
-  min-height: 100vh;
+/* Scan page ka andar ka hissa. Sidebar/top bar AppShell.css mein hai. */
+
+.scan-head {
+  margin-bottom: 1.25rem;
 }
-.scan-body {
-  max-width: 440px;
-  margin: 0 auto;
-  padding: 1.25rem 1rem 3rem;
-  display: grid;
-  gap: 1rem;
+.scan-eyebrow {
+  margin: 0 0 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.scan-head h1 {
+  margin: 0 0 0.25rem;
+}
+.scan-sub {
+  margin: 0;
+  color: var(--ink-soft);
 }
 
-.scan-camera {
+/* Issue / Return switch aur (return par) condition */
+.scan-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.scan-controls .seg {
+  width: min(320px, 100%);
+}
+.scan-condition {
+  margin: 0;
+  width: min(240px, 100%);
+}
+
+/* Do card: camera aur manual ID */
+.scan-grid {
   display: grid;
-  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  align-items: start;
 }
-.reader:empty {
-  display: none;
+.scan-card {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
 }
-.reader {
-  width: 100%;
-  overflow: hidden;
-  border-radius: var(--radius-sm);
+.scan-card-text h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.5rem;
 }
 .scan-hint {
   margin: 0;
   color: var(--ink-soft);
 }
-.scan-manual .field {
-  margin-bottom: 0.75rem;
+.scan-card .field {
+  margin: 0;
+}
+
+/* Camera shuru hone se pehle ka QR frame */
+.scan-frame {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(220px, 100%);
+  aspect-ratio: 1;
+  margin: 0.25rem auto 0;
+  border-radius: var(--radius);
+  background: var(--turf-tint);
+  color: var(--turf-dark);
+}
+.scan-frame svg {
+  width: 38%;
+  height: 38%;
+  opacity: 0.8;
+}
+.scan-corner {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  border: 0 solid var(--turf);
+}
+.scan-corner-tl { top: 10px; left: 10px; border-width: 4px 0 0 4px; border-top-left-radius: 8px; }
+.scan-corner-tr { top: 10px; right: 10px; border-width: 4px 4px 0 0; border-top-right-radius: 8px; }
+.scan-corner-bl { bottom: 10px; left: 10px; border-width: 0 0 4px 4px; border-bottom-left-radius: 8px; }
+.scan-corner-br { bottom: 10px; right: 10px; border-width: 0 4px 4px 0; border-bottom-right-radius: 8px; }
+
+/* Camera ka dabba: scan band ho to chhupa, scan chalu ho to hamesha dikhta hai
+   (pehle :empty se chhupta tha, aur library ko chaudai 0 milti thi) */
+.reader {
+  display: none;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+}
+.reader-live {
+  display: block;
+  min-height: 200px;
+  background: var(--ink);
+}
+
+.scan-result {
+  margin: 1.25rem 0 0;
+}
+.scan-report {
+  margin-top: 1rem;
+}
+
+@media (max-width: 760px) {
+  .scan-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import AuthLayout from '../components/AuthLayout';
 
 function ChangePassword() {
   const [newPassword, setNewPassword] = useState('');
@@ -42,8 +41,14 @@ function ChangePassword() {
   };
 
   return (
-    <AuthLayout title="Set a new password" subtitle="Choose a password of at least 6 characters to continue.">
-      <form onSubmit={handleSubmit}>
+    <div className="page-narrow">
+      <div className="page-head">
+        <p className="page-eyebrow">Account</p>
+        <h1>Change password</h1>
+        <p className="page-sub">Choose a password of at least 6 characters.</p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="card">
         <label className="field">
           <span>New password</span>
           <input
@@ -75,7 +80,7 @@ function ChangePassword() {
           {loading ? 'Saving...' : 'Save password'}
         </button>
       </form>
-    </AuthLayout>
+    </div>
   );
 }
 

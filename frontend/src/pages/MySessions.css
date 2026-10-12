@@ -1,0 +1,60 @@
+.ms-list {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ms-row {
+  display: grid;
+  gap: 0.75rem;
+}
+.ms-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.ms-id {
+  margin-left: 0.25rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+/* Label / value ke jode: Issued 4:00 pm, Return by 6:00 pm ... */
+.ms-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 2rem;
+  margin: 0;
+}
+.ms-facts dt {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.ms-facts dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.ms-late {
+  margin: 0;
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.ms-blank {
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
+  max-width: 420px;
+}
+.ms-blank p {
+  margin: 0;
+}
+.ms-empty {
+  color: var(--ink-soft);
+}
