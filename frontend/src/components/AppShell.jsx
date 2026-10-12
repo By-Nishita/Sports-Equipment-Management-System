@@ -20,7 +20,10 @@ const NAV = [
   {
     heading: 'Administration',
     roles: ['staff', 'admin'],
-    items: [{ label: 'Admin Console', icon: 'shield', soon: true }]
+    items: [
+      { label: 'Damage reviews', to: '/admin/damage', icon: 'alert' },
+      { label: 'Admin Console', icon: 'shield', soon: true }
+    ]
   }
 ];
 

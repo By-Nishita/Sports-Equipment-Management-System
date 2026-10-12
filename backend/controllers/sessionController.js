@@ -1,7 +1,7 @@
 const Equipment = require("../models/Equipment");
 const UsageSession = require("../models/UsageSession");
 const Reservation = require("../models/Reservation");
-
+const DamageReport = require("../models/DamageReport");
 const DEFAULT_ISSUE_HOURS = 2;
 
 const issueEquipment = async (req, res) => {
@@ -185,7 +185,7 @@ const VALID_CONDITIONS = [
 
 const returnEquipment = async (req, res) => {
   try {
-    const { equipmentId, condition } = req.body;
+    const { equipmentId, condition, description } = req.body;
 
     if (!equipmentId || !condition) {
       return res.status(400).json({
@@ -275,23 +275,51 @@ const returnEquipment = async (req, res) => {
       });
     }
 
-    equipment.condition = condition;
+    const isDamaged = condition === "DAMAGED";
 
-    equipment.status =
-      condition === "DAMAGED"
-        ? "DAMAGED"
-        : "AVAILABLE";
+    await Equipment.updateOne(
+      { _id: equipment._id, status: "IN_USE" },
+      { $set: { status: isDamaged ? "DAMAGED" : "AVAILABLE", condition } }
+    );
 
-    await equipment.save();
+    let reportCreated = false;
+
+    if (isDamaged) {
+      try {
+        const alreadyOpen = await DamageReport.exists({
+          equipment: equipment._id,
+          status: { $in: ["PENDING", "UNDER_REVIEW"] }
+        });
+
+        if (!alreadyOpen) {
+          const note =
+            typeof description === "string" ? description.trim().slice(0, 1000) : "";
+
+          await DamageReport.create({
+            equipment: equipment._id,
+            reportedBy: req.user._id,
+            session: updatedSession._id,
+            source: "RETURN",
+            type: "DAMAGE",
+            description: note || "Marked damaged when returned (no details given)"
+          });
+          reportCreated = true;
+        }
+      } catch (reportError) {
+        console.error("AUTO DAMAGE REPORT ERROR:", reportError);
+      }
+    }
+
+    const latest = await Equipment.findById(equipment._id).select("status");
 
     return res.json({
       success: true,
-      message:
-        condition === "DAMAGED"
-          ? "Returned. Equipment marked as damaged and needs staff review"
-          : "Equipment returned successfully",
+      message: isDamaged
+        ? "Returned. Equipment marked as damaged and sent to staff for review"
+        : "Equipment returned successfully",
       session: updatedSession,
-      equipmentStatus: equipment.status
+      equipmentStatus: latest.status,
+      damageReportCreated: reportCreated
     });
 
   } catch (error) {
