@@ -7,6 +7,8 @@ import AppShell from './components/AppShell';
 import Scan from './pages/Scan';
 import ReportDamage from './pages/ReportDamage';
 import MySessions from './pages/MySessions';
+import DamageReviews from './pages/DamageReviews';
+import RoleRoute from './components/RoleRoute';
 
 function App() {
   return (
@@ -30,6 +32,14 @@ function App() {
           <Route path="/my-use" element={<MySessions key="active" activeOnly />} />
           <Route path="/history" element={<MySessions key="history" />} />
           <Route path="/report-damage" element={<ReportDamage />} />
+          <Route
+            path="/admin/damage"
+            element={
+              <RoleRoute roles={['staff', 'admin']}>
+                <DamageReviews />
+              </RoleRoute>
+            }
+          />
           <Route path="/change-password" element={<ChangePassword />} />
         </Route>
       </Routes>
