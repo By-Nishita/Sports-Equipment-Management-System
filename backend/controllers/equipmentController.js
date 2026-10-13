@@ -1,6 +1,7 @@
 const Equipment = require("../models/Equipment");
 const Reservation = require("../models/Reservation");
 const QRCode = require("qrcode");
+const { expireStaleReservations } = require("../services/reservationService");
 
 const createEquipment = async (req, res) => {
     try {
@@ -57,18 +58,8 @@ const getEquipment = async (req, res) => {
     try {
         const now = new Date();
 
-        // Expire old reservations first
-        await Reservation.updateMany(
-            {
-                status: "ACTIVE",
-                expiresAt: { $lte: now }
-            },
-            {
-                $set: {
-                    status: "EXPIRED"
-                }
-            }
-        );
+        // Mark unclaimed reservations as NO_SHOW / EXPIRED first
+        await expireStaleReservations({}, now);
 
         const equipment = await Equipment.find();
 
@@ -76,11 +67,12 @@ const getEquipment = async (req, res) => {
         const equipmentWithReservation = await Promise.all(
             equipment.map(async (item) => {
 
+                // Nearest upcoming/current active reservation
                 const reservation = await Reservation.findOne({
                     equipment: item._id,
                     status: "ACTIVE",
                     expiresAt: { $gt: now }
-                });
+                }).sort({ startTime: 1, createdAt: 1 });
 
                 const result = item.toObject();
 
@@ -89,8 +81,13 @@ const getEquipment = async (req, res) => {
                     ? reservation.user.toString() === req.user._id.toString()
                     : false;
 
+                // Slot reservations show the slot end; old holds show expiresAt
                 result.reservedUntil = reservation
-                    ? reservation.expiresAt
+                    ? (reservation.endTime || reservation.expiresAt)
+                    : null;
+
+                result.reservationStartTime = reservation
+                    ? reservation.startTime
                     : null;
 
                 // Only staff/admin should know who reserved it

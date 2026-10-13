@@ -1,10 +1,16 @@
 const mongoose = require("mongoose");
-const { Equipment, Reservation } = require("../models");
+const { Equipment, Reservation, UsageSession } = require("../models");
+const { validateSlot } = require("../services/reservationRules");
+const {
+  expireStaleReservations,
+  buildOverlapQuery
+} = require("../services/reservationService");
 
-// Create a reservation
+// Create a slot-based reservation
+// Body: { equipmentId, startTime, endTime }  (ISO-8601 with time zone)
 const createReservation = async (req, res) => {
   try {
-    const { equipmentId } = req.body;
+    const { equipmentId, startTime: startRaw, endTime: endRaw } = req.body;
 
     // Check equipment ID
     if (!equipmentId) {
@@ -12,6 +18,17 @@ const createReservation = async (req, res) => {
         message: "Equipment ID is required"
       });
     }
+
+    const now = new Date();
+
+    // Validate the slot (duration, 7-day limit, not in the past ...)
+    const slot = validateSlot(startRaw, endRaw, now);
+
+    if (!slot.ok) {
+      return res.status(400).json({ message: slot.message });
+    }
+
+    const { startTime, endTime, expiresAt } = slot;
 
     // Find equipment
     const equipment = await Equipment.findOne({ equipmentId });
@@ -22,68 +39,67 @@ const createReservation = async (req, res) => {
       });
     }
 
-    // Equipment must be available
-    if (equipment.status !== "AVAILABLE") {
-      return res.status(400).json({
-        message: "Equipment is not available for reservation"
-      });
-    }
-
-    const now = new Date();
-
-    // Expire user's old reservations
-    await Reservation.updateMany(
-      {
-        user: req.user._id,
-        status: "ACTIVE",
-        expiresAt: { $lte: now }
-      },
-      {
-        $set: {
-          status: "EXPIRED"
-        }
-      }
-    );
-
-    // One active reservation per student
-    const existingUserReservation = await Reservation.findOne({
-      user: req.user._id,
-      status: "ACTIVE",
-      expiresAt: { $gt: now }
-    });
-
-    if (existingUserReservation) {
-      return res.status(400).json({
-        message: "You already have an active reservation"
-      });
-    }
-
-    // Expire old reservation for this equipment
-    await Reservation.updateMany(
-      {
+    // Reservation never changes equipment status. We only check that the
+    // equipment can possibly be free at the requested time.
+    if (equipment.status === "IN_USE") {
+      // Allowed only if the current issue is due back before the slot starts
+      const activeSession = await UsageSession.findOne({
         equipment: equipment._id,
-        status: "ACTIVE",
-        expiresAt: { $lte: now }
-      },
-      {
-        $set: {
-          status: "EXPIRED"
-        }
+        status: "ACTIVE"
+      });
+
+      if (activeSession && activeSession.dueAt > startTime) {
+        return res.status(400).json({
+          message:
+            "Equipment is currently in use and is not due back before the requested slot"
+        });
       }
+    } else if (equipment.status !== "AVAILABLE") {
+      return res.status(400).json({
+        message: `Equipment cannot be reserved (current status: ${equipment.status})`
+      });
+    }
+
+    // Free the equipment from reservations nobody claimed in time
+    await expireStaleReservations({ equipment: equipment._id }, now);
+
+    // Reject if another reservation overlaps this slot
+    const conflict = await Reservation.findOne(
+      buildOverlapQuery(equipment._id, startTime, endTime)
     );
 
-    // Reservation valid for 30 minutes
-    const expiresAt = new Date(
-      Date.now() + 30 * 60 * 1000
-    );
+    if (conflict) {
+      return res.status(409).json({
+        message: "This equipment is already reserved for an overlapping time slot"
+      });
+    }
 
-    // Create reservation
+    // Create reservation (equipment status is NOT changed)
     const reservation = await Reservation.create({
       equipment: equipment._id,
       user: req.user._id,
       status: "ACTIVE",
+      startTime,
+      endTime,
       expiresAt
     });
+
+    // Two requests can pass the check above at the same moment.
+    // Re-check: if an overlapping reservation with a SMALLER _id exists,
+    // this request loses and removes its own new record. The smaller _id
+    // always wins, so exactly one of the competing requests survives.
+    const earlierConflict = await Reservation.findOne({
+      ...buildOverlapQuery(equipment._id, startTime, endTime),
+      _id: { $lt: reservation._id }
+    });
+
+    if (earlierConflict) {
+      await Reservation.deleteOne({ _id: reservation._id });
+
+      return res.status(409).json({
+        message: "This equipment is already reserved for an overlapping time slot"
+      });
+    }
 
     return res.status(201).json({
       message: "Equipment reserved successfully",
@@ -93,8 +109,13 @@ const createReservation = async (req, res) => {
   } catch (error) {
     console.error("Create reservation error:", error);
 
-    // Duplicate active reservation
+    // Only happens while the OLD unique index still exists in the database
     if (error.code === 11000) {
+      console.error(
+        "Old reservation index is still in the database. " +
+        "See backend/scripts/dropOldReservationIndex.js"
+      );
+
       return res.status(409).json({
         message: "Equipment is already reserved"
       });
@@ -112,19 +133,8 @@ const getMyReservations = async (req, res) => {
   try {
     const now = new Date();
 
-    // Mark expired reservations
-    await Reservation.updateMany(
-      {
-        user: req.user._id,
-        status: "ACTIVE",
-        expiresAt: { $lte: now }
-      },
-      {
-        $set: {
-          status: "EXPIRED"
-        }
-      }
-    );
+    // Mark unclaimed reservations as NO_SHOW / EXPIRED
+    await expireStaleReservations({ user: req.user._id }, now);
 
     // Get user's reservations
     const reservations = await Reservation.find({
@@ -156,6 +166,9 @@ const cancelReservation = async (req, res) => {
         message: "Invalid reservation ID"
       });
     }
+
+    // If its claim deadline already passed, it is NO_SHOW and not cancellable
+    await expireStaleReservations({ _id: id });
 
     // Find reservation
     const reservation = await Reservation.findById(id);
