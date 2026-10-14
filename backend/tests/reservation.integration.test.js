@@ -13,12 +13,14 @@ const test = require("node:test");
 const assert = require("node:assert");
 const mongoose = require("mongoose");
 
+
 const uri = process.env.TEST_MONGO_URI;
 if (!uri) {
   console.error("Set TEST_MONGO_URI first (see comment at top of this file).");
   process.exit(1);
 }
 
+const { getBlockingReservation } = require("../services/reservationService");
 const { User, Equipment, Reservation, UsageSession } = require("../models");
 const {
   createReservation,
@@ -243,4 +245,86 @@ test("a still-running old 30-minute hold blocks an overlapping new slot", async 
   });
   const r = await call(createReservation, { user: b, body: { equipmentId: eq.equipmentId, startTime: at(5), endTime: at(40) } });
   assert.strictEqual(r.status, 409);
+});
+
+
+test("N2: another student's current reservation blocks equipment", async () => {
+  const eq = await makeEquip();
+
+  await Reservation.create({
+    equipment: eq._id,
+    user: a._id,
+    status: "ACTIVE",
+    startTime: new Date(T0 - 5 * MIN),
+    endTime: new Date(T0 + 55 * MIN),
+    expiresAt: new Date(T0 + 10 * MIN)
+  });
+
+  const result = await getBlockingReservation(
+    eq._id,
+    b._id,
+    new Date(T0)
+  );
+
+  assert.strictEqual(result.blockedByOther, true);
+});
+
+test("N2: own reservation does not block equipment", async () => {
+  const eq = await makeEquip();
+
+  await Reservation.create({
+    equipment: eq._id,
+    user: a._id,
+    status: "ACTIVE",
+    startTime: new Date(T0 - 5 * MIN),
+    endTime: new Date(T0 + 55 * MIN),
+    expiresAt: new Date(T0 + 10 * MIN)
+  });
+
+  const result = await getBlockingReservation(
+    eq._id,
+    a._id,
+    new Date(T0)
+  );
+
+  assert.strictEqual(result.blockedByOther, false);
+});
+
+test("N2: returns the earliest upcoming booking", async () => {
+  const eq = await makeEquip();
+  const now = new Date(T0);
+
+  const laterStart = new Date(T0 + 120 * MIN);
+  const earlierStart = new Date(T0 + 60 * MIN);
+
+  await Reservation.create([
+    {
+      equipment: eq._id,
+      user: a._id,
+      status: "ACTIVE",
+      startTime: laterStart,
+      endTime: new Date(T0 + 180 * MIN),
+      expiresAt: new Date(laterStart.getTime() + 15 * MIN)
+    },
+    {
+      equipment: eq._id,
+      user: b._id,
+      status: "ACTIVE",
+      startTime: earlierStart,
+      endTime: new Date(T0 + 90 * MIN),
+      expiresAt: new Date(earlierStart.getTime() + 15 * MIN)
+    }
+  ]);
+
+  const result = await getBlockingReservation(
+    eq._id,
+    c._id,
+    now
+  );
+
+  assert.strictEqual(result.blockedByOther, false);
+  assert.strictEqual(
+    result.nextBookingStart.getTime(),
+    earlierStart.getTime()
+  );
 });
