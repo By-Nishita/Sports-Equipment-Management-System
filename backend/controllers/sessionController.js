@@ -4,7 +4,8 @@ const Reservation = require("../models/Reservation");
 const DamageReport = require("../models/DamageReport");
 const {
   expireStaleReservations,
-  findStartedActiveReservation
+  findStartedActiveReservation,
+  getBlockingReservation
 } = require("../services/reservationService");
 const DEFAULT_ISSUE_HOURS = 2;
 
@@ -42,18 +43,15 @@ const issueEquipment = async (req, res) => {
       });
     }
 
-    // Reservation that applies right now (slot started, deadline not passed).
-    // A reservation for a later slot does not block issuing today.
-    const activeReservation = await findStartedActiveReservation(
+    // N2: Check whether another student blocks this equipment.
+    // A future reservation does not block issuing it right now.
+    const { blockedByOther } = await getBlockingReservation(
       existingEquipment._id,
+      req.user._id,
       now
     );
 
-    // If reserved by another student, reject
-    if (
-      activeReservation &&
-      activeReservation.user.toString() !== req.user._id.toString()
-    ) {
+    if (blockedByOther) {
       return res.status(403).json({
         success: false,
         message: "This equipment is reserved by another student"
@@ -81,18 +79,17 @@ const issueEquipment = async (req, res) => {
       });
     }
 
-    // Check reservation again after claiming the equipment
-    const reservationAfterClaim = await findStartedActiveReservation(
-      equipment._id,
-      new Date()
-    );
+    // N2: Check again after claiming, to reduce race-condition risk.
+    const afterClaimNow = new Date();
 
-    // If another student reserved it during the process,
-    // rollback the equipment status
-    if (
-      reservationAfterClaim &&
-      reservationAfterClaim.user.toString() !== req.user._id.toString()
-    ) {
+    const { blockedByOther: blockedAfterClaim } =
+      await getBlockingReservation(
+        equipment._id,
+        req.user._id,
+        afterClaimNow
+      );
+
+    if (blockedAfterClaim) {
       await Equipment.updateOne(
         { _id: equipment._id },
         { status: "AVAILABLE" }
@@ -104,6 +101,19 @@ const issueEquipment = async (req, res) => {
       });
     }
 
+    // Find this user's reservation, if one applies right now.
+    const reservationAfterClaim = await Reservation.findOne({
+      equipment: equipment._id,
+      user: req.user._id,
+      status: "ACTIVE",
+      expiresAt: { $gt: afterClaimNow },
+      $or: [
+        { startTime: null },
+        { startTime: { $lte: afterClaimNow } }
+      ]
+    });
+
+    // Keep existing issue duration unchanged.
     const dueAt = new Date(
       Date.now() + DEFAULT_ISSUE_HOURS * 60 * 60 * 1000
     );
@@ -147,8 +157,7 @@ const issueEquipment = async (req, res) => {
       });
 
     } catch (err) {
-      // If session creation fails,
-      // make equipment available again
+      // If session creation fails, make equipment available again.
       await Equipment.updateOne(
         { _id: equipment._id },
         { status: "AVAILABLE" }

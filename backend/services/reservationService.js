@@ -7,7 +7,52 @@
 //   expiresAt           : claim deadline = startTime + 15 minutes
 //                         (old 30-minute-hold reservations: createdAt + 30 min)
 
+const mongoose = require("mongoose");
 const { Reservation } = require("../models");
+const getBlockingReservation = async (equipmentId, userId, now = new Date()) => {
+  // Validate input
+  if (
+    !mongoose.Types.ObjectId.isValid(equipmentId) ||
+    !mongoose.Types.ObjectId.isValid(userId)
+  ) {
+    const error = new Error("Invalid equipment ID or user ID");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (!(now instanceof Date) || Number.isNaN(now.getTime())) {
+    const error = new Error("Invalid current time");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  // Check whether another student has a reservation active right now
+  const blockingReservation = await Reservation.findOne({
+    equipment: equipmentId,
+    user: { $ne: userId },
+    status: "ACTIVE",
+    expiresAt: { $gt: now },
+    $or: [
+      { startTime: null },
+      { startTime: { $lte: now } }
+    ]
+  });
+
+  // Find the earliest upcoming active booking
+  const nextReservation = await Reservation.findOne({
+    equipment: equipmentId,
+    status: "ACTIVE",
+    startTime: { $gt: now },
+    expiresAt: { $gt: now }
+  })
+    .sort({ startTime: 1 })
+    .select("startTime");
+
+  return {
+    blockedByOther: Boolean(blockingReservation),
+    nextBookingStart: nextReservation ? nextReservation.startTime : null
+  };
+};
 
 // Lazy expiration (no background job):
 //  - a slot reservation nobody claimed by its deadline becomes NO_SHOW
@@ -71,5 +116,6 @@ const findStartedActiveReservation = (equipmentObjectId, now = new Date()) =>
 module.exports = {
   expireStaleReservations,
   buildOverlapQuery,
-  findStartedActiveReservation
+  findStartedActiveReservation,
+  getBlockingReservation
 };
