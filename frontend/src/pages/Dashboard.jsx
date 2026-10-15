@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getEquipment, createEquipment } from '../api/equipment';
+import { getEquipment, createEquipment, updateEquipment, deactivateEquipment } from '../api/equipment';
 import {
   createReservation,
   getMyReservations,
@@ -14,6 +14,8 @@ function Dashboard() {
   const [equipment, setEquipment] = useState([]);
   const [reservations, setReservations] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
   const [form, setForm] = useState({
     equipmentId: '',
@@ -77,6 +79,36 @@ function Dashboard() {
         err.response?.data?.message ||
         'Failed to add equipment'
       );
+    }
+  };
+
+  // Edit equipment (N4)
+  const handleEditEquipment = async (item) => {
+    const name = window.prompt('Equipment name:', item.name);
+    if (name === null) return;
+    const category = window.prompt('Category:', item.category);
+    if (category === null) return;
+    const location = window.prompt('Location:', item.location || '');
+    if (location === null) return;
+
+    try {
+      await updateEquipment(item._id, { name, category, location });
+      alert('Equipment updated successfully');
+      await loadEquipment();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to update equipment');
+    }
+  };
+
+  // Deactivate equipment (N4)
+  const handleDeactivateEquipment = async (item) => {
+    if (!window.confirm('Deactivate ' + item.name + '?')) return;
+    try {
+      await deactivateEquipment(item._id);
+      alert('Equipment deactivated');
+      await loadEquipment();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to deactivate equipment');
     }
   };
 
@@ -201,6 +233,23 @@ function Dashboard() {
       {/* Equipment List */}
       <h3>Equipment List</h3>
 
+      {/* Category filter and status filter (N5) */}
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', flexWrap: 'wrap' }}>
+        <select aria-label="Category filter" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+          <option value="">All categories</option>
+          {[...new Set(equipment.map((item) => item.category).filter(Boolean))].map((category) => (
+            <option key={category} value={category}>{category}</option>
+          ))}
+        </select>
+        <select aria-label="Status filter" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+          <option value="">All statuses</option>
+          {['AVAILABLE', 'IN_USE', 'DAMAGED', 'MAINTENANCE', 'LOST', 'RETIRED'].map((status) => (
+            <option key={status} value={status}>{status}</option>
+          ))}
+        </select>
+        <button onClick={() => { setCategoryFilter(''); setStatusFilter(''); }}>Clear filters</button>
+      </div>
+
       <div
         style={{
           display: 'grid',
@@ -210,7 +259,7 @@ function Dashboard() {
         }}
       >
 
-        {equipment.map((item) => {
+        {equipment.filter((item) => (!categoryFilter || item.category === categoryFilter) && (!statusFilter || item.status === statusFilter)).map((item) => {
 
           const myReservation = reservations.find(
             (reservation) =>
@@ -306,6 +355,14 @@ function Dashboard() {
                   </button>
                 )}
 
+
+              {/* Admin / Staff equipment management (N4) */}
+              {isAdmin && item.status !== 'RETIRED' && (
+                <div style={{ display: 'flex', gap: '8px', margin: '8px 0' }}>
+                  <button onClick={() => handleEditEquipment(item)}>Edit Equipment</button>
+                  <button onClick={() => handleDeactivateEquipment(item)}>Deactivate</button>
+                </div>
+              )}
 
               {/* Admin / Staff QR */}
 
