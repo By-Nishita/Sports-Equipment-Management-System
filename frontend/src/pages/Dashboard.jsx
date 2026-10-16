@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getEquipment, createEquipment, updateEquipment, deactivateEquipment } from '../api/equipment';
+import { getEquipment, createEquipment, updateEquipment, deactivateEquipment, reactivateEquipment } from '../api/equipment';
 import {
   createReservation,
   getMyReservations,
@@ -112,6 +112,18 @@ function Dashboard() {
     }
   };
 
+  // Reactivate retired equipment
+  const handleReactivateEquipment = async (item) => {
+    if (!window.confirm('Reactivate ' + item.name + '?')) return;
+
+    try {
+      await reactivateEquipment(item._id);
+      alert('Equipment reactivated successfully');
+      await loadEquipment();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to reactivate equipment');
+    }
+  };
   // Reserve equipment
   const handleReserve = async (equipmentId) => {
     try {
@@ -356,11 +368,19 @@ function Dashboard() {
                 )}
 
 
-              {/* Admin / Staff equipment management (N4) */}
-              {isAdmin && item.status !== 'RETIRED' && (
+              {/* Admin / Staff equipment management */}
+              {isAdmin && (
                 <div style={{ display: 'flex', gap: '8px', margin: '8px 0' }}>
-                  <button onClick={() => handleEditEquipment(item)}>Edit Equipment</button>
-                  <button onClick={() => handleDeactivateEquipment(item)}>Deactivate</button>
+                  {item.status === 'RETIRED' ? (
+                    <button onClick={() => handleReactivateEquipment(item)}>
+                      Reactivate
+                    </button>
+                  ) : (
+                    <>
+                      <button onClick={() => handleEditEquipment(item)}>Edit Equipment</button>
+                      <button onClick={() => handleDeactivateEquipment(item)}>Deactivate</button>
+                    </>
+                  )}
                 </div>
               )}
 

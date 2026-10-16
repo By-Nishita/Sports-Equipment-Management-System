@@ -196,7 +196,61 @@ const deactivateEquipment = async (req, res) => {
     }
 };
 
-module.exports = {
-    createEquipment,
-    getEquipment
+module.exports = { createEquipment, getEquipment, updateEquipment, deactivateEquipment };
+
+const reactivateEquipment = async (req, res) => {
+    try {
+        const equipment = await Equipment.findById(req.params.id);
+
+        if (!equipment) {
+            return res.status(404).json({
+                success: false,
+                message: "Equipment not found"
+            });
+        }
+
+        if (equipment.status !== "RETIRED") {
+            return res.status(400).json({
+                success: false,
+                message: "Only retired equipment can be reactivated"
+            });
+        }
+
+        if (equipment.condition === "DAMAGED") {
+            return res.status(400).json({
+                success: false,
+                message: "Repair the equipment before reactivating it"
+            });
+        }
+
+        const UsageSession = require("../models/UsageSession");
+
+        const activeSession = await UsageSession.findOne({
+            equipment: equipment._id,
+            status: "ACTIVE"
+        });
+
+        if (activeSession) {
+            return res.status(409).json({
+                success: false,
+                message: "Cannot reactivate equipment with an active session"
+            });
+        }
+
+        equipment.status = "AVAILABLE";
+        await equipment.save();
+
+        return res.json({
+            success: true,
+            message: "Equipment reactivated successfully",
+            equipment
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
 };
+
+module.exports.reactivateEquipment = reactivateEquipment;
