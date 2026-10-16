@@ -16,6 +16,7 @@ function Dashboard() {
   const [showForm, setShowForm] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const [form, setForm] = useState({
     equipmentId: '',
@@ -247,6 +248,13 @@ function Dashboard() {
 
       {/* Category filter and status filter (N5) */}
       <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', flexWrap: 'wrap' }}>
+        <input
+          type="text"
+          aria-label="Search equipment"
+          placeholder="Search name, category, brand, location..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
         <select aria-label="Category filter" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
           <option value="">All categories</option>
           {[...new Set(equipment.map((item) => item.category).filter(Boolean))].map((category) => (
@@ -259,7 +267,7 @@ function Dashboard() {
             <option key={status} value={status}>{status}</option>
           ))}
         </select>
-        <button onClick={() => { setCategoryFilter(''); setStatusFilter(''); }}>Clear filters</button>
+        <button onClick={() => { setSearchTerm(''); setCategoryFilter(''); setStatusFilter(''); }}>Clear filters</button>
       </div>
 
       <div
@@ -271,7 +279,7 @@ function Dashboard() {
         }}
       >
 
-        {equipment.filter((item) => (!categoryFilter || item.category === categoryFilter) && (!statusFilter || item.status === statusFilter)).map((item) => {
+        {equipment.filter((item) => (!categoryFilter || item.category === categoryFilter) && (!statusFilter || item.status === statusFilter) && (!searchTerm || [item.name, item.category, item.brand, item.location].some((value) => String(value || '').toLowerCase().includes(searchTerm.toLowerCase())))).map((item) => {
 
           const myReservation = reservations.find(
             (reservation) =>
@@ -386,16 +394,22 @@ function Dashboard() {
 
               {/* Admin / Staff QR */}
 
-              {isAdmin &&
-                item.qrIdentifier && (
+              {isAdmin && item.qrIdentifier && (
+                <div style={{ margin: '8px 0' }}>
                   <img
                     src={item.qrIdentifier}
                     alt="QR"
-                    style={{
-                      width: '80px'
-                    }}
+                    style={{ width: '80px' }}
                   />
-                )}
+                  <br />
+                  <a
+                    href={item.qrIdentifier}
+                    download={(item.equipmentId || item.name || 'equipment') + '-QR.png'}
+                  >
+                    <button type="button">Download QR</button>
+                  </a>
+                </div>
+              )}
 
             </div>
           );
@@ -408,3 +422,6 @@ function Dashboard() {
 }
 
 export default Dashboard;
+
+
+
