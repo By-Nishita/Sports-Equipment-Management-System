@@ -22,9 +22,9 @@ const NAV = [
   {
     heading: 'Administration',
     roles: ['staff', 'admin'],
-    items: [
-      { label: 'Damage reviews', to: '/admin/damage', icon: 'alert' },
-      { label: 'Admin Console', icon: 'shield', soon: true }
+        items: [
+      { label: 'Admin Dashboard', to: '/admin', icon: 'shield' },
+      { label: 'Damage reviews', to: '/admin/damage', icon: 'alert' }
     ]
   }
 ];
@@ -160,6 +160,7 @@ function AppShell() {
                   <NavLink
                     key={item.label}
                     to={item.to}
+                    end
                     className={({ isActive }) => (isActive ? 'shell-item shell-item-on' : 'shell-item')}
                     onClick={() => setOpen(false)}
                   >

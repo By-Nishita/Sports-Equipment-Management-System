@@ -1,0 +1,389 @@
+/* Admin Dashboard. Colors come from the index.css tokens, no new colors (same theme). */
+
+.ad-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.ad-head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+/* "Scan equipment" is a <Link>, so it gets its own button-like styling here */
+.ad-scan {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 40px;
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius-sm);
+  background: var(--turf);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+.ad-scan:hover {
+  background: var(--turf-dark);
+}
+
+.ad-empty,
+.ad-stamp {
+  color: var(--ink-soft);
+}
+.ad-stamp {
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+}
+
+/* ---------- Icon box (the color comes from the tone) ---------- */
+.ad-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+}
+.ad-icon-sm {
+  width: 34px;
+  height: 34px;
+}
+.ad-icon-grey { background: #eceff0; color: var(--ink-soft); }
+.ad-icon-green { background: var(--ok-tint); color: var(--turf-dark); }
+.ad-icon-blue { background: #e4ecfb; color: #1f4aa8; }
+.ad-icon-amber { background: var(--warn-tint); color: #7a5a00; }
+.ad-icon-red { background: var(--danger-tint); color: var(--danger); }
+
+/* ---------- The 4 big cards at the top ---------- */
+.ad-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.ad-stat {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding: 1.1rem;
+}
+.ad-stat p {
+  margin: 0;
+}
+.ad-stat-label {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+.ad-stat-value {
+  font-family: var(--display);
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.ad-stat-note {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+/* ---------- Row of small stat cards (5 in one row) ---------- */
+.ad-minis {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.ad-mini {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.8rem 0.9rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+.ad-mini-text {
+  display: grid;
+  min-width: 0;
+}
+.ad-mini-value {
+  font-family: var(--display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.ad-mini-label {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+.ad-mini-link:hover {
+  border-color: var(--turf);
+}
+
+/* ---------- Overdue list ---------- */
+.ad-section {
+  margin-bottom: 1.75rem;
+}
+.ad-section h3 {
+  margin: 0 0 0.75rem;
+}
+.ad-list {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ad-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+.ad-id {
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+.ad-who {
+  margin: 0.2rem 0 0;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+.ad-late {
+  display: grid;
+  justify-items: end;
+  gap: 0.3rem;
+}
+.ad-late small {
+  color: var(--ink-soft);
+}
+
+/* ---------- Panels ---------- */
+.ad-row2,
+.ad-row3 {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.ad-row2 { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); } /* chart wider than Active equipment */
+.ad-row3 { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); } /* the table needs more room than the bars */
+.ad-panel h3 {
+  margin: 0;
+}
+.ad-panel-sub {
+  margin: 0.15rem 0 1rem;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+/* ---------- Active equipment ---------- */
+.ad-live {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ad-live li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.ad-live li:last-child {
+  border-bottom: 0;
+}
+.ad-thumb {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  background: var(--turf-tint);
+  color: var(--turf-dark);
+  font-family: var(--display);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.ad-live-text {
+  display: grid;
+  flex: 1;
+  min-width: 0; /* a long name must not stretch the card */
+  line-height: 1.3;
+}
+.ad-live-text strong,
+.ad-live-text small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ad-live-text small {
+  color: var(--ink-soft);
+}
+.ad-livetag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--turf);
+}
+.ad-more {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+
+/* ---------- Equipment utilization chart ---------- */
+.ad-chart {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr)); /* one column per day */
+  align-items: end;
+  gap: 0.6rem;
+  height: 220px;
+  border-bottom: 1px solid var(--line);
+}
+.ad-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  min-width: 0;
+}
+.ad-col-value {
+  min-height: 1.1rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+.ad-col-bar {
+  width: 70%;
+  max-width: 44px;
+  border-radius: 4px 4px 0 0;
+  background: var(--turf);
+}
+.ad-col-label {
+  /* the day name sits just below the baseline line */
+  position: relative;
+  top: 1.5rem;
+  height: 0;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+.ad-chart-foot {
+  margin: 3rem 0 0; /* leaves room for the day names that sit under the baseline */
+  font-size: 0.9rem;
+}
+.ad-up { color: var(--turf-dark); font-weight: 600; }
+.ad-down { color: var(--danger); font-weight: 600; }
+
+/* ---------- Recent activity table ---------- */
+.ad-table-wrap {
+  overflow-x: auto; /* on a small screen the table scrolls instead of breaking the page */
+}
+.ad-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.ad-table th {
+  padding: 0.5rem 0.5rem;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.ad-table td {
+  padding: 0.65rem 0.5rem;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.ad-table td:first-child {
+  min-width: 8.5rem;
+  white-space: normal; /* a long item name may wrap onto two lines */
+}
+.ad-table tr:last-child td {
+  border-bottom: 0;
+}
+.ad-table td strong,
+.ad-table td small {
+  display: block;
+}
+.ad-table td small {
+  color: var(--ink-soft);
+}
+
+/* ---------- Inventory health ---------- */
+.ad-health {
+  display: grid;
+  gap: 0.9rem;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  list-style: none;
+}
+.ad-health li {
+  display: grid;
+  grid-template-columns: 5rem minmax(0, 1fr) 2rem; /* label | bar | count */
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+}
+.ad-health strong {
+  text-align: right;
+}
+.ad-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--chalk);
+  overflow: hidden;
+}
+.ad-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+}
+.ad-bar-ok { background: var(--turf); }
+.ad-bar-warn { background: var(--whistle); }
+.ad-bar-bad { background: var(--danger); }
+.ad-value-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  color: var(--ink-soft);
+}
+.ad-value-row strong {
+  font-family: var(--display);
+  font-size: 1.6rem;
+  color: var(--ink);
+}
+
+/* ---------- Small screens ---------- */
+@media (max-width: 1000px) {
+  .ad-row2,
+  .ad-row3 {
+    grid-template-columns: minmax(0, 1fr); /* panels stack one below the other */
+  }
+  .ad-stats,
+  .ad-minis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 520px) {
+  .ad-stats,
+  .ad-minis {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -7,6 +7,7 @@ const equipmentRoutes = require("./routes/equipmentRoutes");
 const sessionRoutes = require("./routes/sessionRoutes");
 const reservationRoutes = require("./routes/reservationRoutes");
 const damageReportRoutes = require("./routes/damageReportRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
 
 dotenv.config();
 
@@ -19,7 +20,7 @@ app.use('/api/auth', authRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/reservations", reservationRoutes);
 app.use("/api/damage-reports", damageReportRoutes);
-
+app.use("/api/dashboard", dashboardRoutes);
 connectDB();
 
 app.get("/api/health", (req, res) => {

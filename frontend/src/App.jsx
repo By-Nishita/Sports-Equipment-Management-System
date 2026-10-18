@@ -11,6 +11,7 @@ import DamageReviews from './pages/DamageReviews';
 import Booking from './pages/Booking';
 import MyBookings from './pages/MyBookings';
 import RoleRoute from './components/RoleRoute';
+import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           <Route path="/book" element={<Booking />} />
           <Route path="/my-bookings" element={<MyBookings />} />
           <Route path="/report-damage" element={<ReportDamage />} />
+          <Route path="/admin" element={<RoleRoute roles={['staff', 'admin']}><AdminDashboard /></RoleRoute>} />
           <Route path="/admin/damage" element={<RoleRoute roles={['staff', 'admin']}><DamageReviews /></RoleRoute>} />
           <Route path="/change-password" element={<ChangePassword />} />
         </Route>
