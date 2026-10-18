@@ -3,10 +3,12 @@ import api from './axios';
 export const issueEquipment = (equipmentId) =>
   api.post('/sessions/issue', { equipmentId });
 
-export const returnEquipment = (equipmentId, condition) =>
-  api.post('/sessions/return', { equipmentId, condition });
+// description is optional: only sent for DAMAGED returns (goes into the auto damage report)
+export const returnEquipment = (equipmentId, condition, description) =>
+  api.post('/sessions/return', { equipmentId, condition, description });
 
-// Logged-in user ke apne sessions (naye pehle)
+// Logged-in user's own sessions (newest first)
 export const getMySessions = () => api.get('/sessions/my');
-// Staff/admin: all sessions that are checked out right now (late ones are included, marked by isOverdue)
+
+// Staff/admin: sessions that are currently issued (used by the Admin Dashboard)
 export const getActiveSessions = () => api.get('/sessions/active');

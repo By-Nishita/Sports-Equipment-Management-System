@@ -108,6 +108,40 @@
   margin-top: 1rem;
 }
 
+/* Confirm popup: dark backdrop over the whole page, card centred on top */
+.scan-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.5);
+}
+.scan-confirm {
+  width: min(100%, 26rem);
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  display: grid;
+  gap: 0.75rem;
+  border-color: var(--turf);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+.scan-confirm h2 {
+  margin: 0;
+}
+.scan-confirm-id {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 1.5rem;
+  color: var(--turf-dark);
+}
+.scan-confirm-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
 @media (max-width: 760px) {
   .scan-grid {
     grid-template-columns: minmax(0, 1fr);
