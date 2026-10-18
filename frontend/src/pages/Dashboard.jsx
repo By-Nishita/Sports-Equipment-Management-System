@@ -180,6 +180,25 @@ function Dashboard() {
       </button>
 
 
+      {/* N7: Report Damage */}
+      <button
+        onClick={() => navigate('/report-damage')}
+        style={{ marginLeft: '10px' }}
+      >
+        Report Damage
+      </button>
+
+      {/* N7: Staff/Admin Damage Reviews */}
+      {isAdmin && (
+        <button
+          onClick={() => navigate('/admin/damage')}
+          style={{ marginLeft: '10px' }}
+        >
+          Admin: Damage Reviews
+        </button>
+      )}
+
+
       {/* Admin / Staff Add Equipment */}
       {isAdmin && (
         <div style={{ margin: '20px 0' }}>
