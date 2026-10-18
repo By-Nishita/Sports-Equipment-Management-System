@@ -22,24 +22,40 @@ function Scan() {
   const [manualId, setManualId] = useState('');
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState(null);
+  // Item waiting for the staff member's confirmation: { equipmentId } or null
+  const [pending, setPending] = useState(null);
+  const [description, setDescription] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const scannerRef = useRef(null);
-  const busyRef = useRef(false);
 
-  // Camera ka callback purani mode/condition yaad rakhta hai,
-  // isliye latest values ref mein rakhte hain
-  const latest = useRef({ mode, condition });
-  latest.current = { mode, condition };
+  // Step 1 of 2: a scan (or typed ID) only ASKS for confirmation, nothing is saved yet
+  const askConfirm = (equipmentId) => {
+    setResult(null);
+    setDescription('');
+    setPending({ equipmentId });
+  };
 
-  const submit = async (equipmentId) => {
-    if (busyRef.current) return;
-    busyRef.current = true;
+  const cancelConfirm = () => {
+    setPending(null);
+    setDescription('');
+  };
+
+  // Step 2 of 2: the staff member pressed Confirm, now call the backend
+  const confirm = async () => {
+    if (!pending || submitting) return;
+    setSubmitting(true);
     try {
-      const { mode, condition } = latest.current;
+      const { equipmentId } = pending;
       const res =
         mode === 'issue'
           ? await issueEquipment(equipmentId)
-          : await returnEquipment(equipmentId, condition);
+          : await returnEquipment(
+              equipmentId,
+              condition,
+              // The description only matters for damaged items
+              condition === 'DAMAGED' ? description.trim() : undefined
+            );
       const s = res.data.session;
       const detail =
         mode === 'issue'
@@ -47,10 +63,13 @@ function Scan() {
           : `Used for ${s.durationMinutes} min. ` +
             (s.wasLate ? `Late by ${s.lateMinutes} min.` : 'Returned on time.');
       setResult({ ok: true, text: `${res.data.message}. ${detail}` });
+      setManualId('');
     } catch (err) {
       setResult({ ok: false, text: err.response?.data?.message || 'Something went wrong' });
     } finally {
-      busyRef.current = false;
+      setPending(null);
+      setDescription('');
+      setSubmitting(false);
     }
   };
 
@@ -94,7 +113,7 @@ function Scan() {
         async (decodedText) => {
           if (!scannerRef.current) return; // pehle hi ek scan ho chuka hai
           await stopScan();
-          submit(extractId(decodedText));
+          askConfirm(extractId(decodedText));
         }
       );
     } catch (err) {
@@ -107,6 +126,16 @@ function Scan() {
     }
   };
 
+  // Escape key closes the confirm popup
+  useEffect(() => {
+    if (!pending) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape' && !submitting) cancelConfirm();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [pending, submitting]);
+
   // Page chhodte waqt camera band ho jaye
   useEffect(() => {
     return () => {
@@ -116,7 +145,7 @@ function Scan() {
 
   const handleManual = (e) => {
     e.preventDefault();
-    if (manualId.trim()) submit(manualId.trim());
+    if (manualId.trim()) askConfirm(manualId.trim());
   };
 
   return (
@@ -133,7 +162,7 @@ function Scan() {
             type="button"
             className={mode === 'issue' ? 'seg-on' : ''}
             aria-pressed={mode === 'issue'}
-            onClick={() => setMode('issue')}
+            onClick={() => { setMode('issue'); cancelConfirm(); }}
           >
             Issue
           </button>
@@ -141,7 +170,7 @@ function Scan() {
             type="button"
             className={mode === 'return' ? 'seg-on' : ''}
             aria-pressed={mode === 'return'}
-            onClick={() => setMode('return')}
+            onClick={() => { setMode('return'); cancelConfirm(); }}
           >
             Return
           </button>
@@ -212,6 +241,51 @@ function Scan() {
           </button>
         </form>
       </div>
+
+      {pending && (
+        // Dark backdrop covers the page; clicking outside the card cancels
+        <div className="scan-modal-backdrop" onClick={() => !submitting && cancelConfirm()}>
+        <section
+          className="card scan-confirm"
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="scan-confirm-title"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h2 id="scan-confirm-title">
+            {mode === 'issue' ? 'Issue this item?' : 'Return this item?'}
+          </h2>
+          <p className="scan-confirm-id">{pending.equipmentId}</p>
+          {mode === 'return' && (
+            <p className="scan-hint">
+              Condition: <strong>{condition.charAt(0) + condition.slice(1).toLowerCase()}</strong>
+            </p>
+          )}
+
+          {mode === 'return' && condition === 'DAMAGED' && (
+            <label className="field">
+              <span>What is damaged? (optional)</span>
+              <textarea
+                rows={3}
+                maxLength={1000}
+                placeholder="e.g. Handle cracked, net torn on one side"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </label>
+          )}
+
+          <div className="scan-confirm-actions">
+            <button type="button" onClick={confirm} disabled={submitting}>
+              {submitting ? 'Saving...' : 'Confirm'}
+            </button>
+            <button type="button" className="btn-secondary" onClick={cancelConfirm} disabled={submitting}>
+              Cancel
+            </button>
+          </div>
+        </section>
+        </div>
+      )}
 
       {result && (
         <p className={`notice scan-result ${result.ok ? 'notice-ok' : 'notice-error'}`} role="status">
