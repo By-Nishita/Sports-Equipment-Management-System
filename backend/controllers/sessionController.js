@@ -82,7 +82,8 @@ const issueEquipment = async (req, res) => {
     // N2: Check again after claiming, to reduce race-condition risk.
     const afterClaimNow = new Date();
 
-    const { blockedByOther: blockedAfterClaim } =
+    // Also take nextBookingStart: the start of the next upcoming booking (or null)
+    const { blockedByOther: blockedAfterClaim, nextBookingStart } =
       await getBlockingReservation(
         equipment._id,
         req.user._id,
@@ -113,10 +114,15 @@ const issueEquipment = async (req, res) => {
       ]
     });
 
-    // Keep existing issue duration unchanged.
-    const dueAt = new Date(
-      Date.now() + DEFAULT_ISSUE_HOURS * 60 * 60 * 1000
+        // Default due time: now + 2 hours
+    let dueAt = new Date(
+      afterClaimNow.getTime() + DEFAULT_ISSUE_HOURS * 60 * 60 * 1000
     );
+
+    // If someone has booked this equipment before that, it is due when that booking starts
+    if (nextBookingStart && nextBookingStart < dueAt) {
+      dueAt = new Date(nextBookingStart);
+    }
 
     try {
       const issuedVia = reservationAfterClaim
