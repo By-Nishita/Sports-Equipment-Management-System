@@ -2,7 +2,6 @@
 import { useNavigate } from 'react-router-dom';
 import { getEquipment, createEquipment, updateEquipment, deactivateEquipment, reactivateEquipment } from '../api/equipment';
 import {
-  createReservation,
   getMyReservations,
   cancelReservation
 } from '../api/reservations';
@@ -125,21 +124,9 @@ function Dashboard() {
       alert(err.response?.data?.message || 'Failed to reactivate equipment');
     }
   };
-  // Reserve equipment
-  const handleReserve = async (equipmentId) => {
-    try {
-      await createReservation(equipmentId);
-
-      alert('Equipment reserved successfully');
-
-      await loadReservations();
-      await loadEquipment();
-    } catch (err) {
-      alert(
-        err.response?.data?.message ||
-        'Failed to reserve equipment'
-      );
-    }
+  // Reserve: a booking needs a time slot, so open the Booking page with this item selected
+  const handleReserve = (equipmentId) => {
+    navigate(`/book?equipment=${encodeURIComponent(equipmentId)}`);
   };
 
   // Cancel reservation
@@ -390,7 +377,7 @@ function Dashboard() {
                       )
                     }
                   >
-                    Reserve
+                    Book a slot
                   </button>
                 )}
 
@@ -441,6 +428,3 @@ function Dashboard() {
 }
 
 export default Dashboard;
-
-
-
