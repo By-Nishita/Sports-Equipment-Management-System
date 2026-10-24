@@ -1,7 +1,5 @@
 const Equipment = require("../models/Equipment");
-const Reservation = require("../models/Reservation");
 const QRCode = require("qrcode");
-const { expireStaleReservations } = require("../services/reservationService");
 
 const createEquipment = async (req, res) => {
     try {
@@ -44,7 +42,6 @@ const createEquipment = async (req, res) => {
             message: "Equipment created successfully",
             equipment
         });
-
     } catch (error) {
         res.status(500).json({
             success: false,
@@ -53,68 +50,24 @@ const createEquipment = async (req, res) => {
     }
 };
 
-
 const getEquipment = async (req, res) => {
     try {
-        const now = new Date();
-
-        // Mark unclaimed reservations as NO_SHOW / EXPIRED first
-        await expireStaleReservations({}, now);
-
         const filter = {};
-        if (req.query.category) filter.category = req.query.category;
-        if (req.query.status) filter.status = req.query.status;
+
+        if (req.query.category) {
+            filter.category = req.query.category;
+        }
+
+        if (req.query.status) {
+            filter.status = req.query.status;
+        }
+
         const equipment = await Equipment.find(filter);
-
-        // Add reservation information to each equipment
-        const equipmentWithReservation = await Promise.all(
-            equipment.map(async (item) => {
-
-                // Nearest upcoming/current active reservation
-                const reservation = await Reservation.findOne({
-                    equipment: item._id,
-                    status: "ACTIVE",
-                    expiresAt: { $gt: now }
-                }).sort({ startTime: 1, createdAt: 1 });
-
-                const result = item.toObject();
-
-                result.isReserved = !!reservation;
-                result.reservedByMe = reservation
-                    ? reservation.user.toString() === req.user._id.toString()
-                    : false;
-
-                // Slot reservations show the slot end; old holds show expiresAt
-                result.reservedUntil = reservation
-                    ? (reservation.endTime || reservation.expiresAt)
-                    : null;
-
-                result.reservationStartTime = reservation
-                    ? reservation.startTime
-                    : null;
-
-                // Only staff/admin should know who reserved it
-                if (
-                    reservation &&
-                    ["admin", "staff"].includes(req.user.role)
-                ) {
-                    await reservation.populate(
-                        "user",
-                        "name email"
-                    );
-
-                    result.reservedBy = reservation.user;
-                }
-
-                return result;
-            })
-        );
 
         res.status(200).json({
             success: true,
-            equipment: equipmentWithReservation
+            equipment
         });
-
     } catch (error) {
         console.error("GET EQUIPMENT ERROR:", error);
 
@@ -125,18 +78,24 @@ const getEquipment = async (req, res) => {
     }
 };
 
-
-
 const updateEquipment = async (req, res) => {
     try {
         const allowed = [
-            "name", "category", "brand", "purchaseDate",
-            "price", "location", "condition"
+            "name",
+            "category",
+            "brand",
+            "purchaseDate",
+            "price",
+            "location",
+            "condition"
         ];
+
         const updates = {};
 
         for (const key of allowed) {
-            if (req.body[key] !== undefined) updates[key] = req.body[key];
+            if (req.body[key] !== undefined) {
+                updates[key] = req.body[key];
+            }
         }
 
         const equipment = await Equipment.findByIdAndUpdate(
@@ -146,23 +105,39 @@ const updateEquipment = async (req, res) => {
         );
 
         if (!equipment) {
-            return res.status(404).json({ success: false, message: "Equipment not found" });
+            return res.status(404).json({
+                success: false,
+                message: "Equipment not found"
+            });
         }
 
-        res.json({ success: true, message: "Equipment updated", equipment });
+        res.json({
+            success: true,
+            message: "Equipment updated",
+            equipment
+        });
     } catch (error) {
-        res.status(400).json({ success: false, message: error.message });
+        res.status(400).json({
+            success: false,
+            message: error.message
+        });
     }
 };
 
 const deactivateEquipment = async (req, res) => {
     try {
         const equipment = await Equipment.findById(req.params.id);
+
         if (!equipment) {
-            return res.status(404).json({ success: false, message: "Equipment not found" });
+            return res.status(404).json({
+                success: false,
+                message: "Equipment not found"
+            });
         }
 
-        const activeSession = await require("../models/UsageSession").findOne({
+        const UsageSession = require("../models/UsageSession");
+
+        const activeSession = await UsageSession.findOne({
             equipment: equipment._id,
             status: "ACTIVE"
         });
@@ -174,29 +149,21 @@ const deactivateEquipment = async (req, res) => {
             });
         }
 
-        const activeReservation = await Reservation.findOne({
-            equipment: equipment._id,
-            status: "ACTIVE",
-            expiresAt: { $gt: new Date() }
-        });
-
-        if (activeReservation) {
-            return res.status(409).json({
-                success: false,
-                message: "Cancel active reservations before deactivating equipment"
-            });
-        }
-
         equipment.status = "RETIRED";
         await equipment.save();
 
-        res.json({ success: true, message: "Equipment deactivated", equipment });
+        res.json({
+            success: true,
+            message: "Equipment deactivated",
+            equipment
+        });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
     }
 };
-
-module.exports = { createEquipment, getEquipment, updateEquipment, deactivateEquipment };
 
 const reactivateEquipment = async (req, res) => {
     try {
@@ -253,4 +220,10 @@ const reactivateEquipment = async (req, res) => {
     }
 };
 
-module.exports.reactivateEquipment = reactivateEquipment;
+module.exports = {
+    createEquipment,
+    getEquipment,
+    updateEquipment,
+    deactivateEquipment,
+    reactivateEquipment
+};

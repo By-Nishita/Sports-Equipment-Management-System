@@ -38,36 +38,26 @@ const usageSessionSchema = new mongoose.Schema(
       type: String,
       enum: ["EXCELLENT", "GOOD", "FAIR", "DAMAGED"]
     },
-     conditionBefore: {
+
+    conditionBefore: {
       type: String,
       enum: ["EXCELLENT", "GOOD", "FAIR", "DAMAGED"]
     },
+
     wasLate: {
       type: Boolean,
       default: false
     },
+
     lateMinutes: {
       type: Number,
       default: 0
     },
+
     status: {
       type: String,
       enum: ["ACTIVE", "RETURNED"],
       default: "ACTIVE"
-    },
-
-    // Reservation used to issue this equipment
-    reservation: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Reservation",
-      default: null
-    },
-
-    // How the equipment was issued
-    issuedVia: {
-      type: String,
-      enum: ["RESERVATION", "DIRECT"],
-      default: "DIRECT"
     }
   },
   {

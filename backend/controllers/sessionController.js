@@ -1,12 +1,7 @@
 const Equipment = require("../models/Equipment");
 const UsageSession = require("../models/UsageSession");
-const Reservation = require("../models/Reservation");
 const DamageReport = require("../models/DamageReport");
-const {
-  expireStaleReservations,
-  findStartedActiveReservation,
-  getBlockingReservation
-} = require("../services/reservationService");
+
 const DEFAULT_ISSUE_HOURS = 2;
 
 const issueEquipment = async (req, res) => {
@@ -20,12 +15,6 @@ const issueEquipment = async (req, res) => {
       });
     }
 
-    const now = new Date();
-
-    // Mark unclaimed reservations as NO_SHOW / EXPIRED
-    await expireStaleReservations({}, now);
-
-    // Check whether equipment exists
     const existingEquipment = await Equipment.findOne({ equipmentId });
 
     if (!existingEquipment) {
@@ -35,7 +24,6 @@ const issueEquipment = async (req, res) => {
       });
     }
 
-    // Equipment must be AVAILABLE
     if (existingEquipment.status !== "AVAILABLE") {
       return res.status(400).json({
         success: false,
@@ -43,33 +31,11 @@ const issueEquipment = async (req, res) => {
       });
     }
 
-    // N2: Check whether another student blocks this equipment.
-    // A future reservation does not block issuing it right now.
-    const { blockedByOther } = await getBlockingReservation(
-      existingEquipment._id,
-      req.user._id,
-      now
-    );
-
-    if (blockedByOther) {
-      return res.status(403).json({
-        success: false,
-        message: "This equipment is reserved by another student"
-      });
-    }
-
     // Atomically change AVAILABLE -> IN_USE
     const equipment = await Equipment.findOneAndUpdate(
-      {
-        equipmentId,
-        status: "AVAILABLE"
-      },
-      {
-        status: "IN_USE"
-      },
-      {
-        new: true
-      }
+      { equipmentId, status: "AVAILABLE" },
+      { status: "IN_USE" },
+      { new: true }
     );
 
     if (!equipment) {
@@ -79,93 +45,32 @@ const issueEquipment = async (req, res) => {
       });
     }
 
-    // N2: Check again after claiming, to reduce race-condition risk.
-    const afterClaimNow = new Date();
-
-    const { blockedByOther: blockedAfterClaim } =
-      await getBlockingReservation(
-        equipment._id,
-        req.user._id,
-        afterClaimNow
-      );
-
-    if (blockedAfterClaim) {
-      await Equipment.updateOne(
-        { _id: equipment._id },
-        { status: "AVAILABLE" }
-      );
-
-      return res.status(403).json({
-        success: false,
-        message: "This equipment is reserved by another student"
-      });
-    }
-
-    // Find this user's reservation, if one applies right now.
-    const reservationAfterClaim = await Reservation.findOne({
-      equipment: equipment._id,
-      user: req.user._id,
-      status: "ACTIVE",
-      expiresAt: { $gt: afterClaimNow },
-      $or: [
-        { startTime: null },
-        { startTime: { $lte: afterClaimNow } }
-      ]
-    });
-
-    // Keep existing issue duration unchanged.
     const dueAt = new Date(
       Date.now() + DEFAULT_ISSUE_HOURS * 60 * 60 * 1000
     );
 
     try {
-      const issuedVia = reservationAfterClaim
-        ? "RESERVATION"
-        : "DIRECT";
-
-      // Create usage session
       const session = await UsageSession.create({
         equipment: equipment._id,
         user: req.user._id,
-        dueAt,
-        reservation: reservationAfterClaim
-          ? reservationAfterClaim._id
-          : null,
-        issuedVia
+        dueAt
       });
 
-      // If reservation was used, mark it as fulfilled
-      if (reservationAfterClaim) {
-        reservationAfterClaim.status = "FULFILLED";
-        reservationAfterClaim.fulfilledAt = new Date();
-        reservationAfterClaim.session = session._id;
-
-        await reservationAfterClaim.save();
-      }
-
-      await session.populate(
-        "equipment",
-        "equipmentId name category"
-      );
+      await session.populate("equipment", "equipmentId name category");
 
       return res.status(201).json({
         success: true,
-        message: reservationAfterClaim
-          ? "Equipment issued successfully using reservation"
-          : "Equipment issued successfully",
+        message: "Equipment issued successfully",
         session
       });
-
     } catch (err) {
-      // If session creation fails, make equipment available again.
+      // Restore availability if session creation fails.
       await Equipment.updateOne(
         { _id: equipment._id },
         { status: "AVAILABLE" }
       );
-
       throw err;
     }
-
   } catch (error) {
     console.error("ISSUE ERROR:", error);
 
@@ -176,14 +81,12 @@ const issueEquipment = async (req, res) => {
   }
 };
 
-
 const VALID_CONDITIONS = [
   "EXCELLENT",
   "GOOD",
   "FAIR",
   "DAMAGED"
 ];
-
 
 const returnEquipment = async (req, res) => {
   try {
@@ -224,12 +127,10 @@ const returnEquipment = async (req, res) => {
       });
     }
 
-    // Only the student who issued it or staff/admin can return it
     const isOwner =
       session.user.toString() === req.user._id.toString();
 
-    const isStaff =
-      ["admin", "staff"].includes(req.user.role);
+    const isStaff = ["admin", "staff"].includes(req.user.role);
 
     if (!isOwner && !isStaff) {
       return res.status(403).json({
@@ -247,15 +148,10 @@ const returnEquipment = async (req, res) => {
     const lateMs = returnedAt - session.dueAt;
     const lateMinutes = lateMs > 0 ? Math.ceil(lateMs / 60000) : 0;
     const wasLate = lateMinutes > 0;
-
     const conditionBefore = equipment.condition;
-    
-    // Check ACTIVE again so double return does not happen
+
     const updatedSession = await UsageSession.findOneAndUpdate(
-      {
-        _id: session._id,
-        status: "ACTIVE"
-      },
+      { _id: session._id, status: "ACTIVE" },
       {
         status: "RETURNED",
         returnedAt,
@@ -265,9 +161,7 @@ const returnEquipment = async (req, res) => {
         wasLate,
         lateMinutes
       },
-      {
-        new: true
-      }
+      { new: true }
     );
 
     if (!updatedSession) {
@@ -281,7 +175,12 @@ const returnEquipment = async (req, res) => {
 
     await Equipment.updateOne(
       { _id: equipment._id, status: "IN_USE" },
-      { $set: { status: isDamaged ? "DAMAGED" : "AVAILABLE", condition } }
+      {
+        $set: {
+          status: isDamaged ? "DAMAGED" : "AVAILABLE",
+          condition
+        }
+      }
     );
 
     let reportCreated = false;
@@ -295,7 +194,9 @@ const returnEquipment = async (req, res) => {
 
         if (!alreadyOpen) {
           const note =
-            typeof description === "string" ? description.trim().slice(0, 1000) : "";
+            typeof description === "string"
+              ? description.trim().slice(0, 1000)
+              : "";
 
           await DamageReport.create({
             equipment: equipment._id,
@@ -303,8 +204,10 @@ const returnEquipment = async (req, res) => {
             session: updatedSession._id,
             source: "RETURN",
             type: "DAMAGE",
-            description: note || "Marked damaged when returned (no details given)"
+            description:
+              note || "Marked damaged when returned (no details given)"
           });
+
           reportCreated = true;
         }
       } catch (reportError) {
@@ -323,7 +226,6 @@ const returnEquipment = async (req, res) => {
       equipmentStatus: latest.status,
       damageReportCreated: reportCreated
     });
-
   } catch (error) {
     console.error("RETURN ERROR:", error);
 
@@ -333,7 +235,6 @@ const returnEquipment = async (req, res) => {
     });
   }
 };
-
 
 module.exports = {
   issueEquipment,

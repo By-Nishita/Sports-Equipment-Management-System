@@ -1,37 +1,261 @@
-﻿import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import ChangePassword from './pages/ChangePassword';
-import ProtectedRoute from './components/ProtectedRoute';
-import AppShell from './components/AppShell';
-import Scan from './pages/Scan';
-import ReportDamage from './pages/ReportDamage';
-import MySessions from './pages/MySessions';
-import DamageReviews from './pages/DamageReviews';
-import Booking from './pages/Booking';
-import MyBookings from './pages/MyBookings';
-import RoleRoute from './components/RoleRoute';
+﻿import { useState } from 'react';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import "./App.css";
 
-function App() {
+const NAV = [
+  {
+    heading: 'Sports Room',
+    roles: ['student', 'staff', 'admin'],
+    items: [
+      { label: 'Dashboard', to: '/dashboard', icon: 'grid' },
+      { label: 'Scan QR', to: '/scan', icon: 'scan' },
+      { label: 'My Active Use', to: '/my-use', icon: 'bolt' },
+      { label: 'Usage History', to: '/history', icon: 'history' },
+      { label: 'Report damage', to: '/report-damage', icon: 'alert' }
+    ]
+  },
+  {
+    heading: 'Administration',
+    roles: ['staff', 'admin'],
+    items: [
+      { label: 'Damage reviews', to: '/admin/damage', icon: 'alert' },
+      { label: 'Admin Console', icon: 'shield', soon: true }
+    ]
+  }
+];
+
+const ROLE_LABEL = {
+  student: 'Student',
+  staff: 'Sports staff',
+  admin: 'Admin'
+};
+
+const ICONS = {
+  grid: (
+    <>
+      <rect x="3" y="3" width="7" height="7" rx="1.5" />
+      <rect x="14" y="3" width="7" height="7" rx="1.5" />
+      <rect x="3" y="14" width="7" height="7" rx="1.5" />
+      <rect x="14" y="14" width="7" height="7" rx="1.5" />
+    </>
+  ),
+  scan: (
+    <>
+      <path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3" />
+      <path d="M8 12h8" />
+    </>
+  ),
+  bolt: <path d="M13 3 5 13h6l-1 8 8-10h-6l1-8z" />,
+  history: (
+    <>
+      <path d="M3 12a9 9 0 1 0 3-6.7" />
+      <path d="M3 4v5h5" />
+      <path d="M12 8v4l3 2" />
+    </>
+  ),
+  alert: (
+    <>
+      <path d="M12 3 2.5 20h19L12 3z" />
+      <path d="M12 10v4M12 17.5v.01" />
+    </>
+  ),
+  shield: <path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6l-7-3z" />,
+  key: (
+    <>
+      <circle cx="8" cy="15" r="4" />
+      <path d="M11 12l9-9M16 7l3 3" />
+    </>
+  ),
+  logout: (
+    <>
+      <path d="M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4" />
+      <path d="M16 8l4 4-4 4M20 12H9" />
+    </>
+  ),
+  menu: <path d="M4 6h16M4 12h16M4 18h16" />
+};
+
+function Icon({ name }) {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Navigate to="/login" />} />
-        <Route element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/scan" element={<Scan />} />
-          <Route path="/my-use" element={<MySessions key="active" activeOnly />} />
-          <Route path="/history" element={<MySessions key="history" />} />
-          <Route path="/book" element={<Booking />} />
-          <Route path="/my-bookings" element={<MyBookings />} />
-          <Route path="/report-damage" element={<ReportDamage />} />
-          <Route path="/admin/damage" element={<RoleRoute roles={['staff', 'admin']}><DamageReviews /></RoleRoute>} />
-          <Route path="/change-password" element={<ChangePassword />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <svg
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {ICONS[name]}
+    </svg>
   );
 }
 
-export default App;
+function readUser() {
+  try {
+    return JSON.parse(localStorage.getItem('user')) || {};
+  } catch {
+    return {};
+  }
+}
+
+function initialsOf(name) {
+  const parts = (name || '').trim().split(/\s+/).filter(Boolean);
+
+  if (parts.length === 0) return '?';
+
+  return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
+}
+
+function AppShell() {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const [open, setOpen] = useState(false);
+
+  const user = readUser();
+  const role = user.role || 'student';
+
+  const crumb =
+    NAV.flatMap((group) => group.items).find((item) => item.to === pathname)?.label ||
+    (pathname === '/change-password' ? 'Change password' : '');
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/login');
+  };
+
+  return (
+    <div className="shell">
+      {open && (
+        <div
+          className="shell-scrim"
+          onClick={() => setOpen(false)}
+        />
+      )}
+
+      <aside
+        className={open ? 'shell-side shell-side-open' : 'shell-side'}
+        aria-label="Main menu"
+      >
+        <div className="shell-brand">
+          <span className="shell-logo" aria-hidden="true">
+            <svg
+              viewBox="0 0 40 40"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+            >
+              <rect x="6" y="6" width="28" height="28" rx="2" />
+              <path d="M6 20h28" />
+              <circle cx="20" cy="20" r="5" />
+            </svg>
+          </span>
+
+          <span className="shell-brand-name">Sports Room</span>
+        </div>
+
+        <nav className="shell-nav">
+          {NAV.filter((group) => group.roles.includes(role)).map((group) => (
+            <div key={group.heading} className="shell-group">
+              <p className="shell-heading">{group.heading}</p>
+
+              {group.items.map((item) =>
+                item.soon ? (
+                  <span
+                    key={item.label}
+                    className="shell-item shell-item-soon"
+                    aria-disabled="true"
+                  >
+                    <Icon name={item.icon} />
+                    {item.label}
+                    <small>Soon</small>
+                  </span>
+                ) : (
+                  <NavLink
+                    key={item.label}
+                    to={item.to}
+                    className={({ isActive }) =>
+                      isActive ? 'shell-item shell-item-on' : 'shell-item'
+                    }
+                    onClick={() => setOpen(false)}
+                  >
+                    <Icon name={item.icon} />
+                    {item.label}
+                  </NavLink>
+                )
+              )}
+            </div>
+          ))}
+        </nav>
+
+        <div className="shell-me">
+          <div className="shell-me-head">
+            <span className="shell-avatar">{initialsOf(user.name)}</span>
+
+            <span className="shell-me-text">
+              <strong>{user.name || 'Signed in'}</strong>
+              <small>{user.email}</small>
+            </span>
+          </div>
+
+          <NavLink
+            to="/change-password"
+            className={({ isActive }) =>
+              isActive ? 'shell-item shell-item-on' : 'shell-item'
+            }
+            onClick={() => setOpen(false)}
+          >
+            <Icon name="key" />
+            Change password
+          </NavLink>
+
+          <button
+            type="button"
+            className="shell-item shell-logout"
+            onClick={handleLogout}
+          >
+            <Icon name="logout" />
+            Log out
+          </button>
+        </div>
+      </aside>
+
+      <div className="shell-main">
+        <header className="shell-top">
+          <button
+            type="button"
+            className="shell-burger"
+            aria-label="Open menu"
+            aria-expanded={open}
+            onClick={() => setOpen(true)}
+          >
+            <Icon name="menu" />
+          </button>
+
+          <p className="shell-crumb">
+            Sports Room <span aria-hidden="true">/</span>{' '}
+            <strong>{crumb}</strong>
+          </p>
+
+          <div className="shell-user">
+            <span className="shell-avatar">{initialsOf(user.name)}</span>
+
+            <span className="shell-user-text">
+              <strong>{user.name || 'Signed in'}</strong>
+              <small>{ROLE_LABEL[role] || role}</small>
+            </span>
+          </div>
+        </header>
+
+        <main className="shell-content">
+          <Outlet />
+        </main>
+      </div>
+    </div>
+  );
+}
+
+export default AppShell;

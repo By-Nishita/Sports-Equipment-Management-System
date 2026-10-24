@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import './AppShell.css';
 
@@ -12,7 +12,6 @@ const NAV = [
     items: [
       { label: 'Dashboard', to: '/dashboard', icon: 'grid' },
       { label: 'Book Equipment', to: '/book', icon: 'history' },
-      { label: 'My Bookings', to: '/my-bookings', icon: 'history' },
       { label: 'Scan QR', to: '/scan', icon: 'scan' },
       { label: 'My Active Use', to: '/my-use', icon: 'bolt' },
       { label: 'Usage History', to: '/history', icon: 'history' },

@@ -1,15 +1,7 @@
 module.exports = {
-
-  User: require('./User'),
-
-  Equipment: require('./Equipment'),
-
-  UsageSession: require('./UsageSession'),
-
-  Reservation: require('./Reservation'),
-
-  DamageReport: require('./DamageReport'),
-
-  MaintenanceRecord: require('./MaintenanceRecord')
-
+  User: require("./User"),
+  Equipment: require("./Equipment"),
+  UsageSession: require("./UsageSession"),
+  DamageReport: require("./DamageReport"),
+  MaintenanceRecord: require("./MaintenanceRecord")
 };
