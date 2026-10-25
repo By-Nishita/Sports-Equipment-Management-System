@@ -1,3 +1,7 @@
+const dns = require("dns");
+// Use Google/Cloudflare DNS for the Atlas "mongodb+srv" lookup (some networks refuse SRV queries)
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
+
 const mongoose = require("mongoose");
 
 const connectDB = async () => {

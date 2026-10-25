@@ -8,6 +8,8 @@ const sessionRoutes = require("./routes/sessionRoutes");
 const reservationRoutes = require("./routes/reservationRoutes");
 const damageReportRoutes = require("./routes/damageReportRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
+const settingsRoutes = require("./routes/settingsRoutes");
+const auditRoutes = require("./routes/auditRoutes");
 
 dotenv.config();
 
@@ -21,6 +23,8 @@ app.use("/api/sessions", sessionRoutes);
 app.use("/api/reservations", reservationRoutes);
 app.use("/api/damage-reports", damageReportRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/settings", settingsRoutes);
+app.use("/api/audit-logs", auditRoutes);
 connectDB();
 
 app.get("/api/health", (req, res) => {
