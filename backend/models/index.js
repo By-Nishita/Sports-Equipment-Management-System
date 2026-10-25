@@ -10,6 +10,10 @@ module.exports = {
 
   DamageReport: require('./DamageReport'),
 
-  MaintenanceRecord: require('./MaintenanceRecord')
+  MaintenanceRecord: require('./MaintenanceRecord'),
+
+  AuditLog: require('./AuditLog'),
+
+  Settings: require('./Settings')
 
 };
