@@ -10,7 +10,11 @@ const userSchema = new mongoose.Schema({
   division: { type: String },
   year: { type: String },
   role: { type: String, enum: ['student', 'staff', 'admin'], default: 'student' },
-  mustChangePassword: { type: Boolean, default: false }
+  mustChangePassword: { type: Boolean, default: false },
+  phone: { type: String },
+  photoUrl: { type: String },
+  isActive: { type: Boolean, default: true },   // false = account closed, login blocked, history kept
+  passwordChangedAt: { type: Date }              // tokens issued before this moment stop working
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

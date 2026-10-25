@@ -1,0 +1,13 @@
+.as-form {
+  display: grid;
+  gap: 1rem;
+  max-width: 520px;
+}
+.as-form .field {
+  margin: 0;
+}
+.as-help {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--ink-soft);
+}
