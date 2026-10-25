@@ -23,8 +23,10 @@ function Login() {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
 
-      navigate('/dashboard');
-    } catch (err) {
+      // First login with a given/temporary password => straight to the change-password page
+      navigate(response.data.user.mustChangePassword ? '/change-password' : '/dashboard');
+      
+        } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);

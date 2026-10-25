@@ -26,6 +26,14 @@ const NAV = [
       { label: 'Admin Dashboard', to: '/admin', icon: 'shield' },
       { label: 'Damage reviews', to: '/admin/damage', icon: 'alert' }
     ]
+  },
+  {
+    heading: 'Admin only',
+    roles: ['admin'],
+    items: [
+      { label: 'Settings', to: '/admin/settings', icon: 'key' },
+      { label: 'Audit log', to: '/admin/audit-log', icon: 'history' }
+    ]
   }
 ];
 
@@ -117,6 +125,8 @@ function AppShell() {
   const [open, setOpen] = useState(false);
   const user = readUser();
   const role = user.role || 'student';
+  const forced = user.mustChangePassword === true; // locked until the password is changed
+    
 
   // Top bar ka naam URL se: menu ki list mein jo item is URL ka hai, uska label
   const crumb =
@@ -146,8 +156,7 @@ function AppShell() {
         </div>
 
         <nav className="shell-nav">
-          {NAV.filter((group) => group.roles.includes(role)).map((group) => (
-            <div key={group.heading} className="shell-group">
+            {NAV.filter((group) => !forced && group.roles.includes(role)).map((group) => (            <div key={group.heading} className="shell-group">
               <p className="shell-heading">{group.heading}</p>
               {group.items.map((item) =>
                 item.soon ? (
