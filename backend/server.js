@@ -18,6 +18,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use("/api/equipment", equipmentRoutes);
+app.use("/api/equipment", require("./routes/equipmentRoutes.n2-temp"));
 app.use('/api/auth', authRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/reservations", reservationRoutes);

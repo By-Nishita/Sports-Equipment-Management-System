@@ -1,4 +1,6 @@
 module.exports = {
+  EquipmentType: require('./EquipmentType'),
+  EquipmentUnit: require('./EquipmentUnit'),
 
   User: require('./User'),
 
