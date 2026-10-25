@@ -1,6 +1,6 @@
 // frontend/src/pages/Login.jsx
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import AuthLayout from '../components/AuthLayout';
 
@@ -65,6 +65,9 @@ function Login() {
           {loading ? 'Signing in...' : 'Sign in'}
         </button>
       </form>
+            <p className="auth-sub">
+        <Link to="/forgot-password">Forgot password?</Link> &middot; <Link to="/first-time">First time? Set your password</Link>
+      </p>
     </AuthLayout>
   );
 }

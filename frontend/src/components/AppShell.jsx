@@ -32,6 +32,7 @@ const NAV = [
     roles: ['admin'],
     items: [
       { label: 'Settings', to: '/admin/settings', icon: 'key' },
+      { label: 'Students and staff', to: '/admin/students', icon: 'shield' },
       { label: 'Audit log', to: '/admin/audit-log', icon: 'history' }
     ]
   }
