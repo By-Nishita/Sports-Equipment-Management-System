@@ -14,6 +14,9 @@ import RoleRoute from './components/RoleRoute';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminSettings from './pages/AdminSettings';
 import AuditLogPage from './pages/AuditLogPage';
+import ForgotPassword from './pages/ForgotPassword';
+import SetPassword from './pages/SetPassword';
+import AdminStudents from './pages/AdminStudents';
 
 function App() {
   return (
@@ -21,6 +24,8 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/set-password" element={<SetPassword />} />
         <Route element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/scan" element={<Scan />} />
@@ -34,6 +39,7 @@ function App() {
           <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/admin/settings" element={<RoleRoute roles={['admin']}><AdminSettings /></RoleRoute>} />
         <Route path="/admin/audit-log" element={<RoleRoute roles={['admin']}><AuditLogPage /></RoleRoute>} />
+        <Route path="/admin/students" element={<RoleRoute roles={['admin']}><AdminStudents /></RoleRoute>} />
         </Route>
       </Routes>
     </BrowserRouter>

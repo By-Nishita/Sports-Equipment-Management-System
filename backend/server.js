@@ -10,6 +10,7 @@ const damageReportRoutes = require("./routes/damageReportRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const settingsRoutes = require("./routes/settingsRoutes");
 const auditRoutes = require("./routes/auditRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 dotenv.config();
 
@@ -26,6 +27,8 @@ app.use("/api/damage-reports", damageReportRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/audit-logs", auditRoutes);
+app.use("/api/users", userRoutes);
+
 connectDB();
 
 app.get("/api/health", (req, res) => {

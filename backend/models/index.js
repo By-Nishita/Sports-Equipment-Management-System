@@ -16,6 +16,8 @@ module.exports = {
 
   AuditLog: require('./AuditLog'),
 
-  Settings: require('./Settings')
+  Settings: require('./Settings'),
+
+  PasswordReset: require('./PasswordReset')
 
 };
