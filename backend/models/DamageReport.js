@@ -2,10 +2,25 @@ const mongoose = require("mongoose");
 
 const damageReportSchema = new mongoose.Schema(
   {
+        // NEW way: the exact physical unit (e.g. FB-007)
+    unit: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "EquipmentUnit",
+      default: null
+    },
+
+    // OLD way, kept only until task P3 moves damage reports fully to units
     equipment: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Equipment",
-      required: true
+      default: null
+    },
+
+    // Staff member who checked the damage at the counter
+    verifiedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null
     },
 
     reportedBy: {

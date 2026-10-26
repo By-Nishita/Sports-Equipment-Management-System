@@ -30,6 +30,12 @@ app.use("/api/audit-logs", auditRoutes);
 app.use("/api/users", userRoutes);
 
 connectDB();
+// Every minute: waiting issue requests older than the approval timeout become EXPIRED.
+setInterval(() => {
+    require("./services/sessionService")
+        .expireStaleRequests()
+        .catch((err) => console.error("Expire requests failed:", err.message));
+}, 60 * 1000);
 
 app.get("/api/health", (req, res) => {
     res.json({
