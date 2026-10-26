@@ -182,7 +182,7 @@ function AdminDashboard() {
       .then(([statsRes, activeRes]) => {
         if (cancelled) return;
         setStats(statsRes.data.stats);
-        setActive(activeRes.data.sessions);
+        setActive(activeRes.data.data);
       })
       .catch((err) => {
         if (!cancelled) setError(err.response?.data?.message || 'Could not load the dashboard. Please try again.');
@@ -344,12 +344,12 @@ function AdminDashboard() {
                     <li key={s._id}>
                       {/* there is no photo yet, so show the first letter of the item name */}
                       <span className="ad-thumb" aria-hidden="true">
-                        {(s.equipment?.name || '?').charAt(0).toUpperCase()}
+                      {(s.type?.name || '?').charAt(0).toUpperCase()}
                       </span>
                       <div className="ad-live-text">
-                        <strong>{s.equipment?.name || 'Unknown item'}</strong>
+                        <strong>{s.type?.name || 'Unknown item'}</strong>
                         <small>
-                          {s.equipment?.equipmentId} &middot; checked out by {s.user?.name || 'unknown'}
+                          {s.unit?.unitCode} &middot; checked out by {s.user?.name || 'unknown'}
                         </small>
                       </div>
                       {s.isOverdue ? (
@@ -459,13 +459,13 @@ function AdminDashboard() {
                     <li key={s._id} className="card ad-row">
                       <div>
                         <strong>
-                          {s.equipment?.name || 'Unknown item'}
-                          {s.equipment?.equipmentId && <span className="ad-id"> {s.equipment.equipmentId}</span>}
+                          {s.type?.name || 'Unknown item'}
+                          {s.unit?.unitCode && <span className="ad-id"> {s.unit.unitCode}</span>}
                         </strong>
                         <p className="ad-who">
                           {s.user?.name || 'Unknown student'}
                           {s.user?.srn ? ` (${s.user.srn})` : ''}
-                          {s.user?.email ? ` · ${s.user.email}` : ''}
+                          {s.user?.phone ? ` · ${s.user.phone}` : ''}
                         </p>
                       </div>
                       <div className="ad-late">

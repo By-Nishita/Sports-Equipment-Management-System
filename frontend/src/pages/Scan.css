@@ -1,4 +1,4 @@
-/* Scan page ka andar ka hissa. Sidebar/top bar AppShell.css mein hai. */
+/* Scan page (request an item). Sidebar/top bar styles are in AppShell.css. */
 
 .scan-head {
   margin-bottom: 1.25rem;
@@ -18,24 +18,11 @@
   margin: 0;
   color: var(--ink-soft);
 }
-
-/* Issue / Return switch aur (return par) condition */
-.scan-controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 1rem;
-  margin-bottom: 1.25rem;
-}
-.scan-controls .seg {
-  width: min(320px, 100%);
-}
-.scan-condition {
-  margin: 0;
-  width: min(240px, 100%);
+.scan-msg {
+  margin: 0 0 1rem;
 }
 
-/* Do card: camera aur manual ID */
+/* Two cards: camera and the item list */
 .scan-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -55,11 +42,8 @@
   margin: 0;
   color: var(--ink-soft);
 }
-.scan-card .field {
-  margin: 0;
-}
 
-/* Camera shuru hone se pehle ka QR frame */
+/* QR frame shown before the camera starts */
 .scan-frame {
   position: relative;
   display: grid;
@@ -87,8 +71,7 @@
 .scan-corner-bl { bottom: 10px; left: 10px; border-width: 0 0 4px 4px; border-bottom-left-radius: 8px; }
 .scan-corner-br { bottom: 10px; right: 10px; border-width: 0 4px 4px 0; border-bottom-right-radius: 8px; }
 
-/* Camera ka dabba: scan band ho to chhupa, scan chalu ho to hamesha dikhta hai
-   (pehle :empty se chhupta tha, aur library ko chaudai 0 milti thi) */
+/* Camera box: hidden when not scanning, always sized while scanning */
 .reader {
   display: none;
   width: 100%;
@@ -101,45 +84,85 @@
   background: var(--ink);
 }
 
-.scan-result {
-  margin: 1.25rem 0 0;
+/* Item list */
+.scan-types {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
-.scan-report {
-  margin-top: 1rem;
+.scan-type {
+  width: 100%;
+  justify-content: flex-start;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+.scan-type-text {
+  display: grid;
+  line-height: 1.2;
+}
+.scan-type-text small {
+  font-weight: 500;
+  color: var(--ink-soft);
 }
 
-/* Confirm popup: dark backdrop over the whole page, card centred on top */
-.scan-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
+/* Confirm / waiting / result card */
+.scan-state {
   display: grid;
-  place-items: center;
-  padding: 1rem;
-  background: rgba(0, 0, 0, 0.5);
+  gap: 1rem;
+  max-width: 34rem;
 }
-.scan-confirm {
-  width: min(100%, 26rem);
-  max-height: calc(100vh - 2rem);
-  overflow-y: auto;
-  display: grid;
-  gap: 0.75rem;
-  border-color: var(--turf);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+.scan-state h2 {
+  margin: 0 0 0.25rem;
 }
-.scan-confirm h2 {
+.scan-state p {
   margin: 0;
 }
-.scan-confirm-id {
-  margin: 0;
-  font-family: var(--display);
-  font-size: 1.5rem;
+.scan-state-top {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.scan-avail {
+  margin-top: 0.25rem;
+  font-weight: 600;
   color: var(--turf-dark);
 }
-.scan-confirm-actions {
+.scan-avail-none {
+  color: var(--danger);
+}
+.scan-ack {
   display: flex;
-  gap: 0.75rem;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--chalk);
+  cursor: pointer;
+}
+.scan-ack input {
+  width: 1.2rem;
+  height: 1.2rem;
+  margin-top: 0.15rem;
+  flex: none;
+}
+.scan-big {
+  font-family: var(--display);
+  font-size: 2.6rem;
+  line-height: 1.1;
+  color: var(--turf-dark);
+}
+.scan-actions {
+  display: flex;
   flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.scan-report {
+  margin-top: 1rem;
 }
 
 @media (max-width: 760px) {

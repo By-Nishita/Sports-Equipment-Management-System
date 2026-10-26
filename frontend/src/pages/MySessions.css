@@ -58,3 +58,22 @@
 .ms-empty {
   color: var(--ink-soft);
 }
+
+
+.ms-name {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.ms-note {
+  margin: 0;
+  color: var(--ink-soft);
+}
+.ms-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.ms-more {
+  margin-top: 1rem;
+}

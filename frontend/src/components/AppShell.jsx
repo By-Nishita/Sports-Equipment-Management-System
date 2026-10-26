@@ -14,9 +14,19 @@ const NAV = [
       { label: 'Book Equipment', to: '/book', icon: 'history' },
       { label: 'My Bookings', to: '/my-bookings', icon: 'history' },
       { label: 'Scan QR', to: '/scan', icon: 'scan' },
+      { label: 'Return item', to: '/return', icon: 'return' },
       { label: 'My Active Use', to: '/my-use', icon: 'bolt' },
       { label: 'Usage History', to: '/history', icon: 'history' },
       { label: 'Report damage', to: '/report-damage', icon: 'alert' }
+    ]
+  },
+  {
+    heading: 'Staff desk',
+    roles: ['staff', 'admin'],
+    items: [
+      { label: 'Approvals', to: '/staff/approvals', icon: 'check' },
+      { label: 'Pending returns', to: '/staff/returns', icon: 'return' },
+      { label: 'Overdue', to: '/staff/overdue', icon: 'clock' }
     ]
   },
   {
@@ -56,6 +66,20 @@ const ICONS = {
     </>
   ),
   bolt: <path d="M13 3 5 13h6l-1 8 8-10h-6l1-8z" />,
+    check: <path d="M5 12.5l4.5 4.5L19 7.5" />,
+  return: (
+    <>
+      <path d="M9 14 4 9l5-5" />
+      <path d="M4 9h10a6 6 0 0 1 0 12h-3" />
+    </>
+  ),
+  clock: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 2" />
+    </>
+  ),
+  
   history: (
     <>
       <path d="M3 12a9 9 0 1 0 3-6.7" />
