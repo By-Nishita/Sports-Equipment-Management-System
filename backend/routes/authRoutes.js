@@ -132,14 +132,13 @@ router.post('/change-password', protect, async (req, res) => {
   }
 });
 
-// ---------- Forgot password / first-time password (link by email) ----------
-
+// ---------- Forgot password (link by email) ----------
 // ALWAYS the same answer, whether the account exists or not. Otherwise anyone could
 // type emails one by one and find out which ones are registered.
 const FORGOT_REPLY = 'If an account exists, we have emailed a link to set your password. It works for 15 minutes.';
 
 router.post('/forgot-password', forgotLimiter, async (req, res) => {
-  const { identifier, firstTime } = req.body || {};
+  const { identifier } = req.body || {};
 
   // Reply FIRST, work afterwards. This way the reply takes the same time for everyone,
   // so nobody can guess if an account exists by how fast the answer came.
@@ -159,7 +158,7 @@ router.post('/forgot-password', forgotLimiter, async (req, res) => {
 
     await emailService.sendMail({
       to: user.email,
-      subject: firstTime ? 'Set your Sports Room password' : 'Reset your Sports Room password',
+      subject: 'Reset your Sports Room password',
       text: `Hello ${user.name},\n\nOpen this link to set your password (valid for ${minutes} minutes, works once):\n${link}\n\nIf you did not ask for this, ignore this email.`,
       html: `<p>Hello ${user.name},</p><p><a href="${link}">Set your password</a> (valid for ${minutes} minutes, works once).</p><p>If you did not ask for this, ignore this email.</p>`
     });

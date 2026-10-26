@@ -3,9 +3,8 @@ import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import AuthLayout from '../components/AuthLayout';
 
-// Used for TWO screens: "Forgot password?" and "First time? Set your password".
-// Both do the same thing: email a link. Only the wording differs.
-function ForgotPassword({ firstTime = false }) {
+// Asks for the college email or SRN and emails a link to set a new password.
+function ForgotPassword() {
   const [identifier, setIdentifier] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -17,8 +16,7 @@ function ForgotPassword({ firstTime = false }) {
     setMessage('');
     setLoading(true);
     try {
-      const res = await api.post('/auth/forgot-password', { identifier, firstTime });
-      setMessage(res.data.message); // same text whether the account exists or not
+      const res = await api.post('/auth/forgot-password', { identifier });      setMessage(res.data.message); // same text whether the account exists or not
     } catch (err) {
       setError(err.response?.data?.message || 'Something went wrong. Please try again.');
     } finally {
@@ -28,7 +26,7 @@ function ForgotPassword({ firstTime = false }) {
 
   return (
     <AuthLayout
-      title={firstTime ? 'Set your password' : 'Forgot password'}
+      title="Forgot password"
       subtitle="Enter your college email or SRN. We will email you a link."
     >
       <form onSubmit={handleSubmit}>

@@ -25,7 +25,6 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/first-time" element={<ForgotPassword firstTime />} />
         <Route path="/set-password" element={<SetPassword />} />
         <Route element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
           <Route path="/dashboard" element={<Dashboard />} />
