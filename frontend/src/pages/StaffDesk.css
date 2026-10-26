@@ -1,0 +1,203 @@
+/* Staff desk pages: Approvals, Pending returns, Overdue */
+
+.sd-list {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-width: 46rem;
+}
+.sd-card {
+  display: grid;
+  gap: 0.9rem;
+}
+.sd-top {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.sd-title {
+  flex: 1;
+  min-width: 0;
+}
+.sd-title h2 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+.sd-sub {
+  margin: 0;
+  color: var(--ink-soft);
+}
+.sd-when {
+  align-self: flex-start;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.sd-empty {
+  color: var(--ink-soft);
+}
+
+/* The sticky message after an action: stays visible even if the card disappears */
+.sd-notice {
+  position: sticky;
+  top: 0.5rem;
+  z-index: 5;
+  max-width: 46rem;
+}
+
+/* Approve form */
+.sd-approve {
+  display: grid;
+  gap: 0.6rem;
+}
+.sd-approve .field,
+.sd-check .field,
+.sd-reject .field {
+  margin: 0;
+}
+.sd-approve input {
+  font-family: var(--display);
+  font-size: 1.4rem;
+  letter-spacing: 0.04em;
+}
+.sd-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+.sd-chip {
+  min-height: 36px;
+  padding: 0.25rem 0.7rem;
+  font-variant-numeric: tabular-nums;
+}
+.sd-chip-on {
+  background: var(--turf-tint);
+  color: var(--turf-dark);
+  border-color: var(--turf);
+}
+.sd-chip-on:hover:not(:disabled) {
+  background: var(--turf-tint);
+  color: var(--turf-dark);
+}
+.sd-more {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+.sd-warn {
+  margin: 0;
+  color: var(--danger);
+  font-weight: 600;
+}
+.sd-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.sd-reject {
+  display: grid;
+  gap: 0.6rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line);
+}
+.sd-danger {
+  background: var(--danger);
+  border-color: var(--danger);
+}
+.sd-danger:hover:not(:disabled) {
+  background: #8f1d17;
+  border-color: #8f1d17;
+}
+
+/* Pending returns */
+.sd-code {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 2.6rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--turf-dark);
+}
+.sd-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 2rem;
+  margin: 0;
+}
+.sd-facts dt {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.sd-facts dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.sd-quote {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border-left: 3px solid var(--line);
+  color: var(--ink-soft);
+}
+.sd-check {
+  display: grid;
+  gap: 0.6rem;
+  max-width: 24rem;
+}
+
+/* Overdue table */
+.sd-table-wrap {
+  overflow-x: auto;
+  padding: 0;
+}
+.sd-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.sd-table th,
+.sd-table td {
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+  vertical-align: middle;
+  border-top: 1px solid var(--line);
+}
+.sd-table thead th {
+  border-top: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.sd-row-late {
+  background: var(--danger-tint);
+}
+.sd-cell-code {
+  font-family: var(--display);
+  font-size: 1.3rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.sd-late {
+  font-weight: 700;
+  color: var(--danger);
+  white-space: nowrap;
+}
+.sd-table-wrap .sd-more {
+  margin: 0;
+  padding: 0.6rem 0.75rem;
+}
+
+@media (max-width: 600px) {
+  .sd-top {
+    flex-wrap: wrap;
+  }
+  .sd-when {
+    width: 100%;
+  }
+}
