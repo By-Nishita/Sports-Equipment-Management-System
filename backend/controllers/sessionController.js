@@ -1,347 +1,100 @@
-const Equipment = require("../models/Equipment");
 const UsageSession = require("../models/UsageSession");
-const Reservation = require("../models/Reservation");
-const DamageReport = require("../models/DamageReport");
-const {
-  expireStaleReservations,
-  findStartedActiveReservation,
-  getBlockingReservation
-} = require("../services/reservationService");
-const DEFAULT_ISSUE_HOURS = 2;
+const settingsService = require("../services/settingsService");
+const sessionService = require("../services/sessionService");
+const rules = require("../services/sessionRules");
+const { ok, handle, parsePage } = require("../utils/http");
 
-const issueEquipment = async (req, res) => {
-  try {
-    const { equipmentId } = req.body;
-
-    if (!equipmentId) {
-      return res.status(400).json({
-        success: false,
-        message: "equipmentId is required"
-      });
-    }
-
-    const now = new Date();
-
-    // Mark unclaimed reservations as NO_SHOW / EXPIRED
-    await expireStaleReservations({}, now);
-
-    // Check whether equipment exists
-    const existingEquipment = await Equipment.findOne({ equipmentId });
-
-    if (!existingEquipment) {
-      return res.status(404).json({
-        success: false,
-        message: "Equipment not found"
-      });
-    }
-
-    // Equipment must be AVAILABLE
-    if (existingEquipment.status !== "AVAILABLE") {
-      return res.status(400).json({
-        success: false,
-        message: `Equipment is not available (current status: ${existingEquipment.status})`
-      });
-    }
-
-    // N2: Check whether another student blocks this equipment.
-    // A future reservation does not block issuing it right now.
-    const { blockedByOther } = await getBlockingReservation(
-      existingEquipment._id,
-      req.user._id,
-      now
-    );
-
-    if (blockedByOther) {
-      return res.status(403).json({
-        success: false,
-        message: "This equipment is reserved by another student"
-      });
-    }
-
-    // Atomically change AVAILABLE -> IN_USE
-    const equipment = await Equipment.findOneAndUpdate(
-      {
-        equipmentId,
-        status: "AVAILABLE"
-      },
-      {
-        status: "IN_USE"
-      },
-      {
-        new: true
-      }
-    );
-
-    if (!equipment) {
-      return res.status(400).json({
-        success: false,
-        message: "Equipment is no longer available"
-      });
-    }
-
-    // N2: Check again after claiming, to reduce race-condition risk.
-    const afterClaimNow = new Date();
-
-    // Also take nextBookingStart: the start of the next upcoming booking (or null)
-    const { blockedByOther: blockedAfterClaim, nextBookingStart } =
-      await getBlockingReservation(
-        equipment._id,
-        req.user._id,
-        afterClaimNow
-      );
-
-    if (blockedAfterClaim) {
-      await Equipment.updateOne(
-        { _id: equipment._id },
-        { status: "AVAILABLE" }
-      );
-
-      return res.status(403).json({
-        success: false,
-        message: "This equipment is reserved by another student"
-      });
-    }
-
-    // Find this user's reservation, if one applies right now.
-    const reservationAfterClaim = await Reservation.findOne({
-      equipment: equipment._id,
-      user: req.user._id,
-      status: "ACTIVE",
-      expiresAt: { $gt: afterClaimNow },
-      $or: [
-        { startTime: null },
-        { startTime: { $lte: afterClaimNow } }
-      ]
-    });
-
-        // Default due time: now + 2 hours
-    let dueAt = new Date(
-      afterClaimNow.getTime() + DEFAULT_ISSUE_HOURS * 60 * 60 * 1000
-    );
-
-    // If someone has booked this equipment before that, it is due when that booking starts
-    if (nextBookingStart && nextBookingStart < dueAt) {
-      dueAt = new Date(nextBookingStart);
-    }
-
-    try {
-      const issuedVia = reservationAfterClaim
-        ? "RESERVATION"
-        : "DIRECT";
-
-      // Create usage session
-      const session = await UsageSession.create({
-        equipment: equipment._id,
-        user: req.user._id,
-        dueAt,
-        reservation: reservationAfterClaim
-          ? reservationAfterClaim._id
-          : null,
-        issuedVia
-      });
-
-      // If reservation was used, mark it as fulfilled
-      if (reservationAfterClaim) {
-        reservationAfterClaim.status = "FULFILLED";
-        reservationAfterClaim.fulfilledAt = new Date();
-        reservationAfterClaim.session = session._id;
-
-        await reservationAfterClaim.save();
-      }
-
-      await session.populate(
-        "equipment",
-        "equipmentId name category"
-      );
-
-      return res.status(201).json({
-        success: true,
-        message: reservationAfterClaim
-          ? "Equipment issued successfully using reservation"
-          : "Equipment issued successfully",
-        session
-      });
-
-    } catch (err) {
-      // If session creation fails, make equipment available again.
-      await Equipment.updateOne(
-        { _id: equipment._id },
-        { status: "AVAILABLE" }
-      );
-
-      throw err;
-    }
-
-  } catch (error) {
-    console.error("ISSUE ERROR:", error);
-
-    return res.status(500).json({
-      success: false,
-      message: error.message
-    });
-  }
-};
-
-
-const VALID_CONDITIONS = [
-  "EXCELLENT",
-  "GOOD",
-  "FAIR",
-  "DAMAGED"
+// Same fields everywhere, so every list looks the same to the frontend.
+const POPULATE = [
+  { path: "user", select: "name srn phone photoUrl" },
+  { path: "type", select: "name category imageUrl thumbUrl qrIdentifier" },
+  { path: "unit", select: "unitCode condition" }
 ];
 
-
-const returnEquipment = async (req, res) => {
-  try {
-    const { equipmentId, condition, description } = req.body;
-
-    if (!equipmentId || !condition) {
-      return res.status(400).json({
-        success: false,
-        message: "equipmentId and condition are required"
-      });
-    }
-
-    if (!VALID_CONDITIONS.includes(condition)) {
-      return res.status(400).json({
-        success: false,
-        message: `condition must be one of: ${VALID_CONDITIONS.join(", ")}`
-      });
-    }
-
-    const equipment = await Equipment.findOne({ equipmentId });
-
-    if (!equipment) {
-      return res.status(404).json({
-        success: false,
-        message: "Equipment not found"
-      });
-    }
-
-    const session = await UsageSession.findOne({
-      equipment: equipment._id,
-      status: "ACTIVE"
-    });
-
-    if (!session) {
-      return res.status(400).json({
-        success: false,
-        message: "This equipment is not currently issued"
-      });
-    }
-
-    // Only the student who issued it or staff/admin can return it
-    const isOwner =
-      session.user.toString() === req.user._id.toString();
-
-    const isStaff =
-      ["admin", "staff"].includes(req.user.role);
-
-    if (!isOwner && !isStaff) {
-      return res.status(403).json({
-        success: false,
-        message: "You did not issue this equipment"
-      });
-    }
-
-    const returnedAt = new Date();
-
-    const durationMinutes = Math.round(
-      (returnedAt - session.issuedAt) / 60000
-    );
-
-    const lateMs = returnedAt - session.dueAt;
-    const lateMinutes = lateMs > 0 ? Math.ceil(lateMs / 60000) : 0;
-    const wasLate = lateMinutes > 0;
-
-    const conditionBefore = equipment.condition;
-    
-    // Check ACTIVE again so double return does not happen
-    const updatedSession = await UsageSession.findOneAndUpdate(
-      {
-        _id: session._id,
-        status: "ACTIVE"
-      },
-      {
-        status: "RETURNED",
-        returnedAt,
-        durationMinutes,
-        returnCondition: condition,
-        conditionBefore,
-        wasLate,
-        lateMinutes
-      },
-      {
-        new: true
-      }
-    );
-
-    if (!updatedSession) {
-      return res.status(409).json({
-        success: false,
-        message: "Already returned"
-      });
-    }
-
-    const isDamaged = condition === "DAMAGED";
-
-    await Equipment.updateOne(
-      { _id: equipment._id, status: "IN_USE" },
-      { $set: { status: isDamaged ? "DAMAGED" : "AVAILABLE", condition } }
-    );
-
-    let reportCreated = false;
-
-    if (isDamaged) {
-      try {
-        const alreadyOpen = await DamageReport.exists({
-          equipment: equipment._id,
-          status: { $in: ["PENDING", "UNDER_REVIEW"] }
-        });
-
-        if (!alreadyOpen) {
-          const note =
-            typeof description === "string" ? description.trim().slice(0, 1000) : "";
-
-          await DamageReport.create({
-            equipment: equipment._id,
-            reportedBy: req.user._id,
-            session: updatedSession._id,
-            source: "RETURN",
-            type: "DAMAGE",
-            description: note || "Marked damaged when returned (no details given)"
-          });
-          reportCreated = true;
-        }
-      } catch (reportError) {
-        console.error("AUTO DAMAGE REPORT ERROR:", reportError);
-      }
-    }
-
-    const latest = await Equipment.findById(equipment._id).select("status");
-
-    return res.json({
-      success: true,
-      message: isDamaged
-        ? "Returned. Equipment marked as damaged and sent to staff for review"
-        : "Equipment returned successfully",
-      session: updatedSession,
-      equipmentStatus: latest.status,
-      damageReportCreated: reportCreated
-    });
-
-  } catch (error) {
-    console.error("RETURN ERROR:", error);
-
-    return res.status(500).json({
-      success: false,
-      message: error.message
-    });
-  }
+const list = async (req, res, filter, sort, { message = "OK" } = {}) => {
+  const { page, limit, skip } = parsePage(req.query);
+  const [rows, total] = await Promise.all([
+    UsageSession.find(filter).populate(POPULATE).sort(sort).skip(skip).limit(limit),
+    UsageSession.countDocuments(filter)
+  ]);
+  ok(res, rows, message, 200, { pagination: { page, limit, total, pages: Math.ceil(total / limit) } });
 };
 
+// ---------- actions ----------
+const requestIssue = handle(async (req, res) => {
+  const session = await sessionService.requestIssue(req.user, req.body || {});
+  ok(res, session, "Request sent. Waiting for staff approval.", 201);
+});
+
+const approve = handle(async (req, res) => {
+  const session = await sessionService.approve(req.user, req.params.id, (req.body || {}).unitCode);
+  ok(res, session, "Issue approved");
+});
+
+const reject = handle(async (req, res) => {
+  const session = await sessionService.reject(req.user, req.params.id, (req.body || {}).reason);
+  ok(res, session, "Request rejected");
+});
+
+const cancel = handle(async (req, res) => {
+  const session = await sessionService.cancel(req.user, req.params.id);
+  ok(res, session, "Request cancelled");
+});
+
+const requestReturn = handle(async (req, res) => {
+  const session = await sessionService.requestReturn(req.user, req.body || {});
+  ok(res, session, "Return requested. Show the item to staff.");
+});
+
+const confirmReturn = handle(async (req, res) => {
+  const result = await sessionService.confirmReturn(req.user, req.params.id, req.body || {});
+  ok(res, result, result.damageReport ? "Return confirmed. A damage report was created." : "Return confirmed");
+});
+
+const flagMismatch = handle(async (req, res) => {
+  const session = await sessionService.flagMismatch(req.user, req.params.id, (req.body || {}).note);
+  ok(res, session, "Mismatch recorded");
+});
+
+// ---------- lists ----------
+// Student: own sessions. ?open=true => only the ones still in progress.
+const mySessions = handle(async (req, res) => {
+  const filter = { user: req.user._id };
+  if (req.query.open === "true") filter.status = { $in: sessionService.OPEN_STATUSES };
+  await list(req, res, filter, { createdAt: -1 });
+});
+
+// Staff: requests waiting for a unit (only those not past the timeout), oldest first.
+const pendingApprovals = handle(async (req, res) => {
+  const settings = await settingsService.get();
+  const cutoff = rules.requestCutoff(new Date(), settings.approvalTimeoutMinutes);
+  await list(req, res, { status: "ISSUE_PENDING", requestedAt: { $gte: cutoff } }, { requestedAt: 1 });
+});
+
+// Staff: returns waiting to be checked, oldest first.
+const pendingReturns = handle(async (req, res) => {
+  await list(req, res, { status: "RETURN_PENDING" }, { returnRequestedAt: 1 });
+});
+
+// Staff: everything currently out.
+const activeSessions = handle(async (req, res) => {
+  await list(req, res, { status: "ACTIVE" }, { dueAt: 1 });
+});
+
+// Staff: out and past the due time, the most late first. Adds minutesLate.
+const overdueSessions = handle(async (req, res) => {
+  const now = new Date();
+  const { page, limit, skip } = parsePage(req.query);
+  const filter = { status: "ACTIVE", dueAt: { $lt: now } };
+  const [rows, total] = await Promise.all([
+    UsageSession.find(filter).populate(POPULATE).sort({ dueAt: 1 }).skip(skip).limit(limit),
+    UsageSession.countDocuments(filter)
+  ]);
+  const data = rows.map((s) => ({ ...s.toJSON(), minutesLate: Math.floor((now - s.dueAt) / 60000) }));
+  ok(res, data, "OK", 200, { pagination: { page, limit, total, pages: Math.ceil(total / limit) } });
+});
 
 module.exports = {
-  issueEquipment,
-  returnEquipment
+  requestIssue, approve, reject, cancel, requestReturn, confirmReturn, flagMismatch,
+  mySessions, pendingApprovals, pendingReturns, activeSessions, overdueSessions
 };

@@ -108,15 +108,14 @@ const getDashboardStats = async (req, res) => {
         }
       ]),
       
-      // The 6 newest sessions for the Recent activity table.
-      // populate() swaps the stored IDs for a few fields of the real user and equipment
-      // (never the password). lean() returns plain objects, which is faster.
-      UsageSession.find()
-        .sort({ issuedAt: -1 })
+      UsageSession.find({ status: { $in: ["ACTIVE", "RETURN_PENDING", "RETURNED"] } })
+        .sort({ approvedAt: -1 })
         .limit(6)
         .populate("user", "name srn")
-        .populate("equipment", "equipmentId name category")
+        .populate("type", "name category")
+        .populate("unit", "unitCode")
         .lean(),
+
       // Overdue = still ACTIVE and the due time is already in the past
       UsageSession.countDocuments({ status: "ACTIVE", dueAt: { $lt: now } }),
       DamageReport.countDocuments({ status: "PENDING" }),
@@ -166,13 +165,13 @@ const getDashboardStats = async (req, res) => {
         // lean() gives plain objects, which have no virtual isOverdue,
         // so we work out each session's state here ourselves
         recentSessions: recentSessions.map((s) => ({
-          _id: s._id,
-          equipment: s.equipment ? { equipmentId: s.equipment.equipmentId, name: s.equipment.name } : null,
+                    _id: s._id,
+          equipment: s.type ? { equipmentId: s.unit ? s.unit.unitCode : "-", name: s.type.name } : null,
           user: s.user ? { name: s.user.name, srn: s.user.srn } : null,
-          issuedAt: s.issuedAt,
+          issuedAt: s.approvedAt,
           returnedAt: s.returnedAt,
           durationMinutes: s.durationMinutes,
-          state: s.status === "RETURNED" ? "RETURNED" : s.dueAt < now ? "OVERDUE" : "ACTIVE"
+          state: s.status === "RETURNED" ? "RETURNED" : s.dueAt && s.dueAt < now ? "OVERDUE" : "ACTIVE"
         })),
         generatedAt: now
       }
