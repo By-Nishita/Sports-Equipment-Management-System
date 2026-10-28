@@ -1,15 +1,21 @@
 import api from './axios';
 
-// Naya damage/loss report bhejo
-export const createDamageReport = ({ equipmentId, description, type }) =>
-  api.post('/damage-reports', { equipmentId, description, type });
+// Every reply looks like { success, message, data, pagination? }, so the useful part is res.data.data.
 
-// Logged-in user ki apni reports (naye pehle)
-export const getMyDamageReports = () => api.get('/damage-reports/mine');
+// Anyone logged in: report a problem with the unit printed on the item (e.g. FB-007).
+// type is DAMAGE or LOSS.
+export const createDamageReport = ({ unitCode, description, type }) =>
+  api.post('/damage-reports', { unitCode, description, type });
 
-// Staff/admin: saari reports. status dena ho to sirf us halat ki (PENDING, UNDER_REVIEW, RESOLVED)
-export const getDamageReports = (status) =>
-  api.get('/damage-reports', { params: status ? { status } : {} });
+// Logged-in user's own reports, newest first
+export const getMyDamageReports = (params = {}) => api.get('/damage-reports/my', { params });
 
-// Staff/admin: report review karo. body = { status, resolution?, staffNote? }
-export const reviewDamageReport = (id, body) => api.patch(`/damage-reports/${id}/review`, body);
+// Staff/admin: all reports. params: { status: 'PENDING' | 'UNDER_REVIEW' | 'RESOLVED', page }
+export const getDamageReports = (params = {}) => api.get('/damage-reports', { params });
+
+// Staff/admin: "I have checked it" (PENDING -> UNDER_REVIEW)
+export const verifyDamageReport = (id, note) => api.patch(`/damage-reports/${id}/verify`, { note });
+
+// Admin only: the final decision. resolution = REPAIRED | RETIRED | LOST
+export const resolveDamageReport = (id, { resolution, note }) =>
+  api.patch(`/damage-reports/${id}/resolve`, { resolution, note });
