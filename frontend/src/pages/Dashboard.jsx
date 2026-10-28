@@ -1,429 +1,242 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getEquipment, createEquipment, updateEquipment, deactivateEquipment, reactivateEquipment } from '../api/equipment';
-import {
-  getMyReservations,
-  cancelReservation
-} from '../api/reservations';
+import usePolling from '../hooks/usePolling';
+import TypeThumb from '../components/TypeThumb';
+import { getMySessions, getPendingApprovals, getPendingReturns, getOverdueSessions } from '../api/sessions';
+import { getMyProfile } from '../api/users';
+import { formatTime, formatMinutes, minutesUntil } from '../utils/time';
+import './Dashboard.css';
 
-function Dashboard() {
-  const user = JSON.parse(localStorage.getItem('user'));
-  const navigate = useNavigate();
+const readUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem('user')) || {};
+  } catch {
+    return {};
+  }
+};
 
-  const [equipment, setEquipment] = useState([]);
-  const [reservations, setReservations] = useState([]);
-  const [showForm, setShowForm] = useState(false);
-  const [categoryFilter, setCategoryFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+const LOW_MINUTES = 10; // "5 min left" turns yellow
 
-  const [form, setForm] = useState({
-    equipmentId: '',
-    name: '',
-    category: ''
-  });
+// ------------------------------------------------------------------ student home
+function HeldCard({ session, navigate }) {
+  const { type, unit, status, dueAt } = session;
+  const left = dueAt ? minutesUntil(dueAt) : null;
 
-  const isAdmin =
-    user?.role === 'admin' || user?.role === 'staff';
-
-  // Load equipment
-  const loadEquipment = async () => {
-    try {
-      const res = await getEquipment();
-      setEquipment(res.data.equipment);
-    } catch (err) {
-      console.error('Failed to load equipment:', err);
-    }
-  };
-
-  // Load current user's reservations
-  const loadReservations = async () => {
-    try {
-      const res = await getMyReservations();
-      setReservations(res);
-    } catch (err) {
-      console.error('Failed to load reservations:', err);
-    }
-  };
-
-  useEffect(() => {
-    loadEquipment();
-    loadReservations();
-  }, []);
-
-  // Logout
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/login');
-  };
-
-  // Add equipment
-  const handleAdd = async (e) => {
-    e.preventDefault();
-
-    try {
-      await createEquipment(form);
-
-      setForm({
-        equipmentId: '',
-        name: '',
-        category: ''
-      });
-
-      setShowForm(false);
-
-      loadEquipment();
-    } catch (err) {
-      alert(
-        err.response?.data?.message ||
-        'Failed to add equipment'
-      );
-    }
-  };
-
-  // Edit equipment (N4)
-  const handleEditEquipment = async (item) => {
-    const name = window.prompt('Equipment name:', item.name);
-    if (name === null) return;
-    const category = window.prompt('Category:', item.category);
-    if (category === null) return;
-    const location = window.prompt('Location:', item.location || '');
-    if (location === null) return;
-
-    try {
-      await updateEquipment(item._id, { name, category, location });
-      alert('Equipment updated successfully');
-      await loadEquipment();
-    } catch (err) {
-      alert(err.response?.data?.message || 'Failed to update equipment');
-    }
-  };
-
-  // Deactivate equipment (N4)
-  const handleDeactivateEquipment = async (item) => {
-    if (!window.confirm('Deactivate ' + item.name + '?')) return;
-    try {
-      await deactivateEquipment(item._id);
-      alert('Equipment deactivated');
-      await loadEquipment();
-    } catch (err) {
-      alert(err.response?.data?.message || 'Failed to deactivate equipment');
-    }
-  };
-
-  // Reactivate retired equipment
-  const handleReactivateEquipment = async (item) => {
-    if (!window.confirm('Reactivate ' + item.name + '?')) return;
-
-    try {
-      await reactivateEquipment(item._id);
-      alert('Equipment reactivated successfully');
-      await loadEquipment();
-    } catch (err) {
-      alert(err.response?.data?.message || 'Failed to reactivate equipment');
-    }
-  };
-  // Reserve: a booking needs a time slot, so open the Booking page with this item selected
-  const handleReserve = (equipmentId) => {
-    navigate(`/book?equipment=${encodeURIComponent(equipmentId)}`);
-  };
-
-  // Cancel reservation
-  const handleCancelReservation = async (reservationId) => {
-    try {
-      await cancelReservation(reservationId);
-
-      alert('Reservation cancelled successfully');
-
-      await loadReservations();
-      await loadEquipment();
-    } catch (err) {
-      alert(
-        err.response?.data?.message ||
-        'Failed to cancel reservation'
-      );
-    }
-  };
+  let timeText = '';
+  let timeClass = 'dh-time';
+  if (status === 'RETURN_PENDING') {
+    timeText = 'Waiting for staff to confirm the return';
+  } else if (left !== null && left <= 0) {
+    timeText = `Overdue by ${formatMinutes(-left)}`;
+    timeClass += ' dh-time-late';
+  } else if (left !== null) {
+    timeText = `${formatMinutes(left)} left (return by ${formatTime(dueAt)})`;
+    if (left <= LOW_MINUTES) timeClass += ' dh-time-low';
+  }
 
   return (
-    <div style={{ padding: '20px' }}>
-
-      <h2>Welcome, {user?.name}!</h2>
-
-      <p>Role: {user?.role}</p>
-
-      {/* Logout */}
-      <button onClick={handleLogout}>
-        Logout
-      </button>
-
-      {/* Scan QR */}
-      <button
-        onClick={() => navigate('/scan')}
-        style={{ marginLeft: '10px' }}
-      >
-        Scan QR (Issue / Return)
-      </button>
-
-
-      {/* N7: Report Damage */}
-      <button
-        onClick={() => navigate('/report-damage')}
-        style={{ marginLeft: '10px' }}
-      >
-        Report Damage
-      </button>
-
-      {/* N7: Staff/Admin Damage Reviews */}
-      {isAdmin && (
-        <button
-          onClick={() => navigate('/admin/damage')}
-          style={{ marginLeft: '10px' }}
-        >
-          Admin: Damage Reviews
-        </button>
-      )}
-
-
-      {/* Admin / Staff Add Equipment */}
-      {isAdmin && (
-        <div style={{ margin: '20px 0' }}>
-
+    <li className="card dh-held">
+      <TypeThumb type={type} size={48} />
+      <div className="dh-held-body">
+        <strong>
+          {type?.name || 'Item'}
+          {unit?.unitCode && <span className="dh-code"> {unit.unitCode}</span>}
+        </strong>
+        <p className={timeClass}>{timeText}</p>
+      </div>
+      {status === 'ACTIVE' && (
+        <div className="dh-held-actions">
+          <button type="button" onClick={() => navigate(`/return?session=${session._id}`)}>Return</button>
           <button
-            onClick={() => setShowForm(!showForm)}
+            type="button"
+            className="btn-secondary"
+            onClick={() => navigate(`/report-damage?unit=${encodeURIComponent(unit?.unitCode || '')}`)}
           >
-            {showForm ? 'Cancel' : '+ Add Equipment'}
+            Report a problem
           </button>
-
-          {showForm && (
-            <form
-              onSubmit={handleAdd}
-              style={{ marginTop: '10px' }}
-            >
-
-              <input
-                placeholder="Equipment ID (e.g. FB-001)"
-                value={form.equipmentId}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    equipmentId: e.target.value
-                  })
-                }
-                required
-              />
-
-              <input
-                placeholder="Name"
-                value={form.name}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    name: e.target.value
-                  })
-                }
-                required
-              />
-
-              <input
-                placeholder="Category"
-                value={form.category}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    category: e.target.value
-                  })
-                }
-                required
-              />
-
-              <button type="submit">
-                Save
-              </button>
-
-            </form>
-          )}
-
         </div>
       )}
+    </li>
+  );
+}
 
-
-      {/* Equipment List */}
-      <h3>Equipment List</h3>
-
-      {/* Category filter and status filter (N5) */}
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', flexWrap: 'wrap' }}>
-        <input
-          type="text"
-          aria-label="Search equipment"
-          placeholder="Search name, category, brand, location..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <select aria-label="Category filter" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
-          <option value="">All categories</option>
-          {[...new Set(equipment.map((item) => item.category).filter(Boolean))].map((category) => (
-            <option key={category} value={category}>{category}</option>
-          ))}
-        </select>
-        <select aria-label="Status filter" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-          <option value="">All statuses</option>
-          {['AVAILABLE', 'IN_USE', 'DAMAGED', 'MAINTENANCE', 'LOST', 'RETIRED'].map((status) => (
-            <option key={status} value={status}>{status}</option>
-          ))}
-        </select>
-        <button onClick={() => { setSearchTerm(''); setCategoryFilter(''); setStatusFilter(''); }}>Clear filters</button>
-      </div>
-
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns:
-            'repeat(auto-fill, minmax(200px, 1fr))',
-          gap: '15px'
-        }}
-      >
-
-        {equipment.filter((item) => (!categoryFilter || item.category === categoryFilter) && (!statusFilter || item.status === statusFilter) && (!searchTerm || [item.name, item.category, item.brand, item.location].some((value) => String(value || '').toLowerCase().includes(searchTerm.toLowerCase())))).map((item) => {
-
-          const myReservation = reservations.find(
-            (reservation) =>
-              reservation.equipment?._id === item._id &&
-              reservation.status === 'ACTIVE'
-          );
-
-          return (
-            <div
-              key={item._id}
-              style={{
-                border: '1px solid #ccc',
-                padding: '10px',
-                borderRadius: '8px'
-              }}
-            >
-
-              <p>
-                <strong>{item.name}</strong>
-              </p>
-
-              <p>
-                ID: {item.equipmentId}
-              </p>
-
-              <p>
-                Category: {item.category}
-              </p>
-
-              <p>
-                Status: {item.status}
-              </p>
-
-
-              {/* Reservation Status */}
-
-              {item.reservedByMe && (
-                <>
-                  <p>
-                    <strong>
-                      Reserved by you
-                    </strong>
-                  </p>
-
-                  {item.reservedUntil && (
-                    <p>
-                      Until:{' '}
-                      {new Date(
-                        item.reservedUntil
-                      ).toLocaleTimeString()}
-                    </p>
-                  )}
-
-                  {myReservation && (
-                    <button
-                      onClick={() =>
-                        handleCancelReservation(
-                          myReservation._id
-                        )
-                      }
-                    >
-                      Cancel Reservation
-                    </button>
-                  )}
-                </>
-              )}
-
-
-              {/* Reserved by someone else */}
-
-              {item.isReserved &&
-                !item.reservedByMe && (
-                  <p>
-                    <strong>
-                      Reserved
-                    </strong>
-                  </p>
-                )}
-
-
-              {/* Reserve Button */}
-
-              {item.status === 'AVAILABLE' &&
-                !item.isReserved && (
-                  <button
-                    onClick={() =>
-                      handleReserve(
-                        item.equipmentId
-                      )
-                    }
-                  >
-                    Book a slot
-                  </button>
-                )}
-
-
-              {/* Admin / Staff equipment management */}
-              {isAdmin && (
-                <div style={{ display: 'flex', gap: '8px', margin: '8px 0' }}>
-                  {item.status === 'RETIRED' ? (
-                    <button onClick={() => handleReactivateEquipment(item)}>
-                      Reactivate
-                    </button>
-                  ) : (
-                    <>
-                      <button onClick={() => handleEditEquipment(item)}>Edit Equipment</button>
-                      <button onClick={() => handleDeactivateEquipment(item)}>Deactivate</button>
-                    </>
-                  )}
-                </div>
-              )}
-
-              {/* Admin / Staff QR */}
-
-              {isAdmin && item.qrIdentifier && (
-                <div style={{ margin: '8px 0' }}>
-                  <img
-                    src={item.qrIdentifier}
-                    alt="QR"
-                    style={{ width: '80px' }}
-                  />
-                  <br />
-                  <a
-                    href={item.qrIdentifier}
-                    download={(item.equipmentId || item.name || 'equipment') + '-QR.png'}
-                  >
-                    <button type="button">Download QR</button>
-                  </a>
-                </div>
-              )}
-
-            </div>
-          );
-        })}
-
-      </div>
-
+function Stat({ value, label }) {
+  return (
+    <div className="card dh-stat">
+      <strong>{value}</strong>
+      <span>{label}</span>
     </div>
+  );
+}
+
+function StudentHome({ firstName }) {
+  const navigate = useNavigate();
+  const [sessions, setSessions] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const load = useCallback(async () => {
+    try {
+      const res = await getMySessions({ open: 'true' });
+      setSessions(res.data.data);
+      setError('');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Could not load your items. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  usePolling(load, 10000);
+
+  // The stats change slowly: load them once
+  useEffect(() => {
+    getMyProfile()
+      .then((res) => setStats(res.data.data.stats))
+      .catch(() => setStats(null));
+  }, []);
+
+  const held = sessions.filter((s) => s.status === 'ACTIVE' || s.status === 'RETURN_PENDING');
+  const waiting = sessions.filter((s) => s.status === 'ISSUE_PENDING');
+
+  return (
+    <>
+      <div className="page-head">
+        <p className="page-eyebrow">Welcome back</p>
+        <h1>Hi, {firstName}</h1>
+        <p className="page-sub">Scan the QR code on an item to borrow it.</p>
+      </div>
+
+      <button type="button" className="dh-scan" onClick={() => navigate('/scan')}>
+        Scan an item
+      </button>
+
+      {error && <p className="notice notice-error" role="alert">{error}</p>}
+
+      {waiting.length > 0 && (
+        <section aria-labelledby="dh-waiting">
+          <h2 id="dh-waiting">Waiting for approval</h2>
+          <ul className="dh-list">
+            {waiting.map((s) => (
+              <li key={s._id} className="card dh-held">
+                <TypeThumb type={s.type} size={48} />
+                <div className="dh-held-body">
+                  <strong>{s.type?.name || 'Item'}</strong>
+                  <p className="dh-time">Asked at {formatTime(s.requestedAt)}. Show your ID to the staff.</p>
+                </div>
+                <div className="dh-held-actions">
+                  <button type="button" className="btn-secondary" onClick={() => navigate('/scan')}>View request</button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <section aria-labelledby="dh-held">
+        <h2 id="dh-held">Items you hold</h2>
+        {loading ? (
+          <p className="dh-empty">Loading...</p>
+        ) : held.length === 0 ? (
+          <p className="dh-empty">You are not holding anything right now.</p>
+        ) : (
+          <ul className="dh-list">
+            {held.map((s) => (
+              <HeldCard key={s._id} session={s} navigate={navigate} />
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {stats && (
+        <section aria-labelledby="dh-stats">
+          <h2 id="dh-stats">Your numbers</h2>
+          <div className="dh-stats">
+            <Stat value={stats.totalSessions} label="Items used" />
+            <Stat value={stats.totalHours} label="Hours" />
+            <Stat value={stats.onTimePercent === null ? '-' : `${stats.onTimePercent}%`} label="Returned on time" />
+          </div>
+        </section>
+      )}
+    </>
+  );
+}
+
+// ------------------------------------------------------------------ staff / admin home
+function DeskCard({ count, label, to, alert }) {
+  const navigate = useNavigate();
+  return (
+    <button
+      type="button"
+      className={`card dh-desk${alert && count > 0 ? ' dh-desk-alert' : ''}`}
+      onClick={() => navigate(to)}
+    >
+      <strong>{count === null ? '...' : count}</strong>
+      <span>{label}</span>
+    </button>
+  );
+}
+
+function StaffHome({ firstName, isAdmin }) {
+  const navigate = useNavigate();
+  const [counts, setCounts] = useState({ approvals: null, returns: null, overdue: null });
+  const [error, setError] = useState('');
+
+  const load = useCallback(async () => {
+    try {
+      // limit=1: we only want the total, not the rows
+      const [a, r, o] = await Promise.all([
+        getPendingApprovals({ limit: 1 }),
+        getPendingReturns({ limit: 1 }),
+        getOverdueSessions({ limit: 1 })
+      ]);
+      setCounts({
+        approvals: a.data.pagination?.total ?? a.data.data.length,
+        returns: r.data.pagination?.total ?? r.data.data.length,
+        overdue: o.data.pagination?.total ?? o.data.data.length
+      });
+      setError('');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Could not load the counts. Please try again.');
+    }
+  }, []);
+  usePolling(load, 10000);
+
+  return (
+    <>
+      <div className="page-head">
+        <p className="page-eyebrow">{isAdmin ? 'Admin' : 'Staff desk'}</p>
+        <h1>Hi, {firstName}</h1>
+        <p className="page-sub">What needs you at the counter right now.</p>
+      </div>
+
+      {error && <p className="notice notice-error" role="alert">{error}</p>}
+
+      <div className="dh-desks">
+        <DeskCard count={counts.approvals} label="Requests to approve" to="/staff/approvals" />
+        <DeskCard count={counts.returns} label="Returns to confirm" to="/staff/returns" />
+        <DeskCard count={counts.overdue} label="Overdue items" to="/staff/overdue" alert />
+      </div>
+
+      <div className="dh-links">
+        <button type="button" className="btn-secondary" onClick={() => navigate('/admin/damage')}>Damage reviews</button>
+        {isAdmin && (
+          <button type="button" className="btn-secondary" onClick={() => navigate('/admin')}>Admin dashboard</button>
+        )}
+      </div>
+    </>
+  );
+}
+
+function Dashboard() {
+  const user = readUser();
+  const role = user.role || 'student';
+  const firstName = (user.name || '').trim().split(/\s+/)[0] || 'there';
+
+  return role === 'student' ? (
+    <StudentHome firstName={firstName} />
+  ) : (
+    <StaffHome firstName={firstName} isAdmin={role === 'admin'} />
   );
 }
 

@@ -27,3 +27,7 @@ export const formatAgo = (value) => {
   const m = minutesSince(value);
   return m < 1 ? 'just now' : `${formatMinutes(m)} ago`;
 };
+
+
+// Whole minutes from now until a future moment (negative once it has passed)
+export const minutesUntil = (value) => Math.ceil((new Date(value).getTime() - Date.now()) / 60000);

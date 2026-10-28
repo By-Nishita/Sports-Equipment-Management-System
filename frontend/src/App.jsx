@@ -8,8 +8,6 @@ import Scan from './pages/Scan';
 import ReportDamage from './pages/ReportDamage';
 import MySessions from './pages/MySessions';
 import DamageReviews from './pages/DamageReviews';
-import Booking from './pages/Booking';
-import MyBookings from './pages/MyBookings';
 import RoleRoute from './components/RoleRoute';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminSettings from './pages/AdminSettings';
@@ -21,6 +19,7 @@ import ReturnItem from './pages/ReturnItem';
 import StaffApprovals from './pages/StaffApprovals';
 import PendingReturns from './pages/PendingReturns';
 import OverdueList from './pages/OverdueList';
+import Profile from './pages/Profile';
 
 function App() {
   return (
@@ -36,15 +35,14 @@ function App() {
           <Route path="/return" element={<ReturnItem />} />
           <Route path="/my-use" element={<MySessions key="active" activeOnly />} />
           <Route path="/history" element={<MySessions key="history" />} />
-          <Route path="/book" element={<Booking />} />
-          <Route path="/my-bookings" element={<MyBookings />} />
           <Route path="/report-damage" element={<ReportDamage />} />
-          <Route path="/admin" element={<RoleRoute roles={['staff', 'admin']}><AdminDashboard /></RoleRoute>} />
+          <Route path="/admin" element={<RoleRoute roles={['admin']}><AdminDashboard /></RoleRoute>} />
           <Route path="/admin/damage" element={<RoleRoute roles={['staff', 'admin']}><DamageReviews /></RoleRoute>} />
           {/* ---- Staff desk (issue and return) ---- */}
           <Route path="/staff/approvals" element={<RoleRoute roles={['staff', 'admin']}><StaffApprovals /></RoleRoute>} />
           <Route path="/staff/returns" element={<RoleRoute roles={['staff', 'admin']}><PendingReturns /></RoleRoute>} />
           <Route path="/staff/overdue" element={<RoleRoute roles={['staff', 'admin']}><OverdueList /></RoleRoute>} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/admin/settings" element={<RoleRoute roles={['admin']}><AdminSettings /></RoleRoute>} />
         <Route path="/admin/audit-log" element={<RoleRoute roles={['admin']}><AuditLogPage /></RoleRoute>} />

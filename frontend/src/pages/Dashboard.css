@@ -1,0 +1,121 @@
+/* Home page: student (items held, stats) and staff (desk counts) */
+
+.dh-scan {
+  width: 100%;
+  max-width: 46rem;
+  padding: 1.1rem 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+}
+
+.dh-list {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  list-style: none;
+  max-width: 46rem;
+}
+.dh-held {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem;
+}
+.dh-held-body {
+  flex: 1;
+  min-width: 12rem;
+}
+.dh-code {
+  margin-left: 0.25rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+.dh-time {
+  margin: 0.15rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+.dh-time-low {
+  color: #7a5a00;
+  font-weight: 600;
+}
+.dh-time-late {
+  color: var(--danger);
+  font-weight: 600;
+}
+.dh-held-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.dh-empty {
+  color: var(--ink-soft);
+  margin: 0 0 1.5rem;
+}
+
+/* Small numbers */
+.dh-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  max-width: 46rem;
+}
+.dh-stat {
+  display: grid;
+  gap: 0.15rem;
+  text-align: center;
+}
+.dh-stat strong {
+  font-family: var(--display);
+  font-size: 2rem;
+  line-height: 1.1;
+}
+.dh-stat span {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+
+/* Staff counts: each one is a button to its screen */
+.dh-desks {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  max-width: 46rem;
+  margin-bottom: 1.25rem;
+}
+.dh-desk {
+  display: grid;
+  gap: 0.2rem;
+  text-align: center;
+  color: var(--ink);
+  cursor: pointer;
+}
+.dh-desk strong {
+  font-family: var(--display);
+  font-size: 2.6rem;
+  line-height: 1.1;
+}
+.dh-desk span {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+.dh-desk-alert {
+  border-color: var(--danger);
+  background: var(--danger-tint);
+}
+.dh-desk-alert strong {
+  color: var(--danger);
+}
+.dh-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+@media (max-width: 520px) {
+  .dh-desks,
+  .dh-stats {
+    grid-template-columns: 1fr;
+  }
+}
