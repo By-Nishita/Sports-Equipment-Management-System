@@ -1,18 +1,19 @@
 const express = require("express");
-const {
-  createDamageReport,
-  getMyDamageReports,
-  listDamageReports,
-  reviewDamageReport
-} = require("../controllers/damageReportController");
+const c = require("../controllers/damageReportController");
 const { protect, authorize } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-// "/mine" hamesha "/:id" wale routes se upar rakho (aage ke steps mein :id aayega)
-router.get("/mine", protect, getMyDamageReports);
-router.get("/", protect, authorize("staff", "admin"), listDamageReports);
-router.patch("/:id/review", protect, authorize("staff", "admin"), reviewDamageReport);
-router.post("/", protect, createDamageReport);
+// ---- Everyone who is logged in ----
+router.post("/", protect, c.create);
+// (fixed words like /my must come before /:id routes)
+router.get("/my", protect, c.mine);
+
+// ---- Staff and admin: check the damage ----
+router.get("/", protect, authorize("staff", "admin"), c.listAll);
+router.patch("/:id/verify", protect, authorize("staff", "admin"), c.verify);
+
+// ---- Admin only: the final decision ----
+router.patch("/:id/resolve", protect, authorize("admin"), c.resolve);
 
 module.exports = router;

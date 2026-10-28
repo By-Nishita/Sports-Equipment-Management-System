@@ -9,17 +9,17 @@ const { protect, authorize } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-// Admin/staff can add equipment
-router.post("/", protect, authorize("admin", "staff"), createEquipment);
+// Only admin can add equipment
+router.post("/", protect, authorize("admin"), createEquipment);
 
 // Logged-in users can view equipment
 router.get("/", protect, getEquipment);
 
-// Admin/staff can edit or deactivate equipment
-router.patch("/:id", protect, authorize("admin", "staff"), updateEquipment);
-router.patch("/:id/deactivate", protect, authorize("admin", "staff"), deactivateEquipment);
+// Only admin can edit or deactivate equipment
+router.patch("/:id", protect, authorize("admin"), updateEquipment);
+router.patch("/:id/deactivate", protect, authorize("admin"), deactivateEquipment);
 
 module.exports = router;
 
 const { reactivateEquipment } = require('../controllers/equipmentController');
-router.patch('/:id/reactivate', protect, authorize('admin', 'staff'), reactivateEquipment);
+router.patch('/:id/reactivate', protect, authorize('admin'), reactivateEquipment);

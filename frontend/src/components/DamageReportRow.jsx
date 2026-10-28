@@ -12,16 +12,16 @@ const RESOLUTION_LABEL = {
   LOST: 'Marked as lost'
 };
 
-// Ek report ek card mein. Student ka page aur (aage) staff ka review page, dono yahi use karenge.
+// One report in one card (the student's own list uses this).
 function DamageReportRow({ report }) {
-  const { equipment, type, description, status, resolution, staffNote, createdAt } = report;
+  const { unit, type, description, status, resolution, staffNote, createdAt } = report;
 
   return (
     <li className="card dr-row">
       <div className="dr-head">
         <strong>
-          {equipment?.name || 'Unknown item'}
-          {equipment?.equipmentId && <span className="dr-id"> {equipment.equipmentId}</span>}
+          {unit?.type?.name || 'Unknown item'}
+          {unit?.unitCode && <span className="dr-id"> {unit.unitCode}</span>}
         </strong>
         <span className={`badge badge-${status.toLowerCase()}`}>{STATUS_LABEL[status] || status}</span>
       </div>

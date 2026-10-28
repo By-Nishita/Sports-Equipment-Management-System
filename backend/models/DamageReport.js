@@ -1,96 +1,46 @@
 const mongoose = require("mongoose");
 
+const REPORT_STATUSES = ["PENDING", "UNDER_REVIEW", "RESOLVED"];
+const RESOLUTIONS = ["REPAIRED", "RETIRED", "LOST"];
+
+// One row = one problem with ONE physical unit (for example FB-007).
 const damageReportSchema = new mongoose.Schema(
   {
-        // NEW way: the exact physical unit (e.g. FB-007)
-    unit: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "EquipmentUnit",
-      default: null
-    },
+    // The exact physical unit
+    unit: { type: mongoose.Schema.Types.ObjectId, ref: "EquipmentUnit", required: true },
 
-    // OLD way, kept only until task P3 moves damage reports fully to units
-    equipment: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Equipment",
-      default: null
-    },
+    reportedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 
-    // Staff member who checked the damage at the counter
-    verifiedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      default: null
-    },
+    // Set when the report was created by a damaged return
+    session: { type: mongoose.Schema.Types.ObjectId, ref: "UsageSession", default: null },
 
-    reportedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true
-    },
+    // RETURN = staff saw it at the counter, STUDENT_REPORT = a student sent the form
+    source: { type: String, enum: ["RETURN", "STUDENT_REPORT"], default: "STUDENT_REPORT" },
 
-    // Agar report return ke time bani hai to us session ka link
-    session: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "UsageSession",
-      default: null
-    },
+    type: { type: String, enum: ["DAMAGE", "LOSS"], default: "DAMAGE" },
 
-    // Report kahan se aayi: return ke time ya student ne form se bheji
-    source: {
-      type: String,
-      enum: ["RETURN", "STUDENT_REPORT"],
-      default: "STUDENT_REPORT"
-    },
+    description: { type: String, required: true, trim: true },
 
-    type: {
-      type: String,
-      enum: ["DAMAGE", "LOSS"],
-      default: "DAMAGE"
-    },
+    status: { type: String, enum: REPORT_STATUSES, default: "PENDING" },
 
-    description: {
-      type: String,
-      required: true,
-      trim: true
-    },
+    // Staff member who checked the item (PENDING -> UNDER_REVIEW, or at the counter on a return)
+    verifiedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+    verifiedAt: { type: Date, default: null },
 
-    status: {
-      type: String,
-      enum: ["PENDING", "UNDER_REVIEW", "RESOLVED"],
-      default: "PENDING"
-    },
+    // Admin's final decision (only when RESOLVED)
+    resolution: { type: String, enum: [...RESOLUTIONS, null], default: null },
+    resolvedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+    resolvedAt: { type: Date, default: null },
 
-    // Staff ka final faisla (RESOLVED hone par bharega)
-    resolution: {
-      type: String,
-      enum: ["REPAIRED", "RETIRED", "LOST"],
-      default: null
-    },
-
-    staffNote: {
-      type: String,
-      trim: true,
-      default: ""
-    },
-
-    reviewedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      default: null
-    },
-
-    reviewedAt: {
-      type: Date,
-      default: null
-    }
+    staffNote: { type: String, trim: true, default: "" }
   },
-  {
-    timestamps: true
-  }
+  { timestamps: true }
 );
 
 damageReportSchema.index({ status: 1, createdAt: -1 });
 damageReportSchema.index({ reportedBy: 1, createdAt: -1 });
+damageReportSchema.index({ unit: 1, status: 1 });
 
 module.exports = mongoose.model("DamageReport", damageReportSchema);
+module.exports.REPORT_STATUSES = REPORT_STATUSES;
+module.exports.RESOLUTIONS = RESOLUTIONS;

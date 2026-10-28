@@ -183,7 +183,16 @@ function MySessions({ activeOnly = false }) {
                   {(s.status === 'ACTIVE' || s.status === 'ISSUE_PENDING') && (
                     <div className="ms-actions">
                       {s.status === 'ACTIVE' && (
-                        <button type="button" onClick={() => navigate(`/return?session=${s._id}`)}>Return this item</button>
+                        <>
+                          <button type="button" onClick={() => navigate(`/return?session=${s._id}`)}>Return this item</button>
+                          <button
+                            type="button"
+                            className="btn-secondary"
+                            onClick={() => navigate(`/report-damage?unit=${encodeURIComponent(s.unit?.unitCode || '')}`)}
+                          >
+                            Report a problem
+                          </button>
+                        </>
                       )}
                       {s.status === 'ISSUE_PENDING' && (
                         <>

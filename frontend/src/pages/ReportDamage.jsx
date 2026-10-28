@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { createDamageReport, getMyDamageReports } from '../api/damageReports';
 import DamageReportRow from '../components/DamageReportRow';
 import './ReportDamage.css';
 
-const MIN_DESCRIPTION = 5; // backend bhi yahi maangta hai
+const MIN_DESCRIPTION = 5; // the backend asks for the same
 
 function ReportDamage() {
   const [searchParams] = useSearchParams();
 
-  // Scan page se aaye to item ID pehle se bhari hui aati hai (?id=FB-001)
-  const [equipmentId, setEquipmentId] = useState(searchParams.get('id') || '');
+  // Coming from "My Active Use", the unit ID is already filled in (?unit=FB-007)
+  const [unitCode, setUnitCode] = useState((searchParams.get('unit') || '').toUpperCase());
   const [type, setType] = useState('DAMAGE');
   const [description, setDescription] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -19,23 +19,23 @@ function ReportDamage() {
   const [reports, setReports] = useState([]);
   const [loadingReports, setLoadingReports] = useState(true);
 
-  const loadReports = async () => {
+  const loadReports = useCallback(async () => {
     try {
       const res = await getMyDamageReports();
-      setReports(res.data.reports);
+      setReports(res.data.data);
     } catch (err) {
       console.error('Failed to load reports:', err);
     } finally {
       setLoadingReports(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadReports();
-  }, []);
+  }, [loadReports]);
 
   const trimmedLength = description.trim().length;
-  const canSubmit = equipmentId.trim() && trimmedLength >= MIN_DESCRIPTION && !submitting;
+  const canSubmit = unitCode.trim() && trimmedLength >= MIN_DESCRIPTION && !submitting;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -45,11 +45,7 @@ function ReportDamage() {
     setResult(null);
 
     try {
-      const res = await createDamageReport({
-        equipmentId: equipmentId.trim(),
-        description: description.trim(),
-        type
-      });
+      const res = await createDamageReport({ unitCode: unitCode.trim(), description: description.trim(), type });
       setResult({ ok: true, text: res.data.message });
       setDescription('');
       await loadReports();
@@ -93,11 +89,12 @@ function ReportDamage() {
           </div>
 
           <label className="field rd-field">
-            <span>Equipment ID</span>
+            <span>Unit ID (printed on the item)</span>
             <input
-              placeholder="e.g. FB-001"
-              value={equipmentId}
-              onChange={(e) => setEquipmentId(e.target.value)}
+              placeholder="e.g. FB-007"
+              value={unitCode}
+              onChange={(e) => setUnitCode(e.target.value.toUpperCase())}
+              maxLength={20}
               required
             />
           </label>

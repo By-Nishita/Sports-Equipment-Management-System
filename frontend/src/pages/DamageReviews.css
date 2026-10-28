@@ -1,6 +1,10 @@
 .dv-tabs {
-  max-width: 420px;
+  max-width: 520px;
+  grid-template-columns: repeat(4, 1fr);
   margin-bottom: 1rem;
+}
+.dv-tabs button {
+  padding: 0.45rem 0.4rem;
 }
 .dv-list {
   display: grid;
@@ -30,4 +34,11 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0.6rem;
+}
+.dv-hint {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+.dv-more {
+  margin-top: 1rem;
 }
