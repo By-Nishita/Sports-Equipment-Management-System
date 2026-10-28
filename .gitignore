@@ -1,2 +1,6 @@
-﻿.env
+.env
 node_modules/
+
+# Real student data never goes in git
+backend/scripts/students.json
+*.csv

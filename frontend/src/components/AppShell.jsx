@@ -11,8 +11,6 @@ const NAV = [
     roles: ['student', 'staff', 'admin'],
     items: [
       { label: 'Dashboard', to: '/dashboard', icon: 'grid' },
-      { label: 'Book Equipment', to: '/book', icon: 'history' },
-      { label: 'My Bookings', to: '/my-bookings', icon: 'history' },
       { label: 'Scan QR', to: '/scan', icon: 'scan' },
       { label: 'Return item', to: '/return', icon: 'return' },
       { label: 'My Active Use', to: '/my-use', icon: 'bolt' },
@@ -32,8 +30,7 @@ const NAV = [
   {
     heading: 'Administration',
     roles: ['staff', 'admin'],
-        items: [
-      { label: 'Admin Dashboard', to: '/admin', icon: 'shield' },
+    items: [
       { label: 'Damage reviews', to: '/admin/damage', icon: 'alert' }
     ]
   },
@@ -41,6 +38,7 @@ const NAV = [
     heading: 'Admin only',
     roles: ['admin'],
     items: [
+      { label: 'Admin Dashboard', to: '/admin', icon: 'shield' },
       { label: 'Settings', to: '/admin/settings', icon: 'key' },
       { label: 'Students and staff', to: '/admin/students', icon: 'shield' },
       { label: 'Audit log', to: '/admin/audit-log', icon: 'history' }
@@ -106,6 +104,12 @@ const ICONS = {
       <path d="M16 8l4 4-4 4M20 12H9" />
     </>
   ),
+  user: (
+    <>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6" />
+    </>
+  ),
   menu: <path d="M4 6h16M4 12h16M4 18h16" />
 };
 
@@ -156,7 +160,8 @@ function AppShell() {
   // Top bar ka naam URL se: menu ki list mein jo item is URL ka hai, uska label
   const crumb =
     NAV.flatMap((group) => group.items).find((item) => item.to === pathname)?.label ||
-    (pathname === '/change-password' ? 'Change password' : '');
+    (pathname === '/change-password' ? 'Change password' : '') ||
+    (pathname === '/profile' ? 'My profile' : '');
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -215,6 +220,14 @@ function AppShell() {
               <small>{user.email}</small>
             </span>
           </div>
+          <NavLink
+            to="/profile"
+            className={({ isActive }) => (isActive ? 'shell-item shell-item-on' : 'shell-item')}
+            onClick={() => setOpen(false)}
+          >
+            <Icon name="user" />
+            My profile
+          </NavLink>
           <NavLink
             to="/change-password"
             className={({ isActive }) => (isActive ? 'shell-item shell-item-on' : 'shell-item')}

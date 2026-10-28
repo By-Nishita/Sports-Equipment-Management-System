@@ -3,6 +3,7 @@ const cloudinary = require('cloudinary').v2;
 const { HttpError } = require('../utils/http');
 
 const FOLDER = 'sports-equipment/types';
+const PROFILE_FOLDER = 'sports-equipment/profiles';
 
 function configure() {
   const { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } = process.env;
@@ -21,10 +22,10 @@ function configure() {
 const toWebp = (buffer, width) =>
   sharp(buffer).rotate().resize({ width, withoutEnlargement: true }).webp({ quality: 80 }).toBuffer();
 
-const uploadBuffer = (buffer, publicId) =>
+const uploadBuffer = (buffer, publicId, folder = FOLDER) =>
   new Promise((resolve, reject) => {
     cloudinary.uploader
-      .upload_stream({ folder: FOLDER, public_id: publicId, overwrite: true, resource_type: 'image' }, (err, result) =>
+      .upload_stream({ folder, public_id: publicId, overwrite: true, resource_type: 'image' }, (err, result) =>
         err ? reject(err) : resolve(result)
       )
       .end(buffer);
@@ -46,4 +47,17 @@ async function uploadTypePhoto(buffer, typeId) {
   return { imageUrl: `${a.secure_url}?v=${v}`, thumbUrl: `${b.secure_url}?v=${v}` };
 }
 
-module.exports = { uploadTypePhoto, toWebp };
+/** A person's profile photo: 400 x 400 square WebP. Returns { photoUrl }. */
+async function uploadProfilePhoto(buffer, userId) {
+  configure();
+  let square;
+  try {
+    square = await sharp(buffer).rotate().resize(400, 400, { fit: 'cover' }).webp({ quality: 80 }).toBuffer();
+  } catch (_) {
+    throw new HttpError(400, 'That file is not a readable image');
+  }
+  const result = await uploadBuffer(square, String(userId), PROFILE_FOLDER);
+  return { photoUrl: `${result.secure_url}?v=${Date.now()}` };
+}
+
+module.exports = { uploadTypePhoto, uploadProfilePhoto, toWebp };

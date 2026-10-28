@@ -8,7 +8,6 @@ module.exports = {
 
   UsageSession: require('./UsageSession'),
 
-  Reservation: require('./Reservation'),
 
   DamageReport: require('./DamageReport'),
 

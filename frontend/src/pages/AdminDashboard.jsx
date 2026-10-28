@@ -270,7 +270,6 @@ function AdminDashboard() {
               value={stats.sessions.overdue}
               tone={stats.sessions.overdue > 0 ? 'red' : 'grey'}
             />
-            <Mini icon="calendar" label="Active bookings" value={stats.reservations.active} tone="blue" />
             <Mini
               icon="clipboard"
               label="Damage reports pending"

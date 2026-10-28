@@ -1,7 +1,6 @@
 const Equipment = require("../models/Equipment");
 const UsageSession = require("../models/UsageSession");
 const DamageReport = require("../models/DamageReport");
-const Reservation = require("../models/Reservation");
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -86,8 +85,7 @@ const getDashboardStats = async (req, res) => {
       recentSessions,
       overdueSessions,
       pendingReports,
-      underReviewReports,
-      activeReservations
+      underReviewReports
     ] = await Promise.all([
       // Group equipment by status and count each group (the database does the counting)
       Equipment.aggregate([{ $group: { _id: "$status", count: { $sum: 1 } } }]),
@@ -119,9 +117,7 @@ const getDashboardStats = async (req, res) => {
       // Overdue = still ACTIVE and the due time is already in the past
       UsageSession.countDocuments({ status: "ACTIVE", dueAt: { $lt: now } }),
       DamageReport.countDocuments({ status: "PENDING" }),
-      DamageReport.countDocuments({ status: "UNDER_REVIEW" }),
-      // A booking counts while it is ACTIVE and its claim deadline has not passed
-      Reservation.countDocuments({ status: "ACTIVE", expiresAt: { $gt: now } })
+      DamageReport.countDocuments({ status: "UNDER_REVIEW" })
     ]);
 
     // Start every counter at 0, so a status with no items still shows 0 (not missing)
@@ -156,7 +152,6 @@ const getDashboardStats = async (req, res) => {
         equipment,
         sessions: { overdue: overdueSessions },
         damageReports: { pending: pendingReports, underReview: underReviewReports },
-        reservations: { active: activeReservations },
         utilization: buildUtilization(byDay, now),
         inventory: {
           conditions,
