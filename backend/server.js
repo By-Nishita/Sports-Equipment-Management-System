@@ -1,4 +1,4 @@
-const express = require("express");
+﻿const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const authRoutes = require('./routes/authRoutes');
@@ -10,6 +10,7 @@ const damageReportRoutes = require("./routes/damageReportRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const settingsRoutes = require("./routes/settingsRoutes");
 const auditRoutes = require("./routes/auditRoutes");
+const stockAuditRoutes = require('./routes/stockAuditRoutes');
 
 dotenv.config();
 
@@ -18,7 +19,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use("/api/equipment", equipmentRoutes);
-app.use("/api/equipment", require("./routes/equipmentRoutes.n2-temp"));
+app.use("/api/equipment", require("./routes/equipmentTypeUnitRoutes"));
 app.use('/api/auth', authRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/reservations", reservationRoutes);
@@ -26,6 +27,8 @@ app.use("/api/damage-reports", damageReportRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/audit-logs", auditRoutes);
+app.use('/api/maintenance', require('./routes/maintenanceRoutes'));
+app.use('/api/stock-audits', stockAuditRoutes);
 connectDB();
 
 app.get("/api/health", (req, res) => {
@@ -40,6 +43,8 @@ const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+
 
 
 

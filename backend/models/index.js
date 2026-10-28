@@ -1,6 +1,8 @@
 module.exports = {
   EquipmentType: require('./EquipmentType'),
   EquipmentUnit: require('./EquipmentUnit'),
+  StockAudit: require('./StockAudit'),
+  StockAuditItem: require('./StockAuditItem'),
 
   User: require('./User'),
 

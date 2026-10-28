@@ -11,6 +11,7 @@ const NAV = [
     roles: ['student', 'staff', 'admin'],
     items: [
       { label: 'Dashboard', to: '/dashboard', icon: 'grid' },
+      { label: 'Equipment Catalog', to: '/catalog', icon: 'grid' },
       { label: 'Book Equipment', to: '/book', icon: 'history' },
       { label: 'My Bookings', to: '/my-bookings', icon: 'history' },
       { label: 'Scan QR', to: '/scan', icon: 'scan' },
@@ -24,7 +25,8 @@ const NAV = [
     roles: ['staff', 'admin'],
         items: [
       { label: 'Admin Dashboard', to: '/admin', icon: 'shield' },
-      { label: 'Damage reviews', to: '/admin/damage', icon: 'alert' }
+      { label: 'Damage reviews', to: '/admin/damage', icon: 'alert' },
+      { label: 'Stock Count', to: '/staff/stock-count', icon: 'scan' }
     ]
   },
   {
@@ -32,7 +34,12 @@ const NAV = [
     roles: ['admin'],
     items: [
       { label: 'Settings', to: '/admin/settings', icon: 'key' },
-      { label: 'Audit log', to: '/admin/audit-log', icon: 'history' }
+      { label: 'Audit log', to: '/admin/audit-log', icon: 'history' },
+      { label: 'Equipment Types', to: '/admin/types', icon: 'grid' },
+      { label: 'Equipment Units', to: '/admin/units', icon: 'grid' },
+      { label: 'QR Print', to: '/admin/qr-print', icon: 'scan' },
+      { label: 'Maintenance', to: '/admin/maintenance', icon: 'key' },
+      { label: 'Stock Audit', to: '/admin/stock-audit', icon: 'history' }
     ]
   }
 ];
@@ -237,4 +244,6 @@ function AppShell() {
 }
 
 export default AppShell;
+
+
 
