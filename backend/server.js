@@ -2,6 +2,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
+const helmet = require("helmet");
 
 const authRoutes = require("./routes/authRoutes");
 const connectDB = require("./config/db");
@@ -14,13 +15,26 @@ const auditRoutes = require("./routes/auditRoutes");
 const userRoutes = require("./routes/userRoutes");
 const stockAuditRoutes = require("./routes/stockAuditRoutes");
 const maintenanceRoutes = require("./routes/maintenanceRoutes");
+const sanitizeBody = require("./middleware/sanitizeBody");
+const { notFound, errorHandler } = require("./middleware/errorHandlers");
 
 dotenv.config();
 
 const app = express();
 
-app.use(cors());
-app.use(express.json());
+// ---- Security (Priya) ----
+// Behind a host's proxy, req.ip is the visitor, not the proxy (the login rate limit needs this)
+app.set("trust proxy", 1);
+app.use(helmet());
+// Only our own frontend may call the API from a browser. FRONTEND_URL can hold several
+// addresses separated by commas.
+const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:5173")
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean);
+app.use(cors({ origin: allowedOrigins }));
+app.use(express.json({ limit: "100kb" }));
+app.use(sanitizeBody);
 
 app.use("/api/equipment", equipmentRoutes);
 app.use("/api/equipment", require("./routes/equipmentTypeUnitRoutes"));
@@ -49,6 +63,10 @@ app.get("/api/health", (req, res) => {
         message: "Sports Equipment Management System Backend is running"
     });
 });
+
+// ---- Must be last: unknown URLs and any unexpected error ----
+app.use("/api", notFound);
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 8000;
 

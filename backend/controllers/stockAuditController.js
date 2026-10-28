@@ -53,7 +53,8 @@ const startAudit = async (req, res) => {
       totalUnits: units.length,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('STOCK AUDIT ERROR:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
@@ -65,7 +66,8 @@ const listAudits = async (req, res) => {
 
     res.json(audits);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('STOCK AUDIT ERROR:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
@@ -85,7 +87,8 @@ const getAudit = async (req, res) => {
 
     res.json({ audit, items });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('STOCK AUDIT ERROR:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
@@ -143,7 +146,8 @@ const scanUnit = async (req, res) => {
 
     res.json({ message: 'Unit scanned', item });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('STOCK AUDIT ERROR:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };const closeAudit = async (req, res) => {
   try {
@@ -225,7 +229,8 @@ const scanUnit = async (req, res) => {
 
     res.json({ message: 'Stock audit completed', audit });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('STOCK AUDIT ERROR:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };const getAuditReport = async (req, res) => {
   try {
@@ -256,7 +261,8 @@ const scanUnit = async (req, res) => {
       items,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('STOCK AUDIT ERROR:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 

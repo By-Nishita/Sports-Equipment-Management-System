@@ -44,9 +44,10 @@ const createEquipment = async (req, res) => {
         });
 
     } catch (error) {
+        console.error("EQUIPMENT ERROR:", error);
         res.status(500).json({
             success: false,
-            message: error.message
+            message: "Server error"
         });
     }
 };
@@ -69,7 +70,7 @@ const getEquipment = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            message: error.message
+            message: "Server error"
         });
     }
 };
@@ -128,7 +129,8 @@ const deactivateEquipment = async (req, res) => {
 
         res.json({ success: true, message: "Equipment deactivated", equipment });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error("EQUIPMENT ERROR:", error);
+        res.status(500).json({ success: false, message: "Server error" });
     }
 };
 
@@ -182,9 +184,10 @@ const reactivateEquipment = async (req, res) => {
             equipment
         });
     } catch (error) {
+        console.error("EQUIPMENT ERROR:", error);
         return res.status(500).json({
             success: false,
-            message: error.message
+            message: "Server error"
         });
     }
 };
