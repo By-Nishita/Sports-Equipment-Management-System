@@ -2,15 +2,13 @@
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import './AppShell.css';
 
-// Sidebar yahan ek list se banta hai. Har section par `roles` likha hai,
-// isliye student ko Administration wala hissa dikhta hi nahi.
-// `soon: true` = page abhi bana nahi, sirf dikhta hai, click nahi hota.
 const NAV = [
   {
     heading: 'Sports Room',
     roles: ['student', 'staff', 'admin'],
     items: [
       { label: 'Dashboard', to: '/dashboard', icon: 'grid' },
+      { label: 'Equipment Catalog', to: '/catalog', icon: 'grid' },
       { label: 'Scan QR', to: '/scan', icon: 'scan' },
       { label: 'Return item', to: '/return', icon: 'return' },
       { label: 'My Active Use', to: '/my-use', icon: 'bolt' },
@@ -24,7 +22,8 @@ const NAV = [
     items: [
       { label: 'Approvals', to: '/staff/approvals', icon: 'check' },
       { label: 'Pending returns', to: '/staff/returns', icon: 'return' },
-      { label: 'Overdue', to: '/staff/overdue', icon: 'clock' }
+      { label: 'Overdue', to: '/staff/overdue', icon: 'clock' },
+      { label: 'Stock Count', to: '/staff/stock-count', icon: 'scan' }
     ]
   },
   {
@@ -41,12 +40,21 @@ const NAV = [
       { label: 'Admin Dashboard', to: '/admin', icon: 'shield' },
       { label: 'Settings', to: '/admin/settings', icon: 'key' },
       { label: 'Students and staff', to: '/admin/students', icon: 'shield' },
-      { label: 'Audit log', to: '/admin/audit-log', icon: 'history' }
+      { label: 'Audit log', to: '/admin/audit-log', icon: 'history' },
+      { label: 'Equipment Types', to: '/admin/types', icon: 'grid' },
+      { label: 'Equipment Units', to: '/admin/units', icon: 'grid' },
+      { label: 'QR Print', to: '/admin/qr-print', icon: 'scan' },
+      { label: 'Maintenance', to: '/admin/maintenance', icon: 'key' },
+      { label: 'Stock Audit', to: '/admin/stock-audit', icon: 'history' }
     ]
   }
 ];
 
-const ROLE_LABEL = { student: 'Student', staff: 'Sports staff', admin: 'Admin' };
+const ROLE_LABEL = {
+  student: 'Student',
+  staff: 'Sports staff',
+  admin: 'Admin'
+};
 
 const ICONS = {
   grid: (
@@ -64,7 +72,7 @@ const ICONS = {
     </>
   ),
   bolt: <path d="M13 3 5 13h6l-1 8 8-10h-6l1-8z" />,
-    check: <path d="M5 12.5l4.5 4.5L19 7.5" />,
+  check: <path d="M5 12.5l4.5 4.5L19 7.5" />,
   return: (
     <>
       <path d="M9 14 4 9l5-5" />
@@ -77,7 +85,6 @@ const ICONS = {
       <path d="M12 7v5l3 2" />
     </>
   ),
-  
   history: (
     <>
       <path d="M3 12a9 9 0 1 0 3-6.7" />
@@ -131,7 +138,6 @@ function Icon({ name }) {
   );
 }
 
-// localStorage kharab ho ya khaali ho to bhi page na tute
 function readUser() {
   try {
     return JSON.parse(localStorage.getItem('user')) || {};
@@ -146,18 +152,14 @@ function initialsOf(name) {
   return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
 }
 
-// Ye ek LAYOUT hai: App.jsx mein har logged-in route isi ke andar hai, isliye sidebar aur
-// top bar page badalne par bhi wahi rehte hain. Page ka content <Outlet /> mein aata hai.
 function AppShell() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
   const user = readUser();
   const role = user.role || 'student';
-  const forced = user.mustChangePassword === true; // locked until the password is changed
-    
+  const forced = user.mustChangePassword === true;
 
-  // Top bar ka naam URL se: menu ki list mein jo item is URL ka hai, uska label
   const crumb =
     NAV.flatMap((group) => group.items).find((item) => item.to === pathname)?.label ||
     (pathname === '/change-password' ? 'Change password' : '') ||
@@ -173,7 +175,10 @@ function AppShell() {
     <div className="shell">
       {open && <div className="shell-scrim" onClick={() => setOpen(false)} />}
 
-      <aside className={open ? 'shell-side shell-side-open' : 'shell-side'} aria-label="Main menu">
+      <aside
+        className={open ? 'shell-side shell-side-open' : 'shell-side'}
+        aria-label="Main menu"
+      >
         <div className="shell-brand">
           <span className="shell-logo" aria-hidden="true">
             <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="2.2">
@@ -186,11 +191,16 @@ function AppShell() {
         </div>
 
         <nav className="shell-nav">
-            {NAV.filter((group) => !forced && group.roles.includes(role)).map((group) => (            <div key={group.heading} className="shell-group">
+          {NAV.filter((group) => !forced && group.roles.includes(role)).map((group) => (
+            <div key={group.heading} className="shell-group">
               <p className="shell-heading">{group.heading}</p>
-              {group.items.map((item) =>
+              {group.items.map((item) => (
                 item.soon ? (
-                  <span key={item.label} className="shell-item shell-item-soon" aria-disabled="true">
+                  <span
+                    key={item.label}
+                    className="shell-item shell-item-soon"
+                    aria-disabled="true"
+                  >
                     <Icon name={item.icon} />
                     {item.label}
                     <small>Soon</small>
@@ -200,14 +210,16 @@ function AppShell() {
                     key={item.label}
                     to={item.to}
                     end
-                    className={({ isActive }) => (isActive ? 'shell-item shell-item-on' : 'shell-item')}
+                    className={({ isActive }) =>
+                      isActive ? 'shell-item shell-item-on' : 'shell-item'
+                    }
                     onClick={() => setOpen(false)}
                   >
                     <Icon name={item.icon} />
                     {item.label}
                   </NavLink>
                 )
-              )}
+              ))}
             </div>
           ))}
         </nav>
@@ -220,22 +232,29 @@ function AppShell() {
               <small>{user.email}</small>
             </span>
           </div>
+
           <NavLink
             to="/profile"
-            className={({ isActive }) => (isActive ? 'shell-item shell-item-on' : 'shell-item')}
+            className={({ isActive }) =>
+              isActive ? 'shell-item shell-item-on' : 'shell-item'
+            }
             onClick={() => setOpen(false)}
           >
             <Icon name="user" />
             My profile
           </NavLink>
+
           <NavLink
             to="/change-password"
-            className={({ isActive }) => (isActive ? 'shell-item shell-item-on' : 'shell-item')}
+            className={({ isActive }) =>
+              isActive ? 'shell-item shell-item-on' : 'shell-item'
+            }
             onClick={() => setOpen(false)}
           >
             <Icon name="key" />
             Change password
           </NavLink>
+
           <button type="button" className="shell-item shell-logout" onClick={handleLogout}>
             <Icon name="logout" />
             Log out
@@ -254,9 +273,11 @@ function AppShell() {
           >
             <Icon name="menu" />
           </button>
+
           <p className="shell-crumb">
             Sports Room <span aria-hidden="true">/</span> <strong>{crumb}</strong>
           </p>
+
           <div className="shell-user">
             <span className="shell-avatar">{initialsOf(user.name)}</span>
             <span className="shell-user-text">
@@ -275,4 +296,3 @@ function AppShell() {
 }
 
 export default AppShell;
-
