@@ -286,3 +286,203 @@
 .page-narrow {
   max-width: 440px;
 }
+
+/* =========================================================
+   SEMS NEON SIDEBAR — Black + Neon Green + Orange
+   Visual overrides only. Existing layout and behavior stay.
+   ========================================================= */
+
+.shell {
+  background: var(--chalk);
+}
+
+/* Sidebar */
+.shell-side {
+  background:
+    radial-gradient(ellipse at 0% 0%, rgba(183, 255, 50, 0.07), transparent 42%),
+    #0d100d;
+  border-right: 1px solid #293329;
+  box-shadow: 8px 0 32px rgba(0, 0, 0, 0.14);
+  scrollbar-width: thin;
+}
+
+/* Brand */
+.shell-brand {
+  padding: 0.35rem 0.3rem 1rem;
+  border-bottom: 1px solid #293329;
+}
+
+.shell-logo {
+  background: var(--turf);
+  color: #0a0d0a;
+  box-shadow: 0 0 20px rgba(183, 255, 50, 0.15);
+}
+
+.shell-brand-name {
+  color: #f0f5ee;
+  letter-spacing: 0.065em;
+}
+
+.shell-brand-name::after {
+  content: ".";
+  color: var(--whistle);
+}
+
+/* Navigation section headings */
+.shell-heading {
+  color: #859580;
+  font-size: 0.68rem;
+  letter-spacing: 0.15em;
+}
+
+/* Navigation items */
+.shell-item {
+  position: relative;
+  border: 1px solid transparent;
+  color: #c1cbbd;
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.shell-item:hover:not(.shell-item-soon) {
+  background: rgba(183, 255, 50, 0.07);
+  border-color: rgba(183, 255, 50, 0.12);
+  color: var(--turf);
+}
+
+.shell-item-on,
+.shell-item-on:hover {
+  background: var(--turf);
+  border-color: var(--turf);
+  color: #10140b;
+  font-weight: 750;
+  box-shadow: 0 0 18px rgba(183, 255, 50, 0.13);
+}
+
+.shell-item-on svg {
+  color: #10140b;
+}
+
+.shell-item-soon,
+.shell-item-soon:hover {
+  color: #687365;
+  opacity: 0.72;
+}
+
+.shell-item small {
+  background: #252d24;
+  color: var(--whistle);
+  border: 1px solid rgba(255, 138, 36, 0.18);
+}
+
+/* Profile section */
+.shell-me {
+  border-top-color: #293329;
+}
+
+.shell-me-text strong,
+.shell-user-text strong {
+  color: #f0f5ee;
+}
+
+.shell-me-text small,
+.shell-user-text small {
+  color: #8e9a89;
+}
+
+.shell-avatar {
+  background: rgba(183, 255, 50, 0.12);
+  color: var(--turf);
+  border: 1px solid rgba(183, 255, 50, 0.2);
+}
+
+.shell-logout:hover {
+  background: rgba(255, 98, 107, 0.1);
+  color: #ff858b;
+}
+
+/* Top bar */
+.shell-top {
+  background: rgba(15, 19, 15, 0.94);
+  border-bottom: 1px solid #293329;
+  backdrop-filter: blur(14px);
+}
+
+.shell-crumb {
+  color: #8e9a89;
+}
+
+.shell-crumb strong {
+  color: var(--turf);
+}
+
+.shell-user {
+  padding-left: 0.8rem;
+  border-left: 1px solid #293329;
+}
+
+.shell-burger {
+  background: #171d17;
+  border-color: #354035;
+  color: var(--turf);
+}
+
+.shell-burger:hover:not(:disabled) {
+  background: rgba(183, 255, 50, 0.1);
+  border-color: var(--turf);
+  color: var(--turf);
+}
+
+/* Main content */
+.shell-main {
+  background: transparent;
+}
+
+.shell-content {
+  animation: sems-content-enter 240ms ease-out both;
+}
+
+@keyframes sems-content-enter {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Page headings */
+.page-eyebrow {
+  color: var(--whistle);
+  font-weight: 750;
+}
+
+.page-head h1 {
+  letter-spacing: -0.025em;
+}
+
+.page-sub {
+  color: #9ba797;
+}
+
+/* Mobile overlay */
+.shell-scrim {
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(3px);
+}
+
+/* Respect reduced-motion accessibility preferences */
+@media (prefers-reduced-motion: reduce) {
+  .shell-content {
+    animation: none;
+  }
+
+  .shell-item {
+    transition: none;
+  }
+}

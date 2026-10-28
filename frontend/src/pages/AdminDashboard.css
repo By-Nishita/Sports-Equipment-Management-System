@@ -387,3 +387,319 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* =========================================================
+   ADMIN DASHBOARD — NEON REDESIGN
+   Existing API data, components and layout preserved.
+   ========================================================= */
+
+/* Header and actions */
+.ad-head {
+  margin-bottom: 1.5rem;
+}
+
+.ad-head-actions {
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.ad-scan {
+  min-height: 42px;
+  border: 1px solid var(--turf);
+  border-radius: var(--radius-sm);
+  background: var(--turf);
+  color: #10140b;
+  font-weight: 750;
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.ad-scan:hover {
+  background: var(--turf-dark);
+  color: #10140b;
+  transform: translateY(-1px);
+}
+
+/* Main statistics */
+.ad-stats {
+  gap: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.ad-stat {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #171d17, #111511);
+  transition: border-color 160ms ease, transform 160ms ease;
+}
+
+.ad-stat::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: var(--turf);
+  opacity: 0.75;
+}
+
+.ad-stat:hover {
+  border-color: rgba(183, 255, 50, 0.35);
+}
+
+.ad-stat-label {
+  color: #a3afa0;
+}
+
+.ad-stat-value {
+  color: var(--ink);
+  font-size: clamp(1.65rem, 2.5vw, 2.2rem);
+}
+
+.ad-stat-note {
+  color: #8e9a89;
+}
+
+/* Icon treatments */
+.ad-icon {
+  border: 1px solid rgba(255, 255, 255, 0.045);
+}
+
+.ad-icon-grey {
+  background: #252c25;
+  color: #a3afa0;
+}
+
+.ad-icon-green {
+  background: rgba(183, 255, 50, 0.12);
+  color: var(--turf);
+}
+
+.ad-icon-blue {
+  background: rgba(89, 163, 255, 0.13);
+  color: #85baff;
+}
+
+.ad-icon-amber {
+  background: rgba(255, 138, 36, 0.13);
+  color: var(--whistle);
+}
+
+.ad-icon-red {
+  background: rgba(255, 98, 107, 0.13);
+  color: #ff858b;
+}
+
+/* Smaller overview cards */
+.ad-minis {
+  gap: 0.75rem;
+}
+
+.ad-mini {
+  min-width: 0;
+  border-radius: 12px;
+  background: #141914;
+  transition: border-color 160ms ease, transform 160ms ease;
+}
+
+.ad-mini-value {
+  color: var(--ink);
+}
+
+.ad-mini-label {
+  color: #9ba797;
+}
+
+.ad-mini-link:hover {
+  border-color: var(--turf);
+  transform: translateY(-2px);
+}
+
+/* Panels, equipment lists and overdue items */
+.ad-section {
+  margin-bottom: 1.75rem;
+}
+
+.ad-panel {
+  min-width: 0;
+  border-radius: 14px;
+}
+
+.ad-panel h3,
+.ad-section h3 {
+  color: var(--ink);
+}
+
+.ad-panel-sub,
+.ad-empty,
+.ad-stamp {
+  color: #9ba797;
+}
+
+.ad-row {
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.ad-id,
+.ad-who,
+.ad-late small {
+  color: #9ba797;
+}
+
+/* Active equipment */
+.ad-live li {
+  border-bottom-color: #293329;
+}
+
+.ad-thumb {
+  border: 1px solid rgba(183, 255, 50, 0.13);
+  background: rgba(183, 255, 50, 0.08);
+  color: var(--turf);
+}
+
+.ad-live-text strong {
+  color: var(--ink);
+}
+
+.ad-live-text small {
+  color: #9ba797;
+}
+
+.ad-livetag {
+  color: var(--turf);
+}
+
+/* Utilization chart */
+.ad-chart {
+  border-bottom-color: #354035;
+}
+
+.ad-col-value {
+  color: #a3afa0;
+}
+
+.ad-col-bar {
+  background: linear-gradient(180deg, #d5ff82, #8fdb16);
+  box-shadow: 0 0 14px rgba(183, 255, 50, 0.08);
+}
+
+.ad-col-label {
+  color: #9ba797;
+}
+
+.ad-chart-foot {
+  color: #a3afa0;
+}
+
+.ad-up {
+  color: var(--turf);
+}
+
+.ad-down {
+  color: var(--whistle);
+}
+
+/* Recent activity table */
+.ad-table th {
+  color: #a3afa0;
+  border-bottom-color: #354035;
+}
+
+.ad-table td {
+  color: #dce5d8;
+  border-bottom-color: #293329;
+}
+
+.ad-table tbody tr:hover {
+  background: rgba(183, 255, 50, 0.035);
+}
+
+.ad-table td small {
+  color: #9ba797;
+}
+
+/* Inventory health */
+.ad-health li {
+  color: #cbd5c6;
+}
+
+.ad-track {
+  background: #252d24;
+}
+
+.ad-bar-ok {
+  background: var(--turf);
+}
+
+.ad-bar-warn {
+  background: var(--whistle);
+}
+
+.ad-bar-bad {
+  background: var(--danger);
+}
+
+.ad-value-row {
+  border-top-color: #354035;
+  color: #a3afa0;
+}
+
+.ad-value-row strong {
+  color: var(--turf);
+}
+
+/* Clickable admin cards */
+a.ad-mini:focus-visible,
+.ad-scan:focus-visible {
+  outline: 2px solid var(--whistle);
+  outline-offset: 3px;
+}
+
+/* Responsive layout refinements */
+@media (max-width: 1000px) {
+  .ad-stats {
+    gap: 0.75rem;
+  }
+
+  .ad-minis {
+    gap: 0.65rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .ad-head {
+    align-items: stretch;
+  }
+
+  .ad-head-actions {
+    width: 100%;
+  }
+
+  .ad-head-actions > * {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .ad-stat {
+    padding: 1rem;
+  }
+
+  .ad-row {
+    padding: 0.85rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ad-stat,
+  .ad-mini,
+  .ad-scan {
+    transition: none;
+  }
+
+  .ad-mini-link:hover,
+  .ad-scan:hover {
+    transform: none;
+  }
+}
+

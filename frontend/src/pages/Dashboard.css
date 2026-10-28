@@ -119,3 +119,227 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================================================
+   STUDENT DASHBOARD — NEON REDESIGN
+   Existing functionality and layout preserved.
+   ========================================================= */
+
+.dh-scan {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  max-width: 100%;
+  min-height: 64px;
+  margin-bottom: 2rem;
+  overflow: hidden;
+  border: 1px solid var(--turf);
+  border-radius: 14px;
+  background: linear-gradient(105deg, #b7ff32, #d5ff82);
+  color: #10140b;
+  font-size: 1.1rem;
+  font-weight: 800;
+  box-shadow: 0 8px 28px rgba(183, 255, 50, 0.10);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.dh-scan:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 32px rgba(183, 255, 50, 0.19);
+}
+
+/* Section headings */
+.shell-content section > h2 {
+  margin-top: 1.8rem;
+  margin-bottom: 0.9rem;
+  font-size: 1.15rem;
+  letter-spacing: -0.015em;
+}
+
+/* Held equipment */
+.dh-list {
+  max-width: none;
+  gap: 0.85rem;
+}
+
+.dh-held {
+  position: relative;
+  padding: 1rem;
+  border-radius: 14px;
+  transition: border-color 160ms ease, transform 160ms ease;
+}
+
+.dh-held:hover {
+  border-color: rgba(183, 255, 50, 0.32);
+}
+
+.dh-held-body strong {
+  color: var(--ink);
+  font-size: 0.98rem;
+}
+
+.dh-code {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  border: 1px solid #354035;
+  border-radius: 6px;
+  background: #0c100c;
+  color: var(--turf);
+  font-size: 0.78rem;
+}
+
+.dh-time {
+  line-height: 1.6;
+  color: #a3afa0;
+}
+
+.dh-time-low {
+  color: var(--whistle);
+  font-weight: 700;
+}
+
+.dh-time-late {
+  color: #ff737c;
+  font-weight: 750;
+}
+
+.dh-held-actions {
+  gap: 0.55rem;
+}
+
+.dh-held-actions button {
+  min-height: 38px;
+}
+
+.dh-empty {
+  padding: 1.15rem;
+  border: 1px dashed #354035;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.015);
+  color: #9ba797;
+}
+
+/* Student usage statistics */
+.dh-stats {
+  max-width: none;
+  gap: 1rem;
+}
+
+.dh-stat {
+  position: relative;
+  gap: 0.55rem;
+  padding: 1.3rem 1rem;
+  overflow: hidden;
+  border-radius: 14px;
+  text-align: left;
+}
+
+.dh-stat::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--turf);
+  opacity: 0.85;
+}
+
+.dh-stat strong {
+  color: var(--turf);
+  font-size: clamp(1.7rem, 3vw, 2.3rem);
+}
+
+.dh-stat span {
+  color: #a3afa0;
+  font-size: 0.82rem;
+}
+
+/* Staff dashboard count cards */
+.dh-desks {
+  max-width: none;
+  gap: 1rem;
+}
+
+.dh-desk {
+  position: relative;
+  min-height: 120px;
+  padding: 1.15rem;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #171d17, #111511);
+  text-align: left;
+  transition: border-color 160ms ease, transform 160ms ease;
+}
+
+.dh-desk:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: var(--turf);
+}
+
+.dh-desk strong {
+  color: var(--turf);
+  font-size: 2.35rem;
+}
+
+.dh-desk span {
+  color: #a3afa0;
+}
+
+.dh-desk-alert {
+  border-color: rgba(255, 98, 107, 0.55);
+  background: linear-gradient(145deg, #291719, #171112);
+}
+
+.dh-desk-alert strong {
+  color: #ff737c;
+}
+
+.dh-links {
+  gap: 0.65rem;
+}
+
+.dh-links a {
+  text-decoration: none;
+}
+
+/* Smaller screens */
+@media (max-width: 520px) {
+  .dh-scan {
+    min-height: 56px;
+    font-size: 1rem;
+  }
+
+  .dh-held {
+    align-items: flex-start;
+  }
+
+  .dh-held-actions {
+    width: 100%;
+  }
+
+  .dh-held-actions button {
+    flex: 1;
+  }
+
+  .dh-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dh-stat:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dh-scan,
+  .dh-held,
+  .dh-desk {
+    transition: none;
+  }
+
+  .dh-scan:hover,
+  .dh-desk:hover {
+    transform: none;
+  }
+}
+

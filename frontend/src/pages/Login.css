@@ -77,3 +77,342 @@
     padding-top: 2rem;
   }
 }
+
+/* =========================================================
+   SEMS AUTH PAGES — BLACK + NEON GREEN + ORANGE
+   Applies to Sign In and Change Password.
+   Existing React logic and form behavior remain unchanged.
+   ========================================================= */
+
+.auth {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  min-height: 100svh;
+  grid-template-columns: minmax(0, 1fr) minmax(400px, 0.88fr);
+  background:
+    radial-gradient(ellipse at 12% 12%, rgba(183, 255, 50, 0.07), transparent 42%),
+    #0a0d0a;
+}
+
+/* Branding panel */
+.auth-brand {
+  position: relative;
+  isolation: isolate;
+  justify-content: center;
+  padding: clamp(2rem, 6vw, 5.5rem);
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 25% 75%, rgba(183, 255, 50, 0.12), transparent 52%),
+    linear-gradient(145deg, #141b13 0%, #0b0e0b 72%);
+  color: var(--ink);
+}
+
+.auth-brand::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 12%;
+  left: 8%;
+  width: 220px;
+  height: 220px;
+  border: 1px solid rgba(183, 255, 50, 0.14);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 35px rgba(183, 255, 50, 0.025),
+    0 0 0 70px rgba(183, 255, 50, 0.02);
+}
+
+.auth-brand svg {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: rgba(183, 255, 50, 0.12);
+  pointer-events: none;
+}
+
+.auth-brand h1 {
+  max-width: 10ch;
+  margin: 0 0 1rem;
+  color: #f0f5ee;
+  font-size: clamp(3rem, 6vw, 5.4rem);
+  font-weight: 850;
+  line-height: 0.98;
+  letter-spacing: -0.065em;
+  text-wrap: balance;
+}
+
+.auth-brand h1::after {
+  content: ".";
+  color: var(--turf);
+}
+
+.auth-brand p {
+  max-width: 32ch;
+  margin: 0;
+  color: #a6b1a1;
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  line-height: 1.8;
+}
+
+/* Thin neon accent at the panel boundary */
+.auth-brand::after {
+  content: "";
+  position: absolute;
+  top: 20%;
+  right: 0;
+  width: 2px;
+  height: 60%;
+  background: linear-gradient(transparent, var(--turf), var(--whistle), transparent);
+  opacity: 0.65;
+}
+
+/* Form panel */
+.auth-panel {
+  position: relative;
+  min-width: 0;
+  align-items: center;
+  padding: clamp(1.5rem, 5vw, 4rem);
+  background:
+    radial-gradient(ellipse at 90% 10%, rgba(255, 138, 36, 0.045), transparent 45%),
+    #0a0d0a;
+}
+
+.auth-form {
+  width: 100%;
+  max-width: 420px;
+  padding: clamp(1.5rem, 3.5vw, 2.6rem);
+  border: 1px solid #2b342b;
+  border-radius: 22px;
+  background: linear-gradient(150deg, #171d17, #101410 75%);
+  box-shadow:
+    0 25px 80px rgba(0, 0, 0, 0.25),
+    0 1px 0 rgba(255, 255, 255, 0.025) inset;
+  animation: auth-card-enter 420ms ease-out both;
+}
+
+.auth-form h2 {
+  margin: 0 0 0.6rem;
+  color: #f0f5ee;
+  font-size: clamp(1.8rem, 4vw, 2.3rem);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1.15;
+}
+
+.auth-form .auth-sub {
+  margin: 0 0 1.75rem;
+  color: #a0ad9f;
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+
+/* Inputs */
+.auth-form form {
+  display: grid;
+  gap: 1.15rem;
+}
+
+.auth-form .field {
+  display: grid;
+  gap: 0.55rem;
+  color: #dce5d8;
+  font-size: 0.86rem;
+  font-weight: 650;
+}
+
+.auth-form .field input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid #354035;
+  border-radius: 10px;
+  outline: none;
+  background: #0b0f0b;
+  color: #f0f5ee;
+  font: inherit;
+  font-size: 0.95rem;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.auth-form .field input::placeholder {
+  color: #758171;
+}
+
+.auth-form .field input:hover {
+  border-color: #52604f;
+}
+
+.auth-form .field input:focus {
+  border-color: var(--turf);
+  box-shadow: 0 0 0 3px rgba(183, 255, 50, 0.1);
+}
+
+.auth-form .field input:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Main action */
+.auth-form .btn-block {
+  width: 100%;
+  min-height: 49px;
+  margin-top: 0.35rem;
+  border: 1px solid var(--turf);
+  border-radius: 10px;
+  background: var(--turf);
+  color: #10140b;
+  font-size: 0.96rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  box-shadow: 0 5px 20px rgba(183, 255, 50, 0.08);
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.auth-form .btn-block:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: #ccff72;
+  box-shadow: 0 8px 26px rgba(183, 255, 50, 0.17);
+}
+
+.auth-form .btn-block:focus-visible {
+  outline: 2px solid var(--whistle);
+  outline-offset: 3px;
+}
+
+.auth-form .btn-block:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+/* Forgot password and other auth links */
+.auth-form .auth-sub a {
+  color: var(--turf);
+  font-weight: 650;
+  text-decoration: none;
+  text-underline-offset: 4px;
+  transition: color 160ms ease;
+}
+
+.auth-form .auth-sub a:hover {
+  color: #d5ff82;
+  text-decoration: underline;
+}
+
+.auth-form .auth-sub a:focus-visible {
+  outline: 2px solid var(--whistle);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+/* Error messages remain visible on the dark background */
+.auth-form .notice-error {
+  border-color: rgba(255, 98, 107, 0.35);
+  border-radius: 10px;
+  background: rgba(255, 98, 107, 0.09);
+  color: #ff9298;
+}
+
+/* Entrance animation */
+@keyframes auth-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Tablet and mobile */
+@media (max-width: 800px) {
+  .auth {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .auth-brand {
+    min-height: 190px;
+    padding: 2rem 1.5rem;
+  }
+
+  .auth-brand h1 {
+    max-width: 15ch;
+    font-size: clamp(2.3rem, 8vw, 3.5rem);
+  }
+
+  .auth-brand p {
+    max-width: 36ch;
+    font-size: 0.95rem;
+  }
+
+  .auth-brand::before {
+    top: -90px;
+    left: auto;
+    right: -50px;
+    width: 180px;
+    height: 180px;
+  }
+
+  .auth-brand::after {
+    top: auto;
+    right: 12%;
+    bottom: 0;
+    width: 76%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--turf), var(--whistle), transparent);
+  }
+
+  .auth-panel {
+    align-items: flex-start;
+    justify-content: center;
+    padding: 1.5rem 1rem 2.5rem;
+  }
+
+  .auth-form {
+    max-width: 480px;
+    padding: clamp(1.25rem, 5vw, 2rem);
+  }
+}
+
+@media (max-width: 420px) {
+  .auth-brand {
+    min-height: 165px;
+    padding: 1.5rem 1.15rem;
+  }
+
+  .auth-brand h1 {
+    font-size: 2.4rem;
+  }
+
+  .auth-panel {
+    padding-inline: 0.85rem;
+  }
+
+  .auth-form {
+    padding: 1.25rem 1rem;
+    border-radius: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-form {
+    animation: none;
+  }
+
+  .auth-form .field input,
+  .auth-form .btn-block,
+  .auth-form .auth-sub a {
+    transition: none;
+  }
+
+  .auth-form .btn-block:hover:not(:disabled) {
+    transform: none;
+  }
+}
+

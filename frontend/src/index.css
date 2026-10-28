@@ -257,3 +257,214 @@ a { color: var(--turf); }
     animation: none !important;
   }
 }
+
+/* =========================================================
+   SEMS NEON THEME — Black + Neon Green + Orange
+   Added as an override; original styles remain preserved.
+   ========================================================= */
+
+:root {
+  color-scheme: dark;
+
+  --ink: #f0f5ee;
+  --ink-soft: #a0ad9f;
+
+  --turf: #b7ff32;
+  --turf-dark: #8fdb16;
+  --turf-tint: rgba(183, 255, 50, 0.10);
+
+  --whistle: #ff8a24;
+
+  --chalk: #0a0d0a;
+  --paper: #131813;
+  --line: #2b342b;
+
+  --danger: #ff626b;
+  --danger-tint: rgba(255, 98, 107, 0.12);
+
+  --ok-tint: rgba(183, 255, 50, 0.12);
+  --warn-tint: rgba(255, 138, 36, 0.13);
+
+  --radius: 14px;
+  --radius-sm: 9px;
+
+  --shadow:
+    0 4px 16px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(183, 255, 50, 0.025);
+
+  background: var(--chalk);
+  color: var(--ink);
+}
+
+html {
+  background: var(--chalk);
+}
+
+body {
+  background:
+    radial-gradient(
+      ellipse at 80% 0%,
+      rgba(183, 255, 50, 0.045),
+      transparent 40%
+    ),
+    var(--chalk);
+  color: var(--ink);
+}
+
+h1,
+h2,
+h3 {
+  color: var(--ink);
+}
+
+a {
+  color: var(--turf);
+}
+
+::selection {
+  background: var(--turf);
+  color: #0a0d0a;
+}
+
+/* Buttons */
+:where(button) {
+  background: var(--turf);
+  color: #10140b;
+  border-color: var(--turf);
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+}
+
+:where(button:hover:not(:disabled)) {
+  background: var(--turf-dark);
+  border-color: var(--turf-dark);
+  color: #10140b;
+}
+
+.btn-secondary {
+  background: #1b221b;
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #252e24;
+  border-color: var(--turf);
+  color: var(--turf);
+}
+
+.btn-ghost {
+  color: var(--ink-soft);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--turf-tint);
+  color: var(--turf);
+}
+
+/* Form controls */
+:where(input:not([type='checkbox']):not([type='radio']), select, textarea) {
+  background: #0e120e;
+  color: var(--ink);
+  border-color: #354035;
+  border-radius: var(--radius-sm);
+}
+
+:where(input, select, textarea)::placeholder {
+  color: #758273;
+}
+
+:where(input, select, textarea):focus {
+  border-color: var(--turf);
+}
+
+/* Reusable cards */
+.card {
+  background: linear-gradient(145deg, #171d17, #111511);
+  border-color: var(--line);
+  box-shadow: var(--shadow);
+}
+
+/* Status badges */
+.badge {
+  background: #252c25;
+  color: #c4cec0;
+}
+
+.badge-available {
+  background: rgba(183, 255, 50, 0.13);
+  color: var(--turf);
+}
+
+.badge-in_use {
+  background: rgba(89, 163, 255, 0.14);
+  color: #85baff;
+}
+
+.badge-damaged,
+.badge-lost {
+  background: rgba(255, 98, 107, 0.13);
+  color: #ff858b;
+}
+
+.badge-maintenance {
+  background: rgba(255, 138, 36, 0.14);
+  color: #ffab63;
+}
+
+.badge-retired {
+  background: #252c25;
+  color: #a0ad9f;
+}
+
+/* Segmented controls */
+.seg {
+  background: #0e120e;
+  border: 1px solid var(--line);
+}
+
+.seg button {
+  color: var(--ink-soft);
+}
+
+.seg button.seg-on,
+.seg button.seg-on:hover:not(:disabled) {
+  background: #283222;
+  color: var(--turf);
+  border-color: rgba(183, 255, 50, 0.22);
+}
+
+/* Notices */
+.notice-ok {
+  background: rgba(183, 255, 50, 0.10);
+  color: var(--turf);
+}
+
+.notice-error {
+  background: rgba(255, 98, 107, 0.12);
+  color: #ff858b;
+}
+
+.notice-warn {
+  background: rgba(255, 138, 36, 0.12);
+  color: #ffab63;
+}
+
+/* Page headings */
+.page-eyebrow {
+  color: var(--turf);
+}
+
+.page-sub {
+  color: var(--ink-soft);
+}
+
+/* Accessible keyboard focus */
+:where(button, a, input, select, textarea):focus-visible {
+  outline-color: var(--whistle);
+}
+
+/* Scrollbar */
+* {
+  scrollbar-color: #394536 #0a0d0a;
+}
