@@ -66,7 +66,7 @@ function Login() {
         </button>
       </form>
             <p className="auth-sub">
-               <Link to="/forgot-password">Forgot password?</Link>     
+               <Link to="/forgot-password">Forgot password?</Link> <span aria-hidden="true">·</span> <Link to="/forgot-password">First time? Set password</Link>    
             </p>
     </AuthLayout>
   );
