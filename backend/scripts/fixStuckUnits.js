@@ -10,6 +10,7 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const UsageSession = require('../models/UsageSession');
 const EquipmentUnit = require('../models/EquipmentUnit');
+const { wrongIndexes } = require('./indexCompare');
 
 const apply = process.argv.includes('--apply');
 const closeConflicts = process.argv.includes('--close-conflicts');
@@ -19,14 +20,12 @@ const closeConflicts = process.argv.includes('--close-conflicts');
   const host = new URL(process.env.MONGO_URI.replace('mongodb+srv://', 'https://').replace('mongodb://', 'http://')).host;
   console.log(`Database host: ${host}   (${apply ? 'APPLY mode' : 'look only, nothing is changed'})\n`);
 
-  // 1. Indexes on usagesessions that our code does not define (old leftovers)
+  // 1. Indexes on usagesessions that are wrong: unknown unique ones, or the right key with the wrong
+  //    options (for example an old "unit_1" that is unique for every row, not only ACTIVE ones).
   const have = await UsageSession.collection.indexes();
-  const wanted = new Set(UsageSession.schema.indexes().map(([fields]) => JSON.stringify(fields)));
-  wanted.add(JSON.stringify({ _id: 1 }));
-  const extra = have.filter((i) => !wanted.has(JSON.stringify(i.key)));
-  const badExtra = extra.filter((i) => i.unique);
-  console.log(`1. Extra indexes not in the code: ${extra.length}`);
-  for (const i of extra) console.log(`   - ${i.name}  ${JSON.stringify(i.key)}${i.unique ? '  UNIQUE  <-- can cause "duplicate" errors' : ''}`);
+  const badExtra = wrongIndexes(have, UsageSession.schema.indexes());
+  console.log(`1. Wrong indexes: ${badExtra.length}`);
+  for (const i of badExtra) console.log(`   - ${i.name}  ${JSON.stringify(i.key)}  <-- ${i.why}`);
 
   // 2. Old-format sessions (from before the unit system)
   const oldFormat = await UsageSession.collection.countDocuments({ type: { $exists: false } });
