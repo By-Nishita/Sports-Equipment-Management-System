@@ -11,7 +11,6 @@ const NAV = [
     roles: ['student', 'staff', 'admin'],
     items: [
       { label: 'Dashboard', to: '/dashboard', icon: 'grid' },
-      { label: 'Book Equipment', to: '/book', icon: 'history' },
       { label: 'Scan QR', to: '/scan', icon: 'scan' },
       { label: 'My Active Use', to: '/my-use', icon: 'bolt' },
       { label: 'Usage History', to: '/history', icon: 'history' },
