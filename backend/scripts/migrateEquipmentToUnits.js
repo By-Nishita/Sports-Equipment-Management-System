@@ -10,7 +10,7 @@
  *   purchaseDate and price are copied.
  * - Safe to re-run: units are upserted by unitCode with $setOnInsert, so an existing unit is never
  *   overwritten and a second run only adds what is missing.
- * - Needs the OLD model at models/Equipment.js (kept until this migration is done, then deleted).
+ * - Reads the old `equipment` collection directly, so the old model file is no longer needed.
  */
 const path = require('path');
 try { require('dotenv').config({ path: path.join(__dirname, '..', '.env') }); } catch (_) { /* dotenv optional */ }
@@ -39,9 +39,7 @@ function normalizeCondition(value) {
 }
 
 async function run({ dryRun }) {
-  // Loaded here so tests can import the helpers without needing the old model.
-  const Equipment = require('../models/Equipment');
-  const old = await Equipment.find({}).lean();
+  const old = await mongoose.connection.db.collection('equipment').find({}).toArray();
 
   const stats = { oldItems: old.length, typesCreated: 0, typesReused: 0, unitsCreated: 0, unitsSkipped: 0, warnings: [] };
   const typeByName = new Map(); // lower-cased name -> type doc (or a plain object in dry-run)
