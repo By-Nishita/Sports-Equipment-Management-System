@@ -376,3 +376,25 @@ test("late calculation uses the student's return request time", async () => {
   // Confirmation delay must not be used to calculate the student's late time.
   assert.ok(staffConfirmedAt > returnRequestedAt);
 });
+test("if saving the session fails after the unit was taken, the unit is given back", async () => {
+  resetData();
+
+  const type = await makeType();
+  const unit = await makeUnit(type, "FB-001");
+  const request = await makeRequest(student1, type);
+
+  // Pretend the database refuses the session update with a duplicate-key error (code 11000)
+  const original = sessions.findOneAndUpdate;
+  sessions.findOneAndUpdate = async () => {
+    throw Object.assign(new Error("E11000 duplicate key error"), { code: 11000 });
+  };
+
+  try {
+    await rejectsWith(service.approve(staff, request._id, "FB-001"), 409, /could not be issued/i);
+  } finally {
+    sessions.findOneAndUpdate = original;
+  }
+
+  assert.strictEqual(units.rows.find((row) => row._id === unit._id).status, "AVAILABLE");
+  assert.strictEqual(sessions.rows.find((row) => row._id === request._id).status, "ISSUE_PENDING");
+});
