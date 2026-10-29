@@ -3,50 +3,81 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import './AppShell.css';
 
 const NAV = [
+  // ---------- Student ----------
   {
     heading: 'Sports Room',
-    roles: ['student', 'staff', 'admin'],
+    roles: ['student'],
     items: [
       { label: 'Dashboard', to: '/dashboard', icon: 'grid' },
       { label: 'Equipment Catalog', to: '/catalog', icon: 'grid' },
       { label: 'Scan QR', to: '/scan', icon: 'scan' },
-      { label: 'Return item', to: '/return', icon: 'return' },
       { label: 'My Active Use', to: '/my-use', icon: 'bolt' },
+      { label: 'Return item', to: '/return', icon: 'return' },
       { label: 'Usage History', to: '/history', icon: 'history' },
       { label: 'Report damage', to: '/report-damage', icon: 'alert' }
     ]
   },
+
+  // ---------- Staff ----------
+  {
+    heading: 'Home',
+    roles: ['staff'],
+    items: [
+      { label: 'Dashboard', to: '/dashboard', icon: 'grid' },
+      { label: 'Equipment Catalog', to: '/catalog', icon: 'grid' }
+    ]
+  },
   {
     heading: 'Staff desk',
-    roles: ['staff', 'admin'],
+    roles: ['staff'],
     items: [
       { label: 'Approvals', to: '/staff/approvals', icon: 'check' },
       { label: 'Pending returns', to: '/staff/returns', icon: 'return' },
       { label: 'Overdue', to: '/staff/overdue', icon: 'clock' },
+      { label: 'Damage reviews', to: '/admin/damage', icon: 'alert' },
       { label: 'Stock Count', to: '/staff/stock-count', icon: 'scan' },
       { label: 'QR stickers', to: '/admin/qr-print', icon: 'scan' }
     ]
   },
+
+  // ---------- Admin ----------
   {
-    heading: 'Administration',
-    roles: ['staff', 'admin'],
+    heading: 'Overview',
+    roles: ['admin'],
     items: [
+      { label: 'Admin Dashboard', to: '/admin', icon: 'shield' }
+    ]
+  },
+  {
+    heading: 'Daily desk',
+    roles: ['admin'],
+    items: [
+      { label: 'Approvals', to: '/staff/approvals', icon: 'check' },
+      { label: 'Pending returns', to: '/staff/returns', icon: 'return' },
+      { label: 'Overdue', to: '/staff/overdue', icon: 'clock' },
       { label: 'Damage reviews', to: '/admin/damage', icon: 'alert' }
     ]
   },
   {
-    heading: 'Admin only',
+    heading: 'Equipment',
     roles: ['admin'],
     items: [
-      { label: 'Admin Dashboard', to: '/admin', icon: 'shield' },
-      { label: 'Settings', to: '/admin/settings', icon: 'key' },
-      { label: 'Students and staff', to: '/admin/students', icon: 'shield' },
-      { label: 'Audit log', to: '/admin/audit-log', icon: 'history' },
+      { label: 'Equipment Catalog', to: '/catalog', icon: 'grid' },
       { label: 'Equipment Types', to: '/admin/types', icon: 'grid' },
       { label: 'Equipment Units', to: '/admin/units', icon: 'grid' },
       { label: 'QR stickers', to: '/admin/qr-print', icon: 'scan' },
       { label: 'Maintenance', to: '/admin/maintenance', icon: 'key' },
+      { label: 'Stock Count', to: '/staff/stock-count', icon: 'scan' },
       { label: 'Stock Audit', to: '/admin/stock-audit', icon: 'history' }
+    ]
+  },
+  {
+    heading: 'People and system',
+    roles: ['admin'],
+    items: [
+      { label: 'Students and staff', to: '/admin/students', icon: 'shield' },
+      { label: 'Settings', to: '/admin/settings', icon: 'key' },
+      { label: 'Audit log', to: '/admin/audit-log', icon: 'history' }
     ]
   }
 ];
