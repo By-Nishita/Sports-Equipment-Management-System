@@ -1,5 +1,6 @@
 // Login aur ChangePassword dono ka common dhaancha: left mein brand, right mein form.
 // Ek jagah likha hai taaki dono pages same dikhein.
+import { useState } from 'react';
 import '../pages/Login.css';
 
 function CourtLines() {
@@ -19,6 +20,15 @@ function CourtLines() {
 }
 
 function AuthLayout({ title, subtitle, children }) {
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    localStorage.setItem('theme', nextTheme);
+    document.documentElement.dataset.theme = nextTheme;
+    document.documentElement.style.colorScheme = nextTheme;
+  };
+
   return (
     <div className="auth">
       <aside className="auth-brand">
@@ -27,6 +37,15 @@ function AuthLayout({ title, subtitle, children }) {
         <p>Issue, return and track every piece of equipment.</p>
       </aside>
       <main className="auth-panel">
+        <button
+          type="button"
+          className="auth-theme-toggle"
+          onClick={toggleTheme}
+          aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+        >
+          <span aria-hidden="true">{theme === 'dark' ? '☀' : '☾'}</span>
+          <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
+        </button>
         <div className="auth-form">
           <h2>{title}</h2>
           {subtitle && <p className="auth-sub">{subtitle}</p>}

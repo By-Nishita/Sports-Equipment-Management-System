@@ -343,3 +343,19 @@
   }
 }
 
+:root[data-theme='light'] .dh-scan {
+  background: linear-gradient(105deg, #d8f2a2, #eff9dd);
+  color: #243515;
+  box-shadow: 0 8px 24px rgba(74, 111, 18, 0.1);
+}
+:root[data-theme='light'] .dh-code { border-color: var(--line); background: #f7f9f5; color: var(--turf-dark); }
+:root[data-theme='light'] .dh-time { color: var(--ink-soft); }
+:root[data-theme='light'] .dh-time-low { color: #a84d08; }
+:root[data-theme='light'] .dh-time-late { color: #b3261e; }
+:root[data-theme='light'] .dh-empty { border-color: var(--line); background: #fafbf8; color: var(--ink-soft); }
+:root[data-theme='light'] .dh-stat span,
+:root[data-theme='light'] .dh-desk span { color: var(--ink-soft); }
+:root[data-theme='light'] .dh-desk { background: linear-gradient(145deg, #ffffff, #f8faf4); }
+:root[data-theme='light'] .dh-desk-alert { border-color: #e6bab6; background: linear-gradient(145deg, #fff7f6, #fbe9e7); }
+:root[data-theme='light'] .dh-desk-alert strong { color: #b3261e; }
+

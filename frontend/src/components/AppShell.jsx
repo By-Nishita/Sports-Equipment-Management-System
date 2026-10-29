@@ -190,6 +190,7 @@ function AppShell() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
   const user = readUser();
   const role = user.role || 'student';
   const forced = user.mustChangePassword === true;
@@ -203,6 +204,14 @@ function AppShell() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     navigate('/login');
+  };
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    localStorage.setItem('theme', nextTheme);
+    document.documentElement.dataset.theme = nextTheme;
+    document.documentElement.style.colorScheme = nextTheme;
   };
 
   return (
@@ -311,6 +320,17 @@ function AppShell() {
           <p className="shell-crumb">
             Sports Room <span aria-hidden="true">/</span> <strong>{crumb}</strong>
           </p>
+
+          <button
+            type="button"
+            className="shell-theme-toggle"
+            onClick={toggleTheme}
+            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+          >
+            <span aria-hidden="true">{theme === 'dark' ? '☀' : '☾'}</span>
+            <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
+          </button>
 
           <div className="shell-user">
             <span className="shell-avatar">{initialsOf(user.name)}</span>
