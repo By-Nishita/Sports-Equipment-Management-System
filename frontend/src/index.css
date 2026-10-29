@@ -468,3 +468,74 @@ a {
 * {
   scrollbar-color: #394536 #0a0d0a;
 }
+
+/* Light theme: keep the neon palette while shifting the surfaces to chalk and paper. */
+:root[data-theme='light'] {
+  color-scheme: light;
+  --ink: #172219;
+  --ink-soft: #58665a;
+  --turf: #6f9f13;
+  --turf-dark: #547d0a;
+  --turf-tint: #edf5df;
+  --whistle: #e56d13;
+  --chalk: #f4f6f1;
+  --paper: #ffffff;
+  --line: #dce3d8;
+  --danger: #b3261e;
+  --danger-tint: #fbe9e7;
+  --ok-tint: #edf5df;
+  --warn-tint: #fff0e2;
+  --shadow: 0 1px 2px rgba(23, 34, 25, 0.05), 0 4px 16px rgba(23, 34, 25, 0.07);
+  background: var(--chalk);
+  color: var(--ink);
+}
+
+:root[data-theme='light'] body {
+  background: radial-gradient(ellipse at 80% 0%, rgba(111, 159, 19, 0.06), transparent 40%), var(--chalk);
+  color: var(--ink);
+}
+
+:root[data-theme='light'] h1,
+:root[data-theme='light'] h2,
+:root[data-theme='light'] h3 { color: var(--ink); }
+:root[data-theme='light'] a { color: var(--turf-dark); }
+:root[data-theme='light'] ::selection { background: #d9f3a2; color: #172219; }
+
+:root[data-theme='light'] :where(button) {
+  color: #172219;
+}
+:root[data-theme='light'] :where(button:hover:not(:disabled)) { color: #172219; }
+:root[data-theme='light'] .btn-secondary {
+  background: var(--paper);
+  color: var(--ink);
+  border-color: var(--line);
+}
+:root[data-theme='light'] .btn-secondary:hover:not(:disabled) {
+  background: var(--turf-tint);
+  border-color: var(--turf);
+  color: var(--ink);
+}
+:root[data-theme='light'] .btn-ghost { color: var(--ink-soft); }
+:root[data-theme='light'] .btn-ghost:hover:not(:disabled) { background: var(--turf-tint); color: var(--ink); }
+:root[data-theme='light'] :where(input:not([type='checkbox']):not([type='radio']), select, textarea) {
+  background: var(--paper);
+  color: var(--ink);
+  border-color: #c8d2c5;
+}
+:root[data-theme='light'] :where(input, select, textarea)::placeholder { color: #7c897d; }
+:root[data-theme='light'] .card { background: var(--paper); border-color: var(--line); }
+:root[data-theme='light'] .badge { background: #edf0ec; color: var(--ink-soft); }
+:root[data-theme='light'] .badge-available { background: var(--ok-tint); color: #456d0a; }
+:root[data-theme='light'] .badge-in_use { background: #e4ecfb; color: #1f4aa8; }
+:root[data-theme='light'] .badge-damaged,
+:root[data-theme='light'] .badge-lost { background: #fbe9e7; color: #a51e18; }
+:root[data-theme='light'] .badge-maintenance { background: var(--warn-tint); color: #9b4a06; }
+:root[data-theme='light'] .badge-retired { background: #edf0ec; color: var(--ink-soft); }
+:root[data-theme='light'] .seg { background: #e9eee6; border-color: var(--line); }
+:root[data-theme='light'] .seg button { color: var(--ink-soft); }
+:root[data-theme='light'] .seg button.seg-on,
+:root[data-theme='light'] .seg button.seg-on:hover:not(:disabled) { background: #fff; color: var(--turf-dark); border-color: #d7e5c5; }
+:root[data-theme='light'] .notice-ok { background: #edf5df; color: #456d0a; }
+:root[data-theme='light'] .notice-error { background: #fbe9e7; color: #a51e18; }
+:root[data-theme='light'] .notice-warn { background: #fff0e2; color: #9b4a06; }
+:root[data-theme='light'] * { scrollbar-color: #cbd5c7 #f4f6f1; }

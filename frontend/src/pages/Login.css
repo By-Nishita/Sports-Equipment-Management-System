@@ -416,3 +416,44 @@
   }
 }
 
+.auth-theme-toggle {
+  position: absolute;
+  z-index: 2;
+  top: 1.25rem;
+  right: 1.25rem;
+  min-height: 38px;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid #354035;
+  border-radius: 999px;
+  background: #171d17;
+  color: #dce5d8;
+  font-size: 0.82rem;
+}
+.auth-theme-toggle:hover:not(:disabled) { background: #252e24; border-color: var(--turf); color: var(--turf); }
+
+:root[data-theme='light'] .auth {
+  background: radial-gradient(ellipse at 12% 12%, rgba(111, 159, 19, 0.08), transparent 42%), #f4f6f1;
+}
+:root[data-theme='light'] .auth-brand {
+  background: radial-gradient(ellipse at 25% 75%, rgba(111, 159, 19, 0.13), transparent 52%), linear-gradient(145deg, #eff5e5, #dfeacc 72%);
+  color: var(--ink);
+}
+:root[data-theme='light'] .auth-brand svg { color: rgba(84, 125, 10, 0.13); }
+:root[data-theme='light'] .auth-brand h1 { color: #172219; }
+:root[data-theme='light'] .auth-brand p { color: #53614e; }
+:root[data-theme='light'] .auth-brand::before { border-color: rgba(111, 159, 19, 0.2); box-shadow: 0 0 0 35px rgba(111, 159, 19, 0.04), 0 0 0 70px rgba(111, 159, 19, 0.025); }
+:root[data-theme='light'] .auth-brand::after { background: linear-gradient(transparent, var(--turf), var(--whistle), transparent); }
+:root[data-theme='light'] .auth-panel { background: radial-gradient(ellipse at 90% 10%, rgba(229, 109, 19, 0.05), transparent 45%), #f4f6f1; }
+:root[data-theme='light'] .auth-form { border-color: var(--line); background: linear-gradient(150deg, #fff, #f9fbf6 75%); box-shadow: 0 20px 64px rgba(23, 34, 25, 0.1); }
+:root[data-theme='light'] .auth-form h2 { color: var(--ink); }
+:root[data-theme='light'] .auth-form .auth-sub { color: var(--ink-soft); }
+:root[data-theme='light'] .auth-form .field > span { color: var(--ink); }
+:root[data-theme='light'] .auth-form .field input { border-color: #c8d2c5; background: #fff; color: var(--ink); }
+:root[data-theme='light'] .auth-form .field input::placeholder { color: #7c897d; }
+:root[data-theme='light'] .auth-theme-toggle { background: #fff; border-color: var(--line); color: var(--ink); }
+:root[data-theme='light'] .auth-theme-toggle:hover:not(:disabled) { background: var(--turf-tint); color: var(--turf-dark); }
+
+@media (max-width: 800px) {
+  .auth-theme-toggle { top: 0.75rem; right: 0.75rem; }
+}
+
