@@ -6,7 +6,6 @@ const helmet = require("helmet");
 
 const authRoutes = require("./routes/authRoutes");
 const connectDB = require("./config/db");
-const equipmentRoutes = require("./routes/equipmentRoutes");
 const sessionRoutes = require("./routes/sessionRoutes");
 const damageReportRoutes = require("./routes/damageReportRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
@@ -36,7 +35,6 @@ app.use(cors({ origin: allowedOrigins }));
 app.use(express.json({ limit: "100kb" }));
 app.use(sanitizeBody);
 
-app.use("/api/equipment", equipmentRoutes);
 app.use("/api/equipment", require("./routes/equipmentTypeUnitRoutes"));
 app.use("/api/auth", authRoutes);
 app.use("/api/sessions", sessionRoutes);
