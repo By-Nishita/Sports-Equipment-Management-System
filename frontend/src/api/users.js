@@ -14,3 +14,18 @@ export const uploadMyPhoto = (file) => {
   form.append('photo', file);
   return api.post('/users/me/photo', form);
 };
+
+// ---- Admin: accounts ----
+// body: { isActive?: boolean, role?: 'student' | 'staff' }. Reply: { success, message, data: user }
+export const updateUser = (id, body) => api.patch(`/users/${id}`, body);
+
+// ---- Admin: student CSV import. file = a File; sent as multipart field "file" ----
+const csvForm = (file) => {
+  const form = new FormData();
+  form.append('file', file);
+  return form;
+};
+// Checks the file and returns counts. Changes nothing.
+export const dryRunImport = (file) => api.post('/users/import/dry-run', csvForm(file));
+// Really imports. Reply data: { created, updated, failed, invalidCount, duplicateCount }
+export const runImport = (file) => api.post('/users/import', csvForm(file));
