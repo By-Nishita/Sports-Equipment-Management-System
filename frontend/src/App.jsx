@@ -33,6 +33,15 @@ import Maintenance from './pages/Maintenance';
 import AdminStockAudit from './pages/AdminStockAudit';
 import StaffStockCount from './pages/StaffStockCount';
 
+function currentRole() {
+  try { return JSON.parse(localStorage.getItem('user'))?.role || 'student'; } catch { return 'student'; }
+}
+
+// Admin has no student/staff home, so send admin to the admin dashboard.
+function HomeRedirect() {
+  return currentRole() === 'admin' ? <Navigate to="/admin" replace /> : <Dashboard />;
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -45,7 +54,7 @@ function App() {
 
         {/* Protected application routes */}
         <Route element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<HomeRedirect />} />
 
           {/* N4: Equipment inventory */}
           <Route path="/catalog" element={<Catalog />} />
