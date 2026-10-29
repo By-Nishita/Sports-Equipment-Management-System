@@ -1,4 +1,4 @@
-﻿import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -29,6 +29,7 @@ import Catalog from './pages/Catalog';
 import AdminTypes from './pages/AdminTypes';
 import AdminUnits from './pages/AdminUnits';
 import QrPrint from './pages/QrPrint';
+import Reports from './pages/Reports';
 import Maintenance from './pages/Maintenance';
 import AdminStockAudit from './pages/AdminStockAudit';
 import StaffStockCount from './pages/StaffStockCount';
@@ -71,6 +72,14 @@ function App() {
             element={
               <RoleRoute roles={['admin']}>
                 <AdminUnits />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/admin/reports"
+            element={
+              <RoleRoute roles={['staff', 'admin']}>
+                <Reports />
               </RoleRoute>
             }
           />

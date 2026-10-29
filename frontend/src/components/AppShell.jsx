@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import './AppShell.css';
 
@@ -36,6 +36,7 @@ const NAV = [
       { label: 'Overdue', to: '/staff/overdue', icon: 'clock' },
       { label: 'Damage reviews', to: '/admin/damage', icon: 'alert' },
       { label: 'Stock Count', to: '/staff/stock-count', icon: 'scan' },
+      { label: 'Reports', to: '/admin/reports', icon: 'history' },
       { label: 'QR stickers', to: '/admin/qr-print', icon: 'scan' }
     ]
   },
@@ -45,7 +46,8 @@ const NAV = [
     heading: 'Overview',
     roles: ['admin'],
     items: [
-      { label: 'Admin Dashboard', to: '/admin', icon: 'shield' }
+      { label: 'Admin Dashboard', to: '/admin', icon: 'shield' },
+      { label: 'Reports', to: '/admin/reports', icon: 'history' }
     ]
   },
   {

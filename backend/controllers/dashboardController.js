@@ -1,4 +1,4 @@
-const Equipment = require("../models/Equipment");
+const EquipmentUnit = require("../models/EquipmentUnit");
 const UsageSession = require("../models/UsageSession");
 const DamageReport = require("../models/DamageReport");
 
@@ -14,6 +14,7 @@ const MAX_SESSION_MINUTES = 12 * 60;
 const STATUS_KEYS = {
   AVAILABLE: "available",
   IN_USE: "inUse",
+  RETURN_PENDING: "inUse",
   DAMAGED: "damaged",
   MAINTENANCE: "maintenance",
   LOST: "lost",
@@ -85,14 +86,17 @@ const getDashboardStats = async (req, res) => {
       recentSessions,
       overdueSessions,
       pendingReports,
-      underReviewReports
+      underReviewReports,
+      pendingApprovals,
+      pendingReturns,
+      returnsUnconfirmed24h
     ] = await Promise.all([
       // Group equipment by status and count each group (the database does the counting)
-      Equipment.aggregate([{ $group: { _id: "$status", count: { $sum: 1 } } }]),
+      EquipmentUnit.aggregate([{ $group: { _id: "$status", count: { $sum: 1 } } }]),
       // Same idea, grouped by condition (Excellent, Good, ...) for Inventory health
-      Equipment.aggregate([{ $group: { _id: "$condition", count: { $sum: 1 } } }]),
+      EquipmentUnit.aggregate([{ $group: { _id: "$condition", count: { $sum: 1 } } }]),
       // Inventory value = sum of prices. Lost and retired items are not worth counting.
-      Equipment.aggregate([
+      EquipmentUnit.aggregate([
         { $match: { status: { $nin: ["LOST", "RETIRED"] } } },
         { $group: { _id: null, value: { $sum: "$price" } } }
       ]),
@@ -117,7 +121,13 @@ const getDashboardStats = async (req, res) => {
       // Overdue = still ACTIVE and the due time is already in the past
       UsageSession.countDocuments({ status: "ACTIVE", dueAt: { $lt: now } }),
       DamageReport.countDocuments({ status: "PENDING" }),
-      DamageReport.countDocuments({ status: "UNDER_REVIEW" })
+      DamageReport.countDocuments({ status: "UNDER_REVIEW" }),
+      // Requests waiting for staff to approve
+      UsageSession.countDocuments({ status: "ISSUE_PENDING" }),
+      // Students who asked to return and staff has not confirmed yet
+      UsageSession.countDocuments({ status: "RETURN_PENDING" }),
+      // ...of those, the ones waiting for more than 24 hours (needs attention)
+      UsageSession.countDocuments({ status: "RETURN_PENDING", returnRequestedAt: { $lt: new Date(now.getTime() - DAY_MS) } })
     ]);
 
     // Start every counter at 0, so a status with no items still shows 0 (not missing)
@@ -133,7 +143,7 @@ const getDashboardStats = async (req, res) => {
     for (const row of byStatus) {
       equipment.total += row.count;
       const key = STATUS_KEYS[row._id];
-      if (key) equipment[key] = row.count;
+      if (key) equipment[key] += row.count;
     }
 
     const conditions = {};
@@ -150,7 +160,7 @@ const getDashboardStats = async (req, res) => {
       success: true,
       stats: {
         equipment,
-        sessions: { overdue: overdueSessions },
+        sessions: { overdue: overdueSessions, pendingApprovals, pendingReturns, returnsUnconfirmed24h },
         damageReports: { pending: pendingReports, underReview: underReviewReports },
         utilization: buildUtilization(byDay, now),
         inventory: {

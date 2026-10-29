@@ -47,6 +47,7 @@ app.use("/api/audit-logs", auditRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/maintenance", maintenanceRoutes);
 app.use("/api/stock-audits", stockAuditRoutes);
+app.use("/api/reports", require("./routes/reportRoutes"));
 
 connectDB();
 
