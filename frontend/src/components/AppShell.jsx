@@ -23,7 +23,8 @@ const NAV = [
       { label: 'Approvals', to: '/staff/approvals', icon: 'check' },
       { label: 'Pending returns', to: '/staff/returns', icon: 'return' },
       { label: 'Overdue', to: '/staff/overdue', icon: 'clock' },
-      { label: 'Stock Count', to: '/staff/stock-count', icon: 'scan' }
+      { label: 'Stock Count', to: '/staff/stock-count', icon: 'scan' },
+      { label: 'QR stickers', to: '/admin/qr-print', icon: 'scan' }
     ]
   },
   {
@@ -43,7 +44,7 @@ const NAV = [
       { label: 'Audit log', to: '/admin/audit-log', icon: 'history' },
       { label: 'Equipment Types', to: '/admin/types', icon: 'grid' },
       { label: 'Equipment Units', to: '/admin/units', icon: 'grid' },
-      { label: 'QR Print', to: '/admin/qr-print', icon: 'scan' },
+      { label: 'QR stickers', to: '/admin/qr-print', icon: 'scan' },
       { label: 'Maintenance', to: '/admin/maintenance', icon: 'key' },
       { label: 'Stock Audit', to: '/admin/stock-audit', icon: 'history' }
     ]

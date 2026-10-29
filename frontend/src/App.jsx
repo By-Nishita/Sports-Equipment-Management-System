@@ -68,7 +68,7 @@ function App() {
           <Route
             path="/admin/qr-print"
             element={
-              <RoleRoute roles={['admin']}>
+              <RoleRoute roles={['staff', 'admin']}>
                 <QrPrint />
               </RoleRoute>
             }

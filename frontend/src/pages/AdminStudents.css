@@ -35,3 +35,80 @@
   gap: 1rem;
   margin-top: 1rem;
 }
+/* ---------- CSV import ---------- */
+.st-import {
+  display: grid;
+  gap: 0.9rem;
+  max-width: 46rem;
+  margin-bottom: 1.5rem;
+}
+.st-import h2,
+.st-import h3 {
+  margin: 0;
+}
+.st-note {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+.st-import-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+.st-check {
+  display: grid;
+  gap: 0.75rem;
+}
+.st-counts {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.5rem;
+  text-align: center;
+}
+.st-counts strong {
+  display: block;
+  font-family: var(--display);
+  font-size: 1.7rem;
+  line-height: 1.1;
+}
+.st-counts span {
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+}
+.st-bad strong {
+  color: var(--danger);
+}
+.st-problems {
+  margin: 0;
+  padding-left: 1.1rem;
+  max-height: 11rem;
+  overflow: auto;
+  font-size: 0.9rem;
+}
+.st-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.st-actions button {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 520px) {
+  .st-counts {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* the file picker must never be wider than its card on a phone */
+.st-import > *,
+.st-import-row > * {
+  min-width: 0;
+}
+.st-import-row input[type='file'] {
+  flex: 1 1 100%;
+  max-width: 100%;
+}
