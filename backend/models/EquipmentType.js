@@ -15,6 +15,11 @@ const equipmentTypeSchema = new mongoose.Schema(
     stockQuantity: { type: Number, default: 0, min: 0 },
     defaultIssueHours: { type: Number, default: 2, min: 0.25 },
     isActive: { type: Boolean, default: true },
+    availabilityMode: {
+  type: String,
+  enum: ['AVAILABLE', 'RESTRICTED', 'HIDDEN'],
+  default: 'AVAILABLE'
+},
   },
   { timestamps: true }
 );

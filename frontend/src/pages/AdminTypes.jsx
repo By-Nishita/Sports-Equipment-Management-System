@@ -90,6 +90,19 @@ export default function AdminTypes() {
     } catch(e) { setError(e.response?.data?.message || 'Save failed. Check required fields and backend validation.'); }
   }
 
+async function changeAvailabilityMode(id, availabilityMode) {
+  setError('');
+  setNotice('');
+
+  try {
+    await api.patch(`/equipment/types/${id}`, { availabilityMode });
+    setNotice('Equipment type availability updated.');
+    await load();
+  } catch (e) {
+    setError(e.response?.data?.message || 'Could not update availability.');
+  }
+}
+
   function edit(x) {
     setEditing(x._id);
     setForm({...blank, ...Object.fromEntries(FIELDS.map(f => [f, x[f] ?? blank[f]]))});
@@ -129,7 +142,20 @@ export default function AdminTypes() {
         <td>{x.counts ? `${x.counts.available} / ${x.counts.total}` : '—'}</td>
         <td>{qrs[x._id] ? <img src={qrs[x._id]} alt={`QR ${x.qrIdentifier}`} width={60} height={60} /> : '—'}<div style={{fontSize:11}}>{x.qrIdentifier}</div></td>
         <td>{x.isActive === false ? 'Inactive' : 'Active'}</td>
-        <td><button type="button" onClick={()=>edit(x)}>Edit</button></td>
+        <td>
+  <div style={{display:'flex', gap:6, flexWrap:'wrap'}}>
+    <button type="button" onClick={()=>edit(x)}>Edit</button>
+    <select
+      value={x.availabilityMode || 'AVAILABLE'}
+      onChange={e=>changeAvailabilityMode(x._id, e.target.value)}
+      aria-label={`Availability for ${x.name}`}
+    >
+      <option value="AVAILABLE">Available</option>
+      <option value="RESTRICTED">Restricted</option>
+      <option value="HIDDEN">Hidden</option>
+    </select>
+  </div>
+</td>
       </tr>)}
     </tbody></table></div>
   </div>;

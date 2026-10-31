@@ -7,6 +7,7 @@ const { ok, handle, HttpError, parsePage } = require('../utils/http');
 const EDITABLE_FIELDS = [
   'name', 'category', 'brand', 'description',
   'trackingMode', 'stockQuantity', 'defaultIssueHours', 'isActive',
+'availabilityMode',
 ];
 
 /**
@@ -64,6 +65,10 @@ function pickEditable(body) {
   if (out.trackingMode !== undefined && !['UNIT', 'QUANTITY'].includes(out.trackingMode)) {
     throw new HttpError(400, 'trackingMode must be UNIT or QUANTITY');
   }
+  if (out.availabilityMode !== undefined &&
+    !['AVAILABLE', 'RESTRICTED', 'HIDDEN'].includes(out.availabilityMode)) {
+  throw new HttpError(400, 'Invalid availability mode');
+}
   for (const f of ['stockQuantity', 'defaultIssueHours']) {
     if (out[f] !== undefined && (!Number.isFinite(Number(out[f])) || Number(out[f]) < 0)) {
       throw new HttpError(400, `${f} must be a non-negative number`);
@@ -87,7 +92,10 @@ async function uniqueQr(name) {
 const listTypes = handle(async (req, res) => {
   const { page, limit, skip } = parsePage(req.query);
   const filter = {};
-  if (!isAdmin(req)) filter.isActive = true;
+  if (!isAdmin(req)) {
+  filter.isActive = true;
+  filter.availabilityMode = { $ne: 'HIDDEN' };
+}
   else if (req.query.active === 'true') filter.isActive = true;
   else if (req.query.active === 'false') filter.isActive = false;
   if (req.query.category) filter.category = String(req.query.category);

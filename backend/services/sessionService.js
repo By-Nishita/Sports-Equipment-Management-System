@@ -24,6 +24,9 @@ async function requestIssue(user, { typeId, acknowledged }) {
 
   const type = await EquipmentType.findById(typeId);
   if (!type || !type.isActive) throw new HttpError(404, "Equipment type not found");
+  if (["RESTRICTED", "HIDDEN"].includes(type.availabilityMode)) {
+  throw new HttpError(409, "This equipment type is currently unavailable for issue. Please contact staff.");
+}
   if (type.trackingMode !== "UNIT") throw new HttpError(400, "This item is issued by quantity, which is not available yet");
 
   const settings = await settingsService.get();
@@ -44,7 +47,11 @@ async function requestIssue(user, { typeId, acknowledged }) {
 
   // Free units minus requests that are already waiting for a unit
   const [freeUnits, waiting] = await Promise.all([
-    EquipmentUnit.countDocuments({ type: type._id, status: "AVAILABLE" }),
+    EquipmentUnit.countDocuments({
+  type: type._id,
+  status: "AVAILABLE",
+
+}),
     UsageSession.countDocuments({ type: type._id, status: "ISSUE_PENDING", requestedAt: { $gte: cutoff } })
   ]);
   if (freeUnits - waiting < 1) throw new HttpError(409, `No ${type.name} is available right now`);
@@ -88,11 +95,23 @@ async function approve(staff, sessionId, unitCodeInput) {
   if (!/^[A-Z0-9][A-Z0-9-]{1,19}$/.test(unitCode)) throw new HttpError(400, "Enter the unit ID, like FB-007");
 
   const type = await EquipmentType.findById(session.type);
+  if (!type || !type.isActive) {
+  throw new HttpError(404, "Equipment type not found");
+}
+
+if (["RESTRICTED", "HIDDEN"].includes(type.availabilityMode)) {
+  throw new HttpError(409, "This equipment type is restricted from issuing. Do not hand over this item.");
+}
 
   // ONE atomic step: "take this unit, but only if it is of the right type AND still free".
   // If two staff members try the same unit together, only one of them gets it.
   const unit = await EquipmentUnit.findOneAndUpdate(
-    { unitCode, type: session.type, status: "AVAILABLE" },
+    {
+  unitCode,
+  type: session.type,
+  status: "AVAILABLE",
+
+},
     { status: "IN_USE" },
     { new: false } // give us the unit as it was before, so we know its condition
   );
