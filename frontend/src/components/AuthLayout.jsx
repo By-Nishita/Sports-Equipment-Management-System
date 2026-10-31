@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import universityLogo from '../assets/vishwakarma-university.png';
+import sportsCouncilLogo from '../assets/vishwakarma-sports-council.png';
 import '../pages/Login.css';
 
 function AuthLayout({ title, subtitle, children }) {
@@ -19,6 +21,10 @@ function AuthLayout({ title, subtitle, children }) {
     <div className="auth">
       <aside className="auth-brand">
         <div className="auth-brand-content">
+          <div className="auth-logos" aria-label="Vishwakarma University and Sports Council">
+            <img src={universityLogo} alt="Vishwakarma University" />
+            <img src={sportsCouncilLogo} alt="Vishwakarma University Sports Council" />
+          </div>
           <span className="auth-eyebrow">SPORTS EQUIPMENT MANAGEMENT</span>
 
           <h1>
