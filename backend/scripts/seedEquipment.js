@@ -1,8 +1,12 @@
 require("dotenv").config();
 
 const mongoose = require("mongoose");
-const QRCode = require("qrcode");
-const Equipment = require("../models/Equipment");
+const EquipmentType = require("../models/EquipmentType");
+const EquipmentUnit = require("../models/EquipmentUnit");
+
+// Sample data for a DEVELOPMENT database. Safe to run again: a type or unit that already
+// exists is left alone. Each type gets UNITS_PER_TYPE units, e.g. SEMS-001-01, SEMS-001-02.
+const UNITS_PER_TYPE = 2;
 
 const equipmentList = [
     ["Discuss 1 KG", "Athletics"],
@@ -79,57 +83,37 @@ const equipmentList = [
 ];
 
 async function seedEquipment() {
-    let inserted = 0;
-    let skipped = 0;
-
+    const stats = { types: 0, units: 0, skipped: 0 };
     try {
-        await mongoose.connect(process.env.MONGO_URI);
+        await mongoose.connect(process.env.MONGO_URI || process.env.MONGODB_URI);
         console.log("Connected to MongoDB.");
-
-        console.log(`Equipment entries in seed list: ${equipmentList.length}`);
 
         for (let i = 0; i < equipmentList.length; i++) {
             const [name, category] = equipmentList[i];
+            const qrIdentifier = EquipmentType.qrFromName(name);
 
-            const equipmentId = `SEMS-${String(i + 1).padStart(3, "0")}`;
-
-            // Preserve any equipment record that already uses this ID.
-            const existing = await Equipment.findOne({ equipmentId });
-
-            if (existing) {
-                console.log(`Skipped existing: ${equipmentId} - ${existing.name}`);
-                skipped++;
-                continue;
+            let type = await EquipmentType.findOne({ qrIdentifier });
+            if (type) stats.skipped++;
+            else {
+                type = await EquipmentType.create({ name, category, qrIdentifier });
+                stats.types++;
             }
 
-            const qrData = JSON.stringify({
-                equipmentId,
-                name
-            });
-
-            const qrIdentifier = await QRCode.toDataURL(qrData);
-
-            await Equipment.create({
-                equipmentId,
-                name,
-                category,
-                status: "AVAILABLE",
-                condition: "GOOD",
-                qrIdentifier
-            });
-
-            console.log(`Added: ${equipmentId} - ${name}`);
-            inserted++;
+            for (let n = 1; n <= UNITS_PER_TYPE; n++) {
+                const unitCode = `SEMS-${String(i + 1).padStart(3, "0")}-${String(n).padStart(2, "0")}`;
+                const r = await EquipmentUnit.updateOne(
+                    { unitCode },
+                    { $setOnInsert: { unitCode, type: type._id, status: "AVAILABLE", condition: "GOOD" } },
+                    { upsert: true }
+                );
+                if (r.upsertedCount) stats.units++;
+            }
         }
 
         console.log("\n--- Seeding Summary ---");
-        console.log("Items in university list:", equipmentList.length);
-        console.log("New items inserted:", inserted);
-        console.log("Existing IDs skipped:", skipped);
-        console.log(
-            "Total equipment records in database:",
-            await Equipment.countDocuments()
-        );
+        console.log("Equipment types in list:", equipmentList.length);
+        console.log("New types:", stats.types, "| already existed:", stats.skipped);
+        console.log("New units:", stats.units);
     } catch (error) {
         console.error("Equipment seeding failed:", error.message);
         process.exitCode = 1;
