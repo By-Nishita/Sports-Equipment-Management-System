@@ -98,18 +98,29 @@ async function approve(staff, sessionId, unitCodeInput) {
   );
   if (!unit) throw new HttpError(409, `${unitCode} is not available, or it is not a ${type ? type.name : "matching item"}`);
 
-  const updated = await UsageSession.findOneAndUpdate(
-    { _id: session._id, status: "ISSUE_PENDING" },
-    {
-      status: "ACTIVE",
-      unit: unit._id,
-      approvedBy: staff._id,
-      approvedAt: now,
-      dueAt: rules.computeDueAt(now, type && type.defaultIssueHours, settings.defaultIssueHours),
-      conditionBefore: unit.condition
-    },
-    { new: true }
-  );
+  let updated;
+  try {
+    updated = await UsageSession.findOneAndUpdate(
+      { _id: session._id, status: "ISSUE_PENDING" },
+      {
+        status: "ACTIVE",
+        unit: unit._id,
+        approvedBy: staff._id,
+        approvedAt: now,
+        dueAt: rules.computeDueAt(now, type && type.defaultIssueHours, settings.defaultIssueHours),
+        conditionBefore: unit.condition
+      },
+      { new: true }
+    );
+  } catch (err) {
+    // The unit was already taken above. If saving the session fails (for example a duplicate-key
+    // error from the database), give the unit back, otherwise it stays "in use" with nobody using it.
+    await EquipmentUnit.updateOne({ _id: unit._id, status: "IN_USE" }, { status: "AVAILABLE" });
+    if (err && err.code === 11000) {
+      throw new HttpError(409, `${unitCode} could not be issued: the database already has an open record for it. Nothing was changed. Ask the admin to run the unit repair, then try again.`);
+    }
+    throw err;
+  }
 
   if (!updated) {
     // The request changed while we were working (e.g. expired). Give the unit back.

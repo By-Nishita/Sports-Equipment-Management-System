@@ -6,8 +6,6 @@ module.exports = {
 
   User: require('./User'),
 
-  Equipment: require('./Equipment'),
-
   UsageSession: require('./UsageSession'),
 
 

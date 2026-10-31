@@ -13,6 +13,7 @@ import { Link } from 'react-router-dom';
 import { getDashboardStats } from '../api/dashboard';
 import { getActiveSessions } from '../api/sessions';
 import './AdminDashboard.css';
+import { getDamageReports } from '../api/damageReports';
 
 // ---------- small helper functions ----------
 
@@ -110,6 +111,7 @@ function Icon({ name, size = 20 }) {
 
 // ---------- small components ----------
 
+
 // Big card at the top: icon + label + number + one short line below
 function StatCard({ icon, tone, label, value, note }) {
   return (
@@ -171,29 +173,55 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [reloadKey, setReloadKey] = useState(0); // changes when Refresh is clicked, which re-runs the effect
+  const [damageReports, setDamageReports] = useState([]);
+const [reportsError, setReportsError] = useState('');
 
   // Load both things when the page opens (and again on Refresh)
-  useEffect(() => {
-    let cancelled = false; // ignore a late response if the user already left the page
-    setLoading(true);
-    setError('');
-    // Ask for both at the same time; if either fails, show an error
-    Promise.all([getDashboardStats(), getActiveSessions()])
-      .then(([statsRes, activeRes]) => {
-        if (cancelled) return;
-        setStats(statsRes.data.stats);
-        setActive(activeRes.data.data);
-      })
-      .catch((err) => {
-        if (!cancelled) setError(err.response?.data?.message || 'Could not load the dashboard. Please try again.');
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [reloadKey]);
+ useEffect(() => {
+  let cancelled = false;
+
+  setLoading(true);
+  setError('');
+  setReportsError('');
+
+  Promise.all([getDashboardStats(), getActiveSessions()])
+    .then(([statsRes, activeRes]) => {
+      if (cancelled) return;
+
+      setStats(statsRes.data.stats);
+      setActive(activeRes.data.data || []);
+    })
+    .catch((err) => {
+      if (!cancelled) {
+        setError(
+          err.response?.data?.message ||
+            'Could not load the dashboard. Please try again.'
+        );
+      }
+    })
+    .finally(() => {
+      if (!cancelled) setLoading(false);
+    });
+
+  getDamageReports({ status: 'PENDING', limit: 5 })
+    .then((res) => {
+      if (!cancelled) {
+        setDamageReports(res.data.data || []);
+      }
+    })
+    .catch((err) => {
+      if (!cancelled) {
+        setReportsError(
+          err.response?.data?.message ||
+            'Could not load damage reports.'
+        );
+      }
+    });
+
+  return () => {
+    cancelled = true;
+  };
+}, [reloadKey]);
 
   // The overdue list is simply the active sessions that are late
   const overdue = active.filter((s) => s.isOverdue);
@@ -284,6 +312,25 @@ function AdminDashboard() {
               tone="grey"
               to="/admin/damage"
             />
+
+            <Mini
+  icon="clipboard"
+  label="Pending approvals"
+  value={stats.sessions.pendingApprovals}
+  tone={stats.sessions.pendingApprovals > 0 ? 'amber' : 'grey'}
+/>
+<Mini
+  icon="calendar"
+  label="Pending returns"
+  value={stats.sessions.pendingReturns}
+  tone={stats.sessions.pendingReturns > 0 ? 'amber' : 'grey'}
+/>
+<Mini
+  icon="clock"
+  label="Returns unconfirmed >24h"
+  value={stats.sessions.returnsUnconfirmed24h}
+  tone={stats.sessions.returnsUnconfirmed24h > 0 ? 'red' : 'grey'}
+/>
           </section>
 
           {/* 3. Utilization chart (left) and Active equipment (right) */}
@@ -445,38 +492,58 @@ function AdminDashboard() {
           </div>
 
           {/* 5. Overdue items: who is late and by how much */}
-          <section className="ad-section">
-            <h3>Overdue items</h3>
-            {overdue.length === 0 ? (
-              <p className="ad-empty">Nothing is overdue.</p>
-            ) : (
-              <ul className="ad-list">
-                {overdue.map((s) => {
-                  // minutes late (at least 1)
-                  const lateBy = Math.max(1, Math.round((Date.now() - new Date(s.dueAt)) / 60000));
-                  return (
-                    <li key={s._id} className="card ad-row">
-                      <div>
-                        <strong>
-                          {s.type?.name || 'Unknown item'}
-                          {s.unit?.unitCode && <span className="ad-id"> {s.unit.unitCode}</span>}
-                        </strong>
-                        <p className="ad-who">
-                          {s.user?.name || 'Unknown student'}
-                          {s.user?.srn ? ` (${s.user.srn})` : ''}
-                          {s.user?.phone ? ` · ${s.user.phone}` : ''}
-                        </p>
-                      </div>
-                      <div className="ad-late">
-                        <span className="badge badge-damaged">Overdue {formatMinutes(lateBy)}</span>
-                        <small>due {new Date(s.dueAt).toLocaleString()}</small>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </section>
+         <section className="card ad-panel ad-section">
+ <div className="ad-damage-header">
+  <div>
+    <h3>Damaged Items Awaiting Decision</h3>
+    <p className="ad-panel-sub">
+      Pending reports requiring staff review
+    </p>
+  </div>
+
+  <Link to="/admin/damage" className="ad-scan">
+    Review Damage Reports
+  </Link>
+</div>
+{reportsError ? (
+  <p className="notice notice-error" role="alert">
+    {reportsError}
+  </p>
+) : damageReports.length === 0 ? (
+    <p className="ad-empty">No pending damage reports.</p>
+  ) : (
+    <div className="ad-table-wrap">
+      <table className="ad-table">
+        <thead>
+          <tr>
+            <th>Equipment</th>
+            <th>Issue</th>
+            <th>Type</th>
+            <th>Reported</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {damageReports.map((report) => (
+            <tr key={report._id}>
+              <td>
+                <strong>{report.unit?.unitCode || 'Unknown unit'}</strong>
+              </td>
+              <td>{report.description}</td>
+              <td>{report.type}</td>
+              <td>{formatDay(report.createdAt)}</td>
+              <td>
+                <Link to="/admin/damage" className="ad-scan">
+                  Review
+                </Link>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+</section>
 
           <p className="ad-stamp">Updated {new Date(stats.generatedAt).toLocaleTimeString()}</p>
         </>

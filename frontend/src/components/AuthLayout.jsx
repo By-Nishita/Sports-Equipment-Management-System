@@ -1,30 +1,16 @@
-// Login aur ChangePassword dono ka common dhaancha: left mein brand, right mein form.
-// Ek jagah likha hai taaki dono pages same dikhein.
 import { useState } from 'react';
 import universityLogo from '../assets/vishwakarma-university.png';
 import sportsCouncilLogo from '../assets/vishwakarma-sports-council.png';
 import '../pages/Login.css';
 
-function CourtLines() {
-  // Basketball court ki half-court lines, sirf sajaavat (screen reader ko chhupa hua)
-  return (
-    <svg viewBox="0 0 400 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-      <g fill="none" stroke="currentColor" strokeWidth="3">
-        <rect x="30" y="30" width="340" height="540" />
-        <rect x="130" y="30" width="140" height="190" />
-        <circle cx="200" cy="220" r="70" />
-        <path d="M60 30 V150 A140 140 0 0 0 340 150 V30" />
-        <line x1="30" y1="570" x2="370" y2="570" />
-        <circle cx="200" cy="570" r="50" />
-      </g>
-    </svg>
-  );
-}
-
 function AuthLayout({ title, subtitle, children }) {
-  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+  const [theme, setTheme] = useState(
+    () => localStorage.getItem('theme') || 'dark'
+  );
+
   const toggleTheme = () => {
     const nextTheme = theme === 'dark' ? 'light' : 'dark';
+
     setTheme(nextTheme);
     localStorage.setItem('theme', nextTheme);
     document.documentElement.dataset.theme = nextTheme;
@@ -34,14 +20,45 @@ function AuthLayout({ title, subtitle, children }) {
   return (
     <div className="auth">
       <aside className="auth-brand">
-        <CourtLines />
-        <div className="auth-logos" aria-label="Vishwakarma University and Sports Council">
-          <img src={universityLogo} alt="Vishwakarma University" />
-          <img src={sportsCouncilLogo} alt="Vishwakarma University Sports Council" />
+        <div className="auth-brand-content">
+          <div className="auth-logos" aria-label="Vishwakarma University and Sports Council">
+            <img src={universityLogo} alt="Vishwakarma University" />
+            <img src={sportsCouncilLogo} alt="Vishwakarma University Sports Council" />
+          </div>
+          <span className="auth-eyebrow">SPORTS EQUIPMENT MANAGEMENT</span>
+
+          <h1>
+            Your Game.
+            <br />
+            Your Equipment.
+          </h1>
+
+          <p>
+            Issue, return and track every piece of equipment.
+            Everything your sports room needs, in one place.
+          </p>
+
+          <div className="auth-sports-gallery">
+            <img
+              src="/images/sports-lowpoly.png"
+              alt="Sports illustration"
+              className="auth-sports-image auth-sports-image-main"
+            />
+
+            <img
+              src="/images/sports-vector.png"
+              alt="Collection of sports illustrations"
+              className="auth-sports-image auth-sports-image-secondary"
+            />
+          </div>
+
+          <div className="auth-brand-footer">
+            <span className="auth-status-dot"></span>
+            <span>Made for every athlete</span>
+          </div>
         </div>
-        <h1>Sports Room</h1>
-        <p>Issue, return and track every piece of equipment.</p>
       </aside>
+
       <main className="auth-panel">
         <button
           type="button"
@@ -49,14 +66,25 @@ function AuthLayout({ title, subtitle, children }) {
           onClick={toggleTheme}
           aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
         >
-          <span aria-hidden="true">{theme === 'dark' ? '☀' : '☾'}</span>
+          <span aria-hidden="true">
+            {theme === 'dark' ? '☀' : '☾'}
+          </span>
           <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
         </button>
+
         <div className="auth-form">
-          <h2>{title}</h2>
-          {subtitle && <p className="auth-sub">{subtitle}</p>}
+          <div className="auth-form-heading">
+            <span className="auth-form-label">WELCOME BACK</span>
+            <h2>{title}</h2>
+            {subtitle && <p className="auth-sub">{subtitle}</p>}
+          </div>
+
           {children}
         </div>
+
+        <p className="auth-panel-footer">
+          Sports Room <span aria-hidden="true">·</span> Equipment Management
+        </p>
       </main>
     </div>
   );

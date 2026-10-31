@@ -471,3 +471,529 @@
   .auth-theme-toggle { top: 0.75rem; right: 0.75rem; }
 }
 
+/* ==========================================
+   SPORTS ROOM — IMAGE-BASED AUTH REDESIGN
+   ========================================== */
+
+.auth-brand-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 650px;
+  margin: auto;
+}
+
+.auth-eyebrow,
+.auth-form-label {
+  display: inline-block;
+  color: var(--turf);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  line-height: 1.6;
+}
+
+.auth-brand .auth-eyebrow {
+  margin-bottom: 1.5rem;
+}
+
+.auth-brand .auth-brand-content h1 {
+  max-width: 12ch;
+  margin: 0 0 1rem;
+  font-size: clamp(2.5rem, 4.5vw, 4.5rem);
+  line-height: 1.03;
+}
+
+.auth-brand .auth-brand-content h1::after {
+  content: none;
+}
+
+.auth-brand .auth-brand-content h1 br + * {
+  color: var(--turf);
+}
+
+.auth-brand .auth-brand-content > p {
+  max-width: 38ch;
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.auth-sports-gallery {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 0.82fr;
+  align-items: center;
+  gap: 1rem;
+  margin: 2rem 0 1.5rem;
+}
+
+.auth-sports-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 230px;
+  object-fit: contain;
+  border-radius: 16px;
+}
+
+.auth-sports-image-main {
+  transform: rotate(-2deg);
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.18));
+}
+
+.auth-sports-image-secondary {
+  transform: rotate(2deg);
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.18));
+}
+
+.auth-brand-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 1.25rem;
+  color: #a6b1a1;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.auth-status-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+  background: var(--turf);
+  box-shadow: 0 0 12px rgba(255, 118, 40, 0.55);
+}
+
+.auth-form-heading {
+  margin-bottom: 1.6rem;
+}
+
+.auth-form .auth-form-heading h2 {
+  margin-top: 0.45rem;
+  margin-bottom: 0.6rem;
+}
+
+.auth-form .auth-form-heading .auth-sub {
+  margin-bottom: 0;
+}
+
+.auth-panel {
+  flex-direction: column;
+  justify-content: center;
+}
+
+.auth-panel .auth-form {
+  margin: auto 0;
+}
+
+.auth-panel-footer {
+  margin: 1.5rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+  text-align: center;
+  opacity: 0.8;
+}
+
+/* Light theme */
+:root[data-theme='light'] .auth-brand .auth-eyebrow,
+:root[data-theme='light'] .auth-form-label {
+  color: var(--whistle);
+}
+
+:root[data-theme='light'] .auth-brand-footer {
+  color: #53614e;
+}
+
+/* Tablet and mobile */
+@media (max-width: 800px) {
+  .auth-brand-content {
+    max-width: 560px;
+  }
+
+  .auth-brand .auth-brand-content h1 {
+    max-width: 14ch;
+    font-size: clamp(2.25rem, 7vw, 3.4rem);
+  }
+
+  .auth-sports-gallery {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    max-width: 460px;
+    margin: 1.25rem 0;
+  }
+
+  .auth-sports-image {
+    max-height: 150px;
+  }
+
+  .auth-brand-footer {
+    margin-top: 0.75rem;
+  }
+
+  .auth-panel-footer {
+    margin-top: 1rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .auth-sports-gallery {
+    gap: 0.5rem;
+  }
+
+  .auth-sports-image {
+    max-height: 115px;
+  }
+
+  .auth-brand .auth-brand-content h1 {
+    font-size: 2.25rem;
+  }
+
+  .auth-eyebrow {
+    font-size: 0.63rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-sports-image-main,
+  .auth-sports-image-secondary {
+    transform: none;
+  }
+}
+
+/* ===== FINAL SPORTS LOGIN DESIGN ===== */
+
+/* Left panel: one sports image blended into the background */
+.auth-brand {
+  position: relative;
+  overflow: hidden;
+  background-image:
+    linear-gradient(
+      110deg,
+      rgba(12, 18, 15, 0.94) 0%,
+      rgba(12, 18, 15, 0.78) 48%,
+      rgba(12, 18, 15, 0.50) 100%
+    ),
+    url('/images/sports-vector.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* No separate image cards */
+.auth-sports-gallery {
+  display: none !important;
+}
+
+/* Keep branding readable over the artwork */
+.auth-brand-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* Clean cream login side */
+.auth-panel {
+  background: #f5f6f0;
+  color: #202820;
+}
+
+/* White login form card */
+.auth-panel .auth-form {
+  background: #ffffff;
+  color: #202820;
+  border: 1px solid #e5e9df;
+  border-radius: 22px;
+  box-shadow: 0 20px 55px rgba(25, 40, 25, 0.09);
+}
+
+/* Form headings */
+.auth-panel .auth-form h2 {
+  color: #202820;
+}
+
+.auth-panel .auth-form .auth-sub {
+  color: #737c70;
+}
+
+/* Input fields */
+.auth-panel .auth-form input {
+  background: #fafbf8;
+  color: #202820;
+  border-color: #dce2d6;
+}
+
+.auth-panel .auth-form input::placeholder {
+  color: #92998e;
+}
+
+/* Theme toggle */
+.auth-panel .auth-theme-toggle {
+  color: #35432e;
+  border-color: #dce2d6;
+}
+
+/* Footer */
+.auth-panel-footer {
+  color: #737c70;
+}
+
+/* Responsive background */
+@media (max-width: 800px) {
+  .auth-brand {
+    background-position: center;
+  }
+}
+
+/* ===== THEME-AWARE SPORTS LOGIN DESIGN ===== */
+
+/* Sports image: shared background for both themes */
+.auth-brand {
+  position: relative;
+  overflow: hidden;
+  background-image:
+    linear-gradient(
+      110deg,
+      rgba(12, 18, 15, 0.94) 0%,
+      rgba(12, 18, 15, 0.78) 48%,
+      rgba(12, 18, 15, 0.50) 100%
+    ),
+    url('/images/sports-vector.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.auth-sports-gallery {
+  display: none !important;
+}
+
+.auth-brand-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* DARK MODE */
+:root:not([data-theme="light"]) .auth-panel {
+  background: #111712;
+  color: #f1f5ed;
+}
+
+:root:not([data-theme="light"]) .auth-panel .auth-form {
+  background: #1a211b;
+  color: #f1f5ed;
+  border: 1px solid #303b30;
+  border-radius: 22px;
+  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.2);
+}
+
+:root:not([data-theme="light"]) .auth-panel .auth-form h2 {
+  color: #f1f5ed;
+}
+
+:root:not([data-theme="light"]) .auth-panel .auth-form .auth-sub {
+  color: #a8b3a3;
+}
+
+:root:not([data-theme="light"]) .auth-panel .auth-form input {
+  background: #111712;
+  color: #f1f5ed;
+  border-color: #394638;
+}
+
+:root:not([data-theme="light"]) .auth-panel .auth-form input::placeholder {
+  color: #899587;
+}
+
+:root:not([data-theme="light"]) .auth-panel .auth-theme-toggle {
+  color: #f1f5ed;
+  border-color: #394638;
+  background: #1a211b;
+}
+
+:root:not([data-theme="light"]) .auth-panel-footer {
+  color: #a8b3a3;
+}
+
+/* LIGHT MODE */
+:root[data-theme="light"] .auth-panel {
+  background: #f5f6f0;
+  color: #202820;
+}
+
+:root[data-theme="light"] .auth-panel .auth-form {
+  background: #ffffff;
+  color: #202820;
+  border: 1px solid #e5e9df;
+  border-radius: 22px;
+  box-shadow: 0 20px 55px rgba(25, 40, 25, 0.09);
+}
+
+:root[data-theme="light"] .auth-panel .auth-form h2 {
+  color: #202820;
+}
+
+:root[data-theme="light"] .auth-panel .auth-form .auth-sub {
+  color: #737c70;
+}
+
+:root[data-theme="light"] .auth-panel .auth-form input {
+  background: #fafbf8;
+  color: #202820;
+  border-color: #dce2d6;
+}
+
+:root[data-theme="light"] .auth-panel .auth-form input::placeholder {
+  color: #92998e;
+}
+
+:root[data-theme="light"] .auth-panel .auth-theme-toggle {
+  color: #35432e;
+  border-color: #dce2d6;
+  background: #ffffff;
+}
+
+:root[data-theme="light"] .auth-panel-footer {
+  color: #737c70;
+}
+
+/* Responsive */
+@media (max-width: 800px) {
+  .auth-brand {
+    background-position: center;
+  }
+}
+
+/* =========================================
+   LIGHT MODE — COMPLETE LOGIN PAGE FIX
+   ========================================= */
+
+:root[data-theme="light"] .auth {
+  background: #f5f7f0;
+  color: #202820;
+}
+
+/* Left branding panel */
+:root[data-theme="light"] .auth-brand {
+  background-image:
+    linear-gradient(
+      110deg,
+      rgba(12, 18, 15, 0.90) 0%,
+      rgba(12, 18, 15, 0.70) 50%,
+      rgba(12, 18, 15, 0.40) 100%
+    ),
+    url('/images/sports-vector.png');
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: #ffffff;
+}
+
+:root[data-theme="light"] .auth-brand h1 {
+  color: #ffffff;
+}
+
+:root[data-theme="light"] .auth-brand p {
+  color: #e0e7dc;
+}
+
+:root[data-theme="light"] .auth-brand .auth-eyebrow {
+  color: var(--whistle);
+}
+
+/* Right panel */
+:root[data-theme="light"] .auth-panel {
+  background: #f5f7f0 !important;
+  color: #202820 !important;
+}
+
+/* Login card */
+:root[data-theme="light"] .auth-panel .auth-form {
+  background: #ffffff !important;
+  color: #202820 !important;
+  border: 1px solid #e1e8dc !important;
+  border-radius: 22px;
+  box-shadow: 0 18px 50px rgba(31, 51, 25, 0.09);
+}
+
+/* Heading and description */
+:root[data-theme="light"] .auth-form-heading h2 {
+  color: #202820 !important;
+}
+
+:root[data-theme="light"] .auth-form-heading p,
+:root[data-theme="light"] .auth-form .auth-sub {
+  color: #687365 !important;
+}
+
+:root[data-theme="light"] .auth-form-label {
+  color: var(--whistle) !important;
+}
+
+/* Form labels */
+:root[data-theme="light"] .auth-form label {
+  color: #354132 !important;
+}
+
+/* Input fields */
+:root[data-theme="light"] .auth-form input,
+:root[data-theme="light"] .auth-form input[type="email"],
+:root[data-theme="light"] .auth-form input[type="password"],
+:root[data-theme="light"] .auth-form input[type="text"] {
+  background: #f9fbf7 !important;
+  color: #202820 !important;
+  border: 1px solid #d8e0d2 !important;
+}
+
+:root[data-theme="light"] .auth-form input::placeholder {
+  color: #929b8c !important;
+}
+
+:root[data-theme="light"] .auth-form input:focus {
+  border-color: var(--whistle) !important;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(22, 117, 161, 0.16);
+}
+
+/* Buttons */
+:root[data-theme="light"] .auth-form button[type="submit"] {
+  background: var(--turf) !important;
+  color: #17200f !important;
+  border: none !important;
+}
+
+:root[data-theme="light"] .auth-form button[type="submit"]:hover {
+  background: var(--turf-dark) !important;
+}
+
+/* Links */
+:root[data-theme="light"] .auth-form a {
+  color: var(--whistle) !important;
+}
+
+:root[data-theme="light"] .auth-form a:hover {
+  color: #0b5273 !important;
+}
+
+/* Theme toggle */
+:root[data-theme="light"] .auth-theme-toggle {
+  background: #ffffff !important;
+  color: #354132 !important;
+  border: 1px solid #dce4d6 !important;
+}
+
+/* Footer */
+:root[data-theme="light"] .auth-panel-footer {
+  color: #75806e !important;
+}
+
+/* Responsive */
+@media (max-width: 800px) {
+  :root[data-theme="light"] .auth-brand {
+    background-position: center;
+  }
+}
+
+
+
