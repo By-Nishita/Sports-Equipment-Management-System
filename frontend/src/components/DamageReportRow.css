@@ -33,6 +33,6 @@
 }
 
 /* Report ki halat ke badge (index.css ke .badge ke upar) */
-.badge-pending { background: var(--warn-tint); color: #7a5a00; }
+.badge-pending { background: var(--warn-tint); color: var(--whistle); }
 .badge-under_review { background: #e4ecfb; color: #1f4aa8; }
-.badge-resolved { background: var(--ok-tint); color: #0a5039; }
+.badge-resolved { background: var(--ok-tint); color: var(--turf-dark); }

@@ -259,7 +259,7 @@ a { color: var(--turf); }
 }
 
 /* =========================================================
-   SEMS NEON THEME — Black + Neon Green + Orange
+   SEMS THEME — Black + Orange + University Blue
    Added as an override; original styles remain preserved.
    ========================================================= */
 
@@ -269,11 +269,11 @@ a { color: var(--turf); }
   --ink: #f0f5ee;
   --ink-soft: #a0ad9f;
 
-  --turf: #b7ff32;
-  --turf-dark: #8fdb16;
-  --turf-tint: rgba(183, 255, 50, 0.10);
+  --turf: #ff7628;
+  --turf-dark: #e65f16;
+  --turf-tint: rgba(255, 118, 40, 0.12);
 
-  --whistle: #ff8a24;
+  --whistle: #42a8d3;
 
   --chalk: #0a0d0a;
   --paper: #131813;
@@ -282,15 +282,15 @@ a { color: var(--turf); }
   --danger: #ff626b;
   --danger-tint: rgba(255, 98, 107, 0.12);
 
-  --ok-tint: rgba(183, 255, 50, 0.12);
-  --warn-tint: rgba(255, 138, 36, 0.13);
+  --ok-tint: rgba(255, 118, 40, 0.12);
+  --warn-tint: rgba(66, 168, 211, 0.13);
 
   --radius: 14px;
   --radius-sm: 9px;
 
   --shadow:
     0 4px 16px rgba(0, 0, 0, 0.25),
-    0 0 0 1px rgba(183, 255, 50, 0.025);
+    0 0 0 1px rgba(255, 118, 40, 0.025);
 
   background: var(--chalk);
   color: var(--ink);
@@ -304,7 +304,7 @@ body {
   background:
     radial-gradient(
       ellipse at 80% 0%,
-      rgba(183, 255, 50, 0.045),
+      rgba(255, 118, 40, 0.045),
       transparent 40%
     ),
     var(--chalk);
@@ -392,7 +392,7 @@ a {
 }
 
 .badge-available {
-  background: rgba(183, 255, 50, 0.13);
+  background: rgba(255, 118, 40, 0.13);
   color: var(--turf);
 }
 
@@ -408,8 +408,8 @@ a {
 }
 
 .badge-maintenance {
-  background: rgba(255, 138, 36, 0.14);
-  color: #ffab63;
+  background: rgba(66, 168, 211, 0.14);
+  color: #70c8ec;
 }
 
 .badge-retired {
@@ -429,14 +429,14 @@ a {
 
 .seg button.seg-on,
 .seg button.seg-on:hover:not(:disabled) {
-  background: #283222;
+  background: #2a211b;
   color: var(--turf);
-  border-color: rgba(183, 255, 50, 0.22);
+  border-color: rgba(255, 118, 40, 0.25);
 }
 
 /* Notices */
 .notice-ok {
-  background: rgba(183, 255, 50, 0.10);
+  background: rgba(255, 118, 40, 0.10);
   color: var(--turf);
 }
 
@@ -446,8 +446,8 @@ a {
 }
 
 .notice-warn {
-  background: rgba(255, 138, 36, 0.12);
-  color: #ffab63;
+  background: rgba(66, 168, 211, 0.12);
+  color: #70c8ec;
 }
 
 /* Page headings */
@@ -466,7 +466,7 @@ a {
 
 /* Scrollbar */
 * {
-  scrollbar-color: #394536 #0a0d0a;
+  scrollbar-color: #39414a #0a0d0a;
 }
 
 /* Light theme: keep the neon palette while shifting the surfaces to chalk and paper. */
@@ -474,24 +474,24 @@ a {
   color-scheme: light;
   --ink: #172219;
   --ink-soft: #58665a;
-  --turf: #6f9f13;
-  --turf-dark: #547d0a;
-  --turf-tint: #edf5df;
-  --whistle: #e56d13;
+  --turf: #e95f17;
+  --turf-dark: #bd4510;
+  --turf-tint: #fff0e6;
+  --whistle: #1675a1;
   --chalk: #f4f6f1;
   --paper: #ffffff;
   --line: #dce3d8;
   --danger: #b3261e;
   --danger-tint: #fbe9e7;
-  --ok-tint: #edf5df;
-  --warn-tint: #fff0e2;
+  --ok-tint: #fff0e6;
+  --warn-tint: #e9f4f9;
   --shadow: 0 1px 2px rgba(23, 34, 25, 0.05), 0 4px 16px rgba(23, 34, 25, 0.07);
   background: var(--chalk);
   color: var(--ink);
 }
 
 :root[data-theme='light'] body {
-  background: radial-gradient(ellipse at 80% 0%, rgba(111, 159, 19, 0.06), transparent 40%), var(--chalk);
+  background: radial-gradient(ellipse at 80% 0%, rgba(233, 95, 23, 0.06), transparent 40%), var(--chalk);
   color: var(--ink);
 }
 
@@ -499,7 +499,7 @@ a {
 :root[data-theme='light'] h2,
 :root[data-theme='light'] h3 { color: var(--ink); }
 :root[data-theme='light'] a { color: var(--turf-dark); }
-:root[data-theme='light'] ::selection { background: #d9f3a2; color: #172219; }
+:root[data-theme='light'] ::selection { background: #ffddc5; color: #172219; }
 
 :root[data-theme='light'] :where(button) {
   color: #172219;
@@ -525,17 +525,17 @@ a {
 :root[data-theme='light'] :where(input, select, textarea)::placeholder { color: #7c897d; }
 :root[data-theme='light'] .card { background: var(--paper); border-color: var(--line); }
 :root[data-theme='light'] .badge { background: #edf0ec; color: var(--ink-soft); }
-:root[data-theme='light'] .badge-available { background: var(--ok-tint); color: #456d0a; }
+:root[data-theme='light'] .badge-available { background: var(--ok-tint); color: #a84413; }
 :root[data-theme='light'] .badge-in_use { background: #e4ecfb; color: #1f4aa8; }
 :root[data-theme='light'] .badge-damaged,
 :root[data-theme='light'] .badge-lost { background: #fbe9e7; color: #a51e18; }
-:root[data-theme='light'] .badge-maintenance { background: var(--warn-tint); color: #9b4a06; }
+:root[data-theme='light'] .badge-maintenance { background: var(--warn-tint); color: #155c7b; }
 :root[data-theme='light'] .badge-retired { background: #edf0ec; color: var(--ink-soft); }
 :root[data-theme='light'] .seg { background: #e9eee6; border-color: var(--line); }
 :root[data-theme='light'] .seg button { color: var(--ink-soft); }
 :root[data-theme='light'] .seg button.seg-on,
-:root[data-theme='light'] .seg button.seg-on:hover:not(:disabled) { background: #fff; color: var(--turf-dark); border-color: #d7e5c5; }
-:root[data-theme='light'] .notice-ok { background: #edf5df; color: #456d0a; }
+:root[data-theme='light'] .seg button.seg-on:hover:not(:disabled) { background: #fff; color: var(--turf-dark); border-color: #f1d2bf; }
+:root[data-theme='light'] .notice-ok { background: #fff0e6; color: #a84413; }
 :root[data-theme='light'] .notice-error { background: #fbe9e7; color: #a51e18; }
-:root[data-theme='light'] .notice-warn { background: #fff0e2; color: #9b4a06; }
-:root[data-theme='light'] * { scrollbar-color: #cbd5c7 #f4f6f1; }
+:root[data-theme='light'] .notice-warn { background: #e9f4f9; color: #155c7b; }
+:root[data-theme='light'] * { scrollbar-color: #c2d3dc #f4f6f1; }

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import universityLogo from '../assets/vishwakarma-university.png';
+import sportsCouncilLogo from '../assets/vishwakarma-sports-council.png';
 import './AppShell.css';
 
 const NAV = [
@@ -223,13 +225,10 @@ function AppShell() {
         aria-label="Main menu"
       >
         <div className="shell-brand">
-          <span className="shell-logo" aria-hidden="true">
-            <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="2.2">
-              <rect x="6" y="6" width="28" height="28" rx="2" />
-              <path d="M6 20h28" />
-              <circle cx="20" cy="20" r="5" />
-            </svg>
-          </span>
+          <div className="shell-brand-logos" aria-label="Vishwakarma University and Sports Council">
+            <img src={universityLogo} alt="Vishwakarma University" />
+            <img src={sportsCouncilLogo} alt="Vishwakarma University Sports Council" />
+          </div>
           <span className="shell-brand-name">Sports Room</span>
         </div>
 

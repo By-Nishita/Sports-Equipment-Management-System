@@ -1,6 +1,8 @@
 // Login aur ChangePassword dono ka common dhaancha: left mein brand, right mein form.
 // Ek jagah likha hai taaki dono pages same dikhein.
 import { useState } from 'react';
+import universityLogo from '../assets/vishwakarma-university.png';
+import sportsCouncilLogo from '../assets/vishwakarma-sports-council.png';
 import '../pages/Login.css';
 
 function CourtLines() {
@@ -33,6 +35,10 @@ function AuthLayout({ title, subtitle, children }) {
     <div className="auth">
       <aside className="auth-brand">
         <CourtLines />
+        <div className="auth-logos" aria-label="Vishwakarma University and Sports Council">
+          <img src={universityLogo} alt="Vishwakarma University" />
+          <img src={sportsCouncilLogo} alt="Vishwakarma University Sports Council" />
+        </div>
         <h1>Sports Room</h1>
         <p>Issue, return and track every piece of equipment.</p>
       </aside>

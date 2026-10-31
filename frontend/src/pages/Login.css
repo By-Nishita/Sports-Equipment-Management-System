@@ -79,7 +79,7 @@
 }
 
 /* =========================================================
-   SEMS AUTH PAGES — BLACK + NEON GREEN + ORANGE
+   SEMS AUTH PAGES — BLACK + ORANGE + UNIVERSITY BLUE
    Applies to Sign In and Change Password.
    Existing React logic and form behavior remain unchanged.
    ========================================================= */
@@ -91,7 +91,7 @@
   min-height: 100svh;
   grid-template-columns: minmax(0, 1fr) minmax(400px, 0.88fr);
   background:
-    radial-gradient(ellipse at 12% 12%, rgba(183, 255, 50, 0.07), transparent 42%),
+    radial-gradient(ellipse at 12% 12%, rgba(255, 118, 40, 0.08), transparent 42%),
     #0a0d0a;
 }
 
@@ -103,7 +103,7 @@
   padding: clamp(2rem, 6vw, 5.5rem);
   overflow: hidden;
   background:
-    radial-gradient(ellipse at 25% 75%, rgba(183, 255, 50, 0.12), transparent 52%),
+    radial-gradient(ellipse at 25% 75%, rgba(255, 118, 40, 0.13), transparent 52%),
     linear-gradient(145deg, #141b13 0%, #0b0e0b 72%);
   color: var(--ink);
 }
@@ -116,11 +116,11 @@
   left: 8%;
   width: 220px;
   height: 220px;
-  border: 1px solid rgba(183, 255, 50, 0.14);
+  border: 1px solid rgba(255, 118, 40, 0.18);
   border-radius: 50%;
   box-shadow:
-    0 0 0 35px rgba(183, 255, 50, 0.025),
-    0 0 0 70px rgba(183, 255, 50, 0.02);
+    0 0 0 35px rgba(255, 118, 40, 0.035),
+    0 0 0 70px rgba(66, 168, 211, 0.025);
 }
 
 .auth-brand svg {
@@ -129,7 +129,7 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  color: rgba(183, 255, 50, 0.12);
+  color: rgba(66, 168, 211, 0.16);
   pointer-events: none;
 }
 
@@ -176,7 +176,7 @@
   align-items: center;
   padding: clamp(1.5rem, 5vw, 4rem);
   background:
-    radial-gradient(ellipse at 90% 10%, rgba(255, 138, 36, 0.045), transparent 45%),
+    radial-gradient(ellipse at 90% 10%, rgba(66, 168, 211, 0.06), transparent 45%),
     #0a0d0a;
 }
 
@@ -247,7 +247,7 @@
 
 .auth-form .field input:focus {
   border-color: var(--turf);
-  box-shadow: 0 0 0 3px rgba(183, 255, 50, 0.1);
+  box-shadow: 0 0 0 3px rgba(66, 168, 211, 0.18);
 }
 
 .auth-form .field input:disabled {
@@ -267,15 +267,15 @@
   font-size: 0.96rem;
   font-weight: 800;
   letter-spacing: 0.01em;
-  box-shadow: 0 5px 20px rgba(183, 255, 50, 0.08);
+  box-shadow: 0 5px 20px rgba(255, 118, 40, 0.16);
   cursor: pointer;
   transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
 }
 
 .auth-form .btn-block:hover:not(:disabled) {
   transform: translateY(-1px);
-  background: #ccff72;
-  box-shadow: 0 8px 26px rgba(183, 255, 50, 0.17);
+  background: #ff9a5b;
+  box-shadow: 0 8px 26px rgba(255, 118, 40, 0.22);
 }
 
 .auth-form .btn-block:focus-visible {
@@ -298,7 +298,7 @@
 }
 
 .auth-form .auth-sub a:hover {
-  color: #d5ff82;
+  color: #ffad79;
   text-decoration: underline;
 }
 
@@ -431,19 +431,33 @@
 }
 .auth-theme-toggle:hover:not(:disabled) { background: #252e24; border-color: var(--turf); color: var(--turf); }
 
+.auth-logos {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.6rem;
+  width: min(100%, 420px);
+  margin-bottom: 2rem;
+}
+.auth-logos img {
+  padding: 0.65rem 0.8rem;
+  border-radius: 10px;
+  background: #fff;
+}
+
 :root[data-theme='light'] .auth {
-  background: radial-gradient(ellipse at 12% 12%, rgba(111, 159, 19, 0.08), transparent 42%), #f4f6f1;
+  background: radial-gradient(ellipse at 12% 12%, rgba(233, 95, 23, 0.08), transparent 42%), #f4f6f1;
 }
 :root[data-theme='light'] .auth-brand {
-  background: radial-gradient(ellipse at 25% 75%, rgba(111, 159, 19, 0.13), transparent 52%), linear-gradient(145deg, #eff5e5, #dfeacc 72%);
+  background: radial-gradient(ellipse at 25% 75%, rgba(233, 95, 23, 0.12), transparent 52%), linear-gradient(145deg, #fff3e9, #f7e5d7 72%);
   color: var(--ink);
 }
-:root[data-theme='light'] .auth-brand svg { color: rgba(84, 125, 10, 0.13); }
+:root[data-theme='light'] .auth-brand svg { color: rgba(22, 117, 161, 0.15); }
 :root[data-theme='light'] .auth-brand h1 { color: #172219; }
-:root[data-theme='light'] .auth-brand p { color: #53614e; }
-:root[data-theme='light'] .auth-brand::before { border-color: rgba(111, 159, 19, 0.2); box-shadow: 0 0 0 35px rgba(111, 159, 19, 0.04), 0 0 0 70px rgba(111, 159, 19, 0.025); }
+:root[data-theme='light'] .auth-brand p { color: #4b5e64; }
+:root[data-theme='light'] .auth-brand::before { border-color: rgba(22, 117, 161, 0.18); box-shadow: 0 0 0 35px rgba(233, 95, 23, 0.05), 0 0 0 70px rgba(22, 117, 161, 0.035); }
 :root[data-theme='light'] .auth-brand::after { background: linear-gradient(transparent, var(--turf), var(--whistle), transparent); }
-:root[data-theme='light'] .auth-panel { background: radial-gradient(ellipse at 90% 10%, rgba(229, 109, 19, 0.05), transparent 45%), #f4f6f1; }
+:root[data-theme='light'] .auth-panel { background: radial-gradient(ellipse at 90% 10%, rgba(22, 117, 161, 0.06), transparent 45%), #f4f6f1; }
 :root[data-theme='light'] .auth-form { border-color: var(--line); background: linear-gradient(150deg, #fff, #f9fbf6 75%); box-shadow: 0 20px 64px rgba(23, 34, 25, 0.1); }
 :root[data-theme='light'] .auth-form h2 { color: var(--ink); }
 :root[data-theme='light'] .auth-form .auth-sub { color: var(--ink-soft); }

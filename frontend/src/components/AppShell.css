@@ -288,7 +288,7 @@
 }
 
 /* =========================================================
-   SEMS NEON SIDEBAR — Black + Neon Green + Orange
+   SEMS SIDEBAR — Black + Orange + University Blue
    Visual overrides only. Existing layout and behavior stay.
    ========================================================= */
 
@@ -299,7 +299,7 @@
 /* Sidebar */
 .shell-side {
   background:
-    radial-gradient(ellipse at 0% 0%, rgba(183, 255, 50, 0.07), transparent 42%),
+    radial-gradient(ellipse at 0% 0%, rgba(255, 118, 40, 0.08), transparent 42%),
     #0d100d;
   border-right: 1px solid #293329;
   box-shadow: 8px 0 32px rgba(0, 0, 0, 0.14);
@@ -315,7 +315,7 @@
 .shell-logo {
   background: var(--turf);
   color: #0a0d0a;
-  box-shadow: 0 0 20px rgba(183, 255, 50, 0.15);
+  box-shadow: 0 0 20px rgba(255, 118, 40, 0.18);
 }
 
 .shell-brand-name {
@@ -348,8 +348,8 @@
 }
 
 .shell-item:hover:not(.shell-item-soon) {
-  background: rgba(183, 255, 50, 0.07);
-  border-color: rgba(183, 255, 50, 0.12);
+  background: rgba(255, 118, 40, 0.09);
+  border-color: rgba(255, 118, 40, 0.18);
   color: var(--turf);
 }
 
@@ -359,7 +359,7 @@
   border-color: var(--turf);
   color: #10140b;
   font-weight: 750;
-  box-shadow: 0 0 18px rgba(183, 255, 50, 0.13);
+  box-shadow: 0 0 18px rgba(255, 118, 40, 0.16);
 }
 
 .shell-item-on svg {
@@ -375,7 +375,7 @@
 .shell-item small {
   background: #252d24;
   color: var(--whistle);
-  border: 1px solid rgba(255, 138, 36, 0.18);
+  border: 1px solid rgba(66, 168, 211, 0.2);
 }
 
 /* Profile section */
@@ -394,9 +394,9 @@
 }
 
 .shell-avatar {
-  background: rgba(183, 255, 50, 0.12);
+  background: rgba(255, 118, 40, 0.12);
   color: var(--turf);
-  border: 1px solid rgba(183, 255, 50, 0.2);
+  border: 1px solid rgba(255, 118, 40, 0.22);
 }
 
 .shell-logout:hover {
@@ -431,7 +431,7 @@
 }
 
 .shell-burger:hover:not(:disabled) {
-  background: rgba(183, 255, 50, 0.1);
+  background: rgba(255, 118, 40, 0.12);
   border-color: var(--turf);
   color: var(--turf);
 }
@@ -510,8 +510,30 @@
   border-right-color: var(--line);
   box-shadow: 4px 0 24px rgba(23, 34, 25, 0.05);
 }
+:root .shell-brand {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.55rem;
+}
+.shell-brand-logos {
+  display: grid;
+  gap: 0.45rem;
+}
+.shell-brand-logos img,
+.auth-logos img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+.shell-brand-logos img {
+  padding: 0.35rem 0.5rem;
+  border-radius: 8px;
+  background: #fff;
+}
+.shell-brand-name { text-align: center; }
 :root[data-theme='light'] .shell-brand { border-bottom-color: var(--line); }
-:root[data-theme='light'] .shell-logo { color: #172219; box-shadow: 0 0 18px rgba(111, 159, 19, 0.12); }
+:root[data-theme='light'] .shell-logo { color: #172219; box-shadow: 0 0 18px rgba(233, 95, 23, 0.12); }
 :root[data-theme='light'] .shell-brand-name,
 :root[data-theme='light'] .shell-me-text strong,
 :root[data-theme='light'] .shell-user-text strong { color: var(--ink); }
@@ -519,7 +541,7 @@
 :root[data-theme='light'] .shell-item { color: var(--ink); }
 :root[data-theme='light'] .shell-item:hover:not(.shell-item-soon) {
   background: var(--turf-tint);
-  border-color: #dce9c8;
+  border-color: #f1d4c1;
   color: var(--turf-dark);
 }
 :root[data-theme='light'] .shell-item-on,
@@ -527,11 +549,11 @@
 :root[data-theme='light'] .shell-item-on svg { color: #172219; }
 :root[data-theme='light'] .shell-item-soon,
 :root[data-theme='light'] .shell-item-soon:hover { color: #859083; }
-:root[data-theme='light'] .shell-item small { background: #fff0e2; color: #a84d08; border-color: #f3ddc8; }
+:root[data-theme='light'] .shell-item small { background: #e9f4f9; color: #155c7b; border-color: #d1e7f0; }
 :root[data-theme='light'] .shell-me { border-top-color: var(--line); }
 :root[data-theme='light'] .shell-me-text small,
 :root[data-theme='light'] .shell-user-text small { color: var(--ink-soft); }
-:root[data-theme='light'] .shell-avatar { background: var(--turf-tint); color: var(--turf-dark); border-color: #d9e8c5; }
+:root[data-theme='light'] .shell-avatar { background: var(--turf-tint); color: var(--turf-dark); border-color: #f1d4c1; }
 :root[data-theme='light'] .shell-logout:hover { background: #fbe9e7; color: #a51e18; }
 :root[data-theme='light'] .shell-top { background: rgba(255, 255, 255, 0.94); border-bottom-color: var(--line); }
 :root[data-theme='light'] .shell-crumb { color: var(--ink-soft); }
