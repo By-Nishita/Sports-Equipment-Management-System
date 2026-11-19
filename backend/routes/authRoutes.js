@@ -54,6 +54,13 @@ const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (char) => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
 }[char]));
 
+// Validates that an email belongs to an official Indian higher-education / college domain (.ac.in)
+const isCollegeEmail = (email) => {
+  if (typeof email !== 'string') return false;
+  const trimmed = email.trim().toLowerCase();
+  return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.ac\.in$/i.test(trimmed);
+};
+
 // One place that creates the login token (used by login and change-password)
 const signToken = (user) =>
   jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
@@ -102,6 +109,19 @@ const REGISTRATION_REPLY = 'If an eligible student account exists, a verificatio
 router.post('/register-request', registrationLimiter, async (req, res) => {
   const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
   const password = req.body?.password;
+
+  if (!email) {
+    return res.status(400).json({ success: false, message: 'College email is required.' });
+  }
+
+  // Enforce college domain (.ac.in)
+  if (!isCollegeEmail(email)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Please enter your official college email ID (ending with .ac.in). Personal emails (@gmail.com, etc.) are not allowed.'
+    });
+  }
+
   res.json({ success: true, message: REGISTRATION_REPLY });
 
   try {
@@ -172,6 +192,12 @@ router.post('/verify-registration', registrationLimiter, async (req, res) => {
 
 router.post('/resend-registration-code', registrationLimiter, async (req, res) => {
   const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+  if (!email || !isCollegeEmail(email)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Please enter a valid official college email ID (ending with .ac.in).'
+    });
+  }
   res.json({ success: true, message: REGISTRATION_REPLY });
   try {
     if (!email) return;
@@ -257,6 +283,15 @@ const FORGOT_REPLY = 'If an account exists, we have emailed a link to set your p
 
 router.post('/forgot-password', forgotLimiter, async (req, res) => {
   const { identifier } = req.body || {};
+  const id = typeof identifier === 'string' ? identifier.trim() : '';
+
+  // If student entered an email, verify it's a college email (.ac.in)
+  if (id.includes('@') && !isCollegeEmail(id)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Please use your official college email ID (ending with .ac.in). Personal emails (@gmail.com, etc.) are not allowed.'
+    });
+  }
 
   // Reply FIRST, work afterwards. This way the reply takes the same time for everyone,
   // so nobody can guess if an account exists by how fast the answer came.
