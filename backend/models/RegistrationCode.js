@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 
 const registrationCodeSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
-  email: { type: String, required: true },
+  email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+  name: { type: String, default: '' },
+  srn: { type: String, default: '' },
   codeHash: { type: String, required: true },
   passwordHash: { type: String, required: true },
   attempts: { type: Number, default: 0 },

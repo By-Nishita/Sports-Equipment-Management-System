@@ -103,50 +103,76 @@ router.post('/login', loginLimiter, async (req, res) => {
   }
 });
 
-// Existing imported student records can set their own password after email verification.
-// This preserves the admin-controlled student roster while supporting self-service signup.
-const REGISTRATION_REPLY = 'If an eligible student account exists, a verification code has been emailed.';
+// Student self-service signup with verification code / OTP.
+// Any user with an official college email ending in .ac.in can sign up.
 router.post('/register-request', registrationLimiter, async (req, res) => {
-  const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
-  const password = req.body?.password;
-
-  if (!email) {
-    return res.status(400).json({ success: false, message: 'College email is required.' });
-  }
-
-  // Enforce college domain (.ac.in)
-  if (!isCollegeEmail(email)) {
-    return res.status(400).json({
-      success: false,
-      message: 'Please enter your official college email ID (ending with .ac.in). Personal emails (@gmail.com, etc.) are not allowed.'
-    });
-  }
-
-  res.json({ success: true, message: REGISTRATION_REPLY });
-
   try {
-    if (!email || email.length > 120 || typeof password !== 'string') return;
-    const user = await User.findOne({ email, role: 'student', isActive: { $ne: false } });
-    if (!user) return;
-    const problem = passwordService.checkNewPassword(password, user);
-    if (problem) return;
+    const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+    const password = typeof req.body?.password === 'string' ? req.body.password : '';
+    const name = typeof req.body?.name === 'string' ? req.body.name.trim() : '';
+    const srn = typeof req.body?.srn === 'string' ? req.body.srn.trim() : '';
 
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'College email is required.' });
+    }
+
+    // 1. Enforce college domain (.ac.in)
+    if (!isCollegeEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please enter your official college email ID (ending with .ac.in). Personal emails (@gmail.com, etc.) are not allowed.'
+      });
+    }
+
+    // 2. Password validation
+    if (!password || password.length < 8) {
+      return res.status(400).json({ success: false, message: 'Password must be at least 8 characters long.' });
+    }
+
+    // 3. Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser && existingUser.password && existingUser.isActive !== false) {
+      return res.status(400).json({
+        success: false,
+        message: 'An account with this college email already exists. Please sign in or use Forgot Password.'
+      });
+    }
+
+    // 4. Generate 6-digit OTP code
     const code = generateCode();
-    const safeName = escapeHtml(user.name);
+    const displayName = name || (existingUser ? existingUser.name : '') || email.split('@')[0];
+    const safeName = escapeHtml(displayName);
+
     await RegistrationCode.findOneAndUpdate(
-      { userId: user._id },
-      { email, codeHash: hashCode(code), passwordHash: await bcrypt.hash(password, 10), attempts: 0,
-        expiresAt: new Date(Date.now() + REGISTRATION_TTL_MINUTES * 60 * 1000) },
+      { email },
+      {
+        email,
+        name: displayName,
+        srn: srn || (existingUser ? existingUser.srn : ''),
+        codeHash: hashCode(code),
+        passwordHash: await bcrypt.hash(password, 10),
+        attempts: 0,
+        expiresAt: new Date(Date.now() + REGISTRATION_TTL_MINUTES * 60 * 1000)
+      },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
+
+    // 5. Send verification email via SMTP
     await emailService.sendMail({
-      to: user.email,
-      subject: 'Your Sports Room verification code',
-      text: `Hello ${user.name},\n\nYour verification code is ${code}. It expires in ${REGISTRATION_TTL_MINUTES} minutes.\n`,
-      html: `<p>Hello ${safeName},</p><p>Your verification code is:</p><h2 style="letter-spacing:4px">${code}</h2><p>It expires in ${REGISTRATION_TTL_MINUTES} minutes.</p>`
+      to: email,
+      subject: 'Your Sports Room Verification Code',
+      text: `Hello ${displayName},\n\nYour verification code is ${code}. It expires in ${REGISTRATION_TTL_MINUTES} minutes.\n\nSports Equipment Management System`,
+      html: `<p>Hello ${safeName},</p><p>Welcome to the Sports Room. Your verification code is:</p><h2 style="letter-spacing:6px;font-size:2rem;color:#0066cc">${code}</h2><p>This code will expire in ${REGISTRATION_TTL_MINUTES} minutes.</p>`
     });
+
+    res.json({
+      success: true,
+      message: `A 6-digit verification code has been sent to ${email}.`
+    });
+
   } catch (err) {
-    console.error('REGISTRATION REQUEST ERROR:', err.message);
+    console.error('REGISTRATION REQUEST ERROR:', err);
+    res.status(500).json({ success: false, message: 'Could not send verification code. Please try again.' });
   }
 });
 
@@ -154,71 +180,106 @@ router.post('/verify-registration', registrationLimiter, async (req, res) => {
   try {
     const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
     const code = req.body?.code;
-    if (!email || typeof code !== 'string' || !/^\d{6}$/.test(code)) {
+
+    if (!email || typeof code !== 'string' || !/^\d{6}$/.test(code.trim())) {
       return res.status(400).json({ success: false, message: 'Email and a 6-digit verification code are required.' });
     }
+
+    const trimmedCode = code.trim();
     const pending = await RegistrationCode.findOne({ email });
+
     if (!pending || pending.expiresAt <= new Date()) {
       if (pending) await pending.deleteOne();
-      return res.status(400).json({ success: false, message: 'Code expired or invalid. Please request a new one.' });
-    }
-    if (pending.attempts >= REGISTRATION_MAX_ATTEMPTS) {
-      await pending.deleteOne();
-      return res.status(400).json({ success: false, message: 'Too many incorrect attempts. Please start again.' });
-    }
-    if (hashCode(code) !== pending.codeHash) {
-      pending.attempts += 1;
-      await pending.save();
-      return res.status(400).json({ success: false, message: 'Incorrect verification code.' });
+      return res.status(400).json({ success: false, message: 'Code has expired or is invalid. Please request a new code.' });
     }
 
-    const user = await User.findOne({ _id: pending.userId, email, role: 'student', isActive: { $ne: false } });
-    if (!user) {
+    if (pending.attempts >= REGISTRATION_MAX_ATTEMPTS) {
       await pending.deleteOne();
-      return res.status(400).json({ success: false, message: 'This student account is unavailable.' });
+      return res.status(400).json({ success: false, message: 'Too many incorrect attempts. Please start registration again.' });
     }
-    user.password = pending.passwordHash;
-    user.mustChangePassword = false;
-    user.passwordChangedAt = new Date();
-    await user.save();
+
+    if (hashCode(trimmedCode) !== pending.codeHash) {
+      pending.attempts += 1;
+      await pending.save();
+      return res.status(400).json({ success: false, message: 'Incorrect verification code. Please check your email.' });
+    }
+
+    // Code is valid! Create or update the user account in MongoDB
+    let user = await User.findOne({ email });
+    if (user) {
+      user.password = pending.passwordHash;
+      user.mustChangePassword = false;
+      user.isActive = true;
+      user.passwordChangedAt = new Date();
+      if (pending.name && !user.name) user.name = pending.name;
+      if (pending.srn && !user.srn) user.srn = pending.srn;
+      await user.save();
+    } else {
+      user = await User.create({
+        name: pending.name || email.split('@')[0],
+        email: pending.email,
+        password: pending.passwordHash,
+        srn: pending.srn || undefined,
+        role: 'student',
+        mustChangePassword: false,
+        isActive: true
+      });
+    }
+
     await pending.deleteOne();
-    await auditService.log({ actor: user._id, action: 'STUDENT_SIGNUP_COMPLETED', entityType: 'User', entityId: user._id });
-    res.json({ success: true, message: 'Account setup complete. You can now sign in.' });
+
+    await auditService.log({
+      actor: user._id,
+      action: 'STUDENT_SIGNUP_COMPLETED',
+      entityType: 'User',
+      entityId: user._id
+    });
+
+    res.json({
+      success: true,
+      message: 'Account verified and created successfully! You can now sign in.'
+    });
+
   } catch (err) {
     console.error('VERIFY REGISTRATION ERROR:', err);
-    res.status(500).json({ success: false, message: 'Could not verify your account. Please try again.' });
+    res.status(500).json({ success: false, message: 'Could not complete registration. Please try again.' });
   }
 });
 
 router.post('/resend-registration-code', registrationLimiter, async (req, res) => {
-  const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
-  if (!email || !isCollegeEmail(email)) {
-    return res.status(400).json({
-      success: false,
-      message: 'Please enter a valid official college email ID (ending with .ac.in).'
-    });
-  }
-  res.json({ success: true, message: REGISTRATION_REPLY });
   try {
-    if (!email) return;
+    const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+    if (!email || !isCollegeEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please enter a valid official college email ID (ending with .ac.in).'
+      });
+    }
+
     const pending = await RegistrationCode.findOne({ email });
-    if (!pending || pending.expiresAt <= new Date()) return;
-    const user = await User.findOne({ _id: pending.userId, email, role: 'student', isActive: { $ne: false } });
-    if (!user) return;
+    if (!pending || pending.expiresAt <= new Date()) {
+      return res.status(400).json({ success: false, message: 'No pending registration found or code expired. Please register again.' });
+    }
+
     const code = generateCode();
-    const safeName = escapeHtml(user.name);
+    const safeName = escapeHtml(pending.name || email.split('@')[0]);
     pending.codeHash = hashCode(code);
     pending.attempts = 0;
     pending.expiresAt = new Date(Date.now() + REGISTRATION_TTL_MINUTES * 60 * 1000);
     await pending.save();
+
     await emailService.sendMail({
-      to: user.email,
-      subject: 'Your new Sports Room verification code',
-      text: `Hello ${user.name},\n\nYour new verification code is ${code}. It expires in ${REGISTRATION_TTL_MINUTES} minutes.\n`,
-      html: `<p>Hello ${safeName},</p><p>Your new verification code is:</p><h2 style="letter-spacing:4px">${code}</h2><p>It expires in ${REGISTRATION_TTL_MINUTES} minutes.</p>`
+      to: email,
+      subject: 'Your New Sports Room Verification Code',
+      text: `Hello ${pending.name || 'Student'},\n\nYour new verification code is ${code}. It expires in ${REGISTRATION_TTL_MINUTES} minutes.\n\nSports Equipment Management System`,
+      html: `<p>Hello ${safeName},</p><p>Your new verification code is:</p><h2 style="letter-spacing:6px;font-size:2rem;color:#0066cc">${code}</h2><p>This code will expire in ${REGISTRATION_TTL_MINUTES} minutes.</p>`
     });
+
+    res.json({ success: true, message: `A new verification code has been sent to ${email}.` });
+
   } catch (err) {
     console.error('RESEND REGISTRATION CODE ERROR:', err.message);
+    res.status(500).json({ success: false, message: 'Could not resend code. Please try again.' });
   }
 });
 
