@@ -9,6 +9,8 @@ const passwordService = require('../services/passwordService');
 const auditService = require('../services/auditService');
 const passwordResetService = require('../services/passwordResetService');
 const emailService = require('../services/emailService');
+const RegistrationCode = require('../models/RegistrationCode');
+const crypto = require('crypto');
 
 // Only FAILED logins count (skipSuccessfulRequests), so a real student is never blocked.
 // 10 wrong tries in 15 minutes from one IP => wait.
@@ -36,6 +38,21 @@ const setPasswordLimiter = rateLimit({
   legacyHeaders: false,
   message: { success: false, message: 'Too many attempts. Please try again later.' }
 });
+const registrationLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many requests. Please try again in an hour.' }
+});
+
+const REGISTRATION_TTL_MINUTES = 10;
+const REGISTRATION_MAX_ATTEMPTS = 5;
+const hashCode = (value) => crypto.createHash('sha256').update(String(value)).digest('hex');
+const generateCode = () => String(crypto.randomInt(0, 1000000)).padStart(6, '0');
+const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (char) => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+}[char]));
 
 // One place that creates the login token (used by login and change-password)
 const signToken = (user) =>
@@ -56,7 +73,8 @@ router.post('/login', loginLimiter, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Email and password are required' });
     }
 
-    const user = await User.findOne({ email });
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail });
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
@@ -75,6 +93,106 @@ router.post('/login', loginLimiter, async (req, res) => {
   } catch (err) {
     console.error('LOGIN ERROR:', err);
     res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Existing imported student records can set their own password after email verification.
+// This preserves the admin-controlled student roster while supporting self-service signup.
+const REGISTRATION_REPLY = 'If an eligible student account exists, a verification code has been emailed.';
+router.post('/register-request', registrationLimiter, async (req, res) => {
+  const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+  const password = req.body?.password;
+  res.json({ success: true, message: REGISTRATION_REPLY });
+
+  try {
+    if (!email || email.length > 120 || typeof password !== 'string') return;
+    const user = await User.findOne({ email, role: 'student', isActive: { $ne: false } });
+    if (!user) return;
+    const problem = passwordService.checkNewPassword(password, user);
+    if (problem) return;
+
+    const code = generateCode();
+    const safeName = escapeHtml(user.name);
+    await RegistrationCode.findOneAndUpdate(
+      { userId: user._id },
+      { email, codeHash: hashCode(code), passwordHash: await bcrypt.hash(password, 10), attempts: 0,
+        expiresAt: new Date(Date.now() + REGISTRATION_TTL_MINUTES * 60 * 1000) },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+    await emailService.sendMail({
+      to: user.email,
+      subject: 'Your Sports Room verification code',
+      text: `Hello ${user.name},\n\nYour verification code is ${code}. It expires in ${REGISTRATION_TTL_MINUTES} minutes.\n`,
+      html: `<p>Hello ${safeName},</p><p>Your verification code is:</p><h2 style="letter-spacing:4px">${code}</h2><p>It expires in ${REGISTRATION_TTL_MINUTES} minutes.</p>`
+    });
+  } catch (err) {
+    console.error('REGISTRATION REQUEST ERROR:', err.message);
+  }
+});
+
+router.post('/verify-registration', registrationLimiter, async (req, res) => {
+  try {
+    const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+    const code = req.body?.code;
+    if (!email || typeof code !== 'string' || !/^\d{6}$/.test(code)) {
+      return res.status(400).json({ success: false, message: 'Email and a 6-digit verification code are required.' });
+    }
+    const pending = await RegistrationCode.findOne({ email });
+    if (!pending || pending.expiresAt <= new Date()) {
+      if (pending) await pending.deleteOne();
+      return res.status(400).json({ success: false, message: 'Code expired or invalid. Please request a new one.' });
+    }
+    if (pending.attempts >= REGISTRATION_MAX_ATTEMPTS) {
+      await pending.deleteOne();
+      return res.status(400).json({ success: false, message: 'Too many incorrect attempts. Please start again.' });
+    }
+    if (hashCode(code) !== pending.codeHash) {
+      pending.attempts += 1;
+      await pending.save();
+      return res.status(400).json({ success: false, message: 'Incorrect verification code.' });
+    }
+
+    const user = await User.findOne({ _id: pending.userId, email, role: 'student', isActive: { $ne: false } });
+    if (!user) {
+      await pending.deleteOne();
+      return res.status(400).json({ success: false, message: 'This student account is unavailable.' });
+    }
+    user.password = pending.passwordHash;
+    user.mustChangePassword = false;
+    user.passwordChangedAt = new Date();
+    await user.save();
+    await pending.deleteOne();
+    await auditService.log({ actor: user._id, action: 'STUDENT_SIGNUP_COMPLETED', entityType: 'User', entityId: user._id });
+    res.json({ success: true, message: 'Account setup complete. You can now sign in.' });
+  } catch (err) {
+    console.error('VERIFY REGISTRATION ERROR:', err);
+    res.status(500).json({ success: false, message: 'Could not verify your account. Please try again.' });
+  }
+});
+
+router.post('/resend-registration-code', registrationLimiter, async (req, res) => {
+  const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+  res.json({ success: true, message: REGISTRATION_REPLY });
+  try {
+    if (!email) return;
+    const pending = await RegistrationCode.findOne({ email });
+    if (!pending || pending.expiresAt <= new Date()) return;
+    const user = await User.findOne({ _id: pending.userId, email, role: 'student', isActive: { $ne: false } });
+    if (!user) return;
+    const code = generateCode();
+    const safeName = escapeHtml(user.name);
+    pending.codeHash = hashCode(code);
+    pending.attempts = 0;
+    pending.expiresAt = new Date(Date.now() + REGISTRATION_TTL_MINUTES * 60 * 1000);
+    await pending.save();
+    await emailService.sendMail({
+      to: user.email,
+      subject: 'Your new Sports Room verification code',
+      text: `Hello ${user.name},\n\nYour new verification code is ${code}. It expires in ${REGISTRATION_TTL_MINUTES} minutes.\n`,
+      html: `<p>Hello ${safeName},</p><p>Your new verification code is:</p><h2 style="letter-spacing:4px">${code}</h2><p>It expires in ${REGISTRATION_TTL_MINUTES} minutes.</p>`
+    });
+  } catch (err) {
+    console.error('RESEND REGISTRATION CODE ERROR:', err.message);
   }
 });
 

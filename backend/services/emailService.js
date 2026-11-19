@@ -1,13 +1,11 @@
-// Sends email through an email API over HTTPS (Resend here; Brevo/SendGrid work the same way).
-// We use an API and not SMTP, because many hosts (e.g. Render free) block SMTP ports.
-//
-// .env needs:  EMAIL_API_KEY=...   EMAIL_FROM="Sports Room <no-reply@yourdomain>"
-// With no EMAIL_API_KEY (your laptop), the email is printed in the backend terminal instead.
+// Any SMTP relay works here. Gmail uses an App Password; Brevo uses its SMTP key.
+// Without credentials, emails are printed to the backend terminal for local development.
 
 async function sendMail({ to, subject, text, html }) {
-  const key = process.env.EMAIL_API_KEY;
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASSWORD || process.env.SMTP_APP_PASSWORD;
 
-  if (!key) {
+  if (!user || !pass) {
     console.log('\n[EMAIL not configured: printing instead of sending]');
     console.log('To:', to);
     console.log('Subject:', subject);
@@ -15,15 +13,14 @@ async function sendMail({ to, subject, text, html }) {
     return;
   }
 
-  const response = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: process.env.EMAIL_FROM, to, subject, text, html })
+  const nodemailer = require('nodemailer');
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: Number(process.env.SMTP_PORT) || 465,
+    secure: process.env.SMTP_SECURE ? process.env.SMTP_SECURE === 'true' : (Number(process.env.SMTP_PORT) || 465) === 465,
+    auth: { user, pass }
   });
-
-  if (!response.ok) {
-    throw new Error(`Email API error ${response.status}: ${await response.text()}`);
-  }
+  await transporter.sendMail({ from: process.env.EMAIL_FROM || user, to, subject, text, html });
 }
 
 module.exports = { sendMail };

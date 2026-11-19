@@ -17,6 +17,8 @@ module.exports = {
 
   Settings: require('./Settings'),
 
-  PasswordReset: require('./PasswordReset')
+  PasswordReset: require('./PasswordReset'),
+
+  RegistrationCode: require('./RegistrationCode')
 
 };
