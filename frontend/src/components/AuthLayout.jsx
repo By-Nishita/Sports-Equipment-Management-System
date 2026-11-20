@@ -21,40 +21,28 @@ function AuthLayout({ title, subtitle, children }) {
     <div className="auth">
       <aside className="auth-brand">
         <div className="auth-brand-content">
-          <div className="auth-logos" aria-label="Vishwakarma University and Sports Council">
+          <div
+            className="auth-logos"
+            role="group"
+            aria-label="Vishwakarma University and Sports Council"
+          >
             <img src={universityLogo} alt="Vishwakarma University" />
+            <span className="auth-logo-divider" aria-hidden="true" />
             <img src={sportsCouncilLogo} alt="Vishwakarma University Sports Council" />
           </div>
-          <span className="auth-eyebrow">SPORTS EQUIPMENT MANAGEMENT</span>
-
-          <h1>
-            Your Game.
-            <br />
-            Your Equipment.
-          </h1>
-
-          <p>
-            Issue, return and track every piece of equipment.
-            Everything your sports room needs, in one place.
-          </p>
-
-          <div className="auth-sports-gallery">
-            <img
-              src="/images/sports-lowpoly.png"
-              alt="Sports illustration"
-              className="auth-sports-image auth-sports-image-main"
-            />
-
-            <img
-              src="/images/sports-vector.png"
-              alt="Collection of sports illustrations"
-              className="auth-sports-image auth-sports-image-secondary"
-            />
+          <div className="auth-brand-copy">
+            <span className="auth-eyebrow">SPORTS EQUIPMENT MANAGEMENT</span>
+            <h1>
+              Your Game.
+              <br />
+              <span className="auth-brand-accent">Your Equipment.</span>
+            </h1>
+            <p>Issue, track, and return sports equipment in one place.</p>
           </div>
 
           <div className="auth-brand-footer">
             <span className="auth-status-dot"></span>
-            <span>Made for every athlete</span>
+            <span>For students, staff, and sports teams</span>
           </div>
         </div>
       </aside>
@@ -74,7 +62,9 @@ function AuthLayout({ title, subtitle, children }) {
 
         <div className="auth-form">
           <div className="auth-form-heading">
-            <span className="auth-form-label">WELCOME BACK</span>
+            <span className="auth-form-label">
+              {title === 'Sign in' ? 'WELCOME BACK' : 'SPORTS ROOM'}
+            </span>
             <h2>{title}</h2>
             {subtitle && <p className="auth-sub">{subtitle}</p>}
           </div>

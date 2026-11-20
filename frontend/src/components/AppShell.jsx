@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import universityLogo from '../assets/vishwakarma-university.png';
 import sportsCouncilLogo from '../assets/vishwakarma-sports-council.png';
@@ -153,7 +153,8 @@ const ICONS = {
       <path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6" />
     </>
   ),
-  menu: <path d="M4 6h16M4 12h16M4 18h16" />
+  menu: <path d="M4 6h16M4 12h16M4 18h16" />,
+  chevron: <path d="m6 9 6 6 6-6" />
 };
 
 function Icon({ name }) {
@@ -196,6 +197,16 @@ function AppShell() {
   const user = readUser();
   const role = user.role || 'student';
   const forced = user.mustChangePassword === true;
+  const activeGroup = NAV.find(
+    (group) =>
+      group.roles.includes(role) &&
+      group.items.some((item) => item.to === pathname)
+  )?.heading;
+  const [expandedGroup, setExpandedGroup] = useState(activeGroup || null);
+
+  useEffect(() => {
+    if (activeGroup) setExpandedGroup(activeGroup);
+  }, [activeGroup]);
 
   const crumb =
     NAV.flatMap((group) => group.items).find((item) => item.to === pathname)?.label ||
@@ -235,33 +246,53 @@ function AppShell() {
         <nav className="shell-nav">
           {NAV.filter((group) => !forced && group.roles.includes(role)).map((group) => (
             <div key={group.heading} className="shell-group">
-              <p className="shell-heading">{group.heading}</p>
-              {group.items.map((item) => (
-                item.soon ? (
-                  <span
-                    key={item.label}
-                    className="shell-item shell-item-soon"
-                    aria-disabled="true"
-                  >
-                    <Icon name={item.icon} />
-                    {item.label}
-                    <small>Soon</small>
-                  </span>
-                ) : (
-                  <NavLink
-                    key={item.label}
-                    to={item.to}
-                    end
-                    className={({ isActive }) =>
-                      isActive ? 'shell-item shell-item-on' : 'shell-item'
-                    }
-                    onClick={() => setOpen(false)}
-                  >
-                    <Icon name={item.icon} />
-                    {item.label}
-                  </NavLink>
-                )
-              ))}
+              <button
+                type="button"
+                className="shell-heading shell-group-toggle"
+                aria-expanded={expandedGroup === group.heading}
+                aria-controls={`nav-group-${group.heading.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+                onClick={() =>
+                  setExpandedGroup((current) =>
+                    current === group.heading ? null : group.heading
+                  )
+                }
+              >
+                <span>{group.heading}</span>
+                <Icon name="chevron" />
+              </button>
+
+              <div
+                id={`nav-group-${group.heading.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+                className="shell-group-items"
+                hidden={expandedGroup !== group.heading}
+              >
+                {group.items.map((item) =>
+                  item.soon ? (
+                    <span
+                      key={item.label}
+                      className="shell-item shell-item-soon"
+                      aria-disabled="true"
+                    >
+                      <Icon name={item.icon} />
+                      {item.label}
+                      <small>Soon</small>
+                    </span>
+                  ) : (
+                    <NavLink
+                      key={item.label}
+                      to={item.to}
+                      end
+                      className={({ isActive }) =>
+                        isActive ? 'shell-item shell-item-on' : 'shell-item'
+                      }
+                      onClick={() => setOpen(false)}
+                    >
+                      <Icon name={item.icon} />
+                      {item.label}
+                    </NavLink>
+                  )
+                )}
+              </div>
             </div>
           ))}
         </nav>
